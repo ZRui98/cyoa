@@ -1,0 +1,112 @@
+{
+  "name": "This is the name of my story",
+  "author": "anthrax_fish",
+  "nodes": {
+    "1": {
+      "name": "You start at an empty house",
+      "resource": [{
+        "content": "You are in an empty house. Surrounding you are for blank walls. To the north there is a door",
+        "type": "TEXT"
+      }],
+      "links": [
+        {
+          "prompt": "Open the door and go outside",
+          "next": 2
+        },
+        {
+          "prompt": "Stay in the house and wait",
+          "next": 3
+        }
+      ]
+    },
+    "2": {
+      "name": "You are in the woods",
+      "resource": [{
+        "content": "You are in the woods. To your east you see a mailbox. To your south you see a door that leads to a small house.",
+        "type": "TEXT"
+      }],
+      "links": [
+        {
+          "prompt": "Open the mailbox",
+          "next:": 4
+        }
+      ]
+    },
+    "3": {
+      "name": "You wait",
+      "resource": [{
+        "content": "You wait for 1 day. Nothing happens.",
+        "type": "TEXT"
+      }],
+      "links": [
+        {
+          "prompt": "Open the door and go outside",
+          "next": 2
+        }
+      ]
+    },
+    "4": {
+      "name": "You open the mailbox",
+      "resource": [{
+        "content": "You open the mailbox. You notice one letter with a golden envelope carefully sealed with a red wax stamp. The seal has a crest on it.",
+        "type": "TEXT"
+      }],
+      "links": [
+        {
+          "prompt": "Open the letter.",
+          "next": 5
+        },
+        {
+          "prompt": "Rip up the letter.",
+          "next": 6
+        }
+      ]
+    },
+    "5": {
+      "name": "Open the letter",
+      "resource": [{
+        "content": "You open the letter. Inside you find a silver coin, roughly 2 inches in size.",
+        "type": "TEXT"
+      }],
+      "links": [
+        {
+          "prompt": "Examine the coin.",
+          "next": 7
+        }
+      ]
+    },
+    "6": {
+      "name": "Rip up the letter",
+      "resource": [{
+        "content": "You brusquely rip up the letter in half. A silver coin approximately 2 inches in size falls out and lands on the ground.",
+        "type": "TEXT"
+      }],
+      "links": [
+        {
+          "prompt": "Examine the coin.",
+          "next": 7
+        }
+      ]
+    },
+    "7":{
+      "name": "Examining the coin",
+      "resource": [
+        {
+          "content": "It's a coin with a picture on it. It looks like the most beautiful thing you have ever seen.",
+          "type": "TEXT"
+        },
+        {
+
+          "path": "https://preview.redd.it/ozcrlpthg5tx.jpg",
+          "type": "IMAGE"
+        },
+        {
+
+          "path": "https://preview.redd.it/ozcrlpthg5tx.jpg",
+          "type": "AUDIO"
+        }
+      ]
+    }
+  },
+  "start": "1"
+}
