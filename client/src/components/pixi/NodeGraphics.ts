@@ -1,4 +1,4 @@
-import type { Node } from "@backend/Node";
+import type { Node } from "/Node";
 import { PixiGraphics } from "./PixiGraphics";
 
 export class NodeGraphics extends PixiGraphics{

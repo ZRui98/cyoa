@@ -1,16 +1,16 @@
 html {
   margin: 0;
   overflow: hidden;
+  font-family: "sans-serif";
+  height: 100%;
 }
 
 body {
   margin: 0;
-}
-
-body {
+  height: 100%;
   background-color: var(--main-bg);
   color: var(--main-fg);
-  transition: background-color 0.3s
+  transition: background-color 0.3s;
 }
 
 button {
@@ -21,4 +21,8 @@ button {
     font: inherit;
     cursor: pointer;
     outline: inherit;
+}
+
+#app {
+  height: 100%;
 }

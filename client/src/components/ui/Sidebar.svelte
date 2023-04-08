@@ -1,5 +1,4 @@
 <script>
-  import PixiComponent from '../GraphOverview.svelte';
   import { Component, X } from 'lucide-svelte';
 
   export let open = false;
