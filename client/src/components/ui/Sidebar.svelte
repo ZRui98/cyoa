@@ -25,6 +25,8 @@
     height: 100%;
     position: absolute;
     top: 0;
+    justify-content:center;
+    display: flex;
   }
 
   .toggle-button {

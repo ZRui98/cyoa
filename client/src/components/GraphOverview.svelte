@@ -3,11 +3,13 @@
   import { NodeGraphics } from "./pixi/NodeGraphics";
   import { PixiApplication } from "./pixi/PixiApplication";
   import { PixiZoomPanContainer } from "./pixi/PixiZoomPanContainer";
-    import type { IApplicationOptions } from "pixi.js";
+  import type { IApplicationOptions } from "pixi.js";
+  import {adventureStore } from "../store/adventure";
   const pixi = new PixiApplication();
   let zoomContainer: PixiZoomPanContainer;
   let div: HTMLElement;
-  onMount(() => {
+
+  onMount(async () => {
     pixi.init({
         resizeTo: div,
         backgroundColor: "#191724",
@@ -15,17 +17,21 @@
     pixi.application.stage.eventMode = 'static';
     zoomContainer = new PixiZoomPanContainer(div);
     pixi.application.stage.addChild(zoomContainer);
-    zoomContainer.addChild(new NodeGraphics({id: "", resources: [], forward: null}, 125, 0));
-    zoomContainer.addChild(new NodeGraphics({id: "", resources: [], forward: null}, 0, 250));
-    zoomContainer.addChild(new NodeGraphics({id: "", resources: [], forward: null}, 250, 250));
     div.appendChild(pixi.application.view as unknown as Node);
+
+    adventureStore.subscribe((adventure) => {
+      if (adventure) {
+        zoomContainer.removeChildren();
+        zoomContainer.addChild(new NodeGraphics("1", adventure.nodes["1"], 250, 0))
+      }
+    });
   })
 
   onDestroy(() => {
     zoomContainer.removeAllListeners();
   })
-</script>
 
+</script>
 <div bind:this={div} />
 
 <style>
