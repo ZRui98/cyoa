@@ -24,6 +24,10 @@ export class PixiZoomPanContainer extends Container {
     this.wrapper.addEventListener("mouseout", this.onDragEnd.bind(this));
     this.dragging = false;
     this.dragPos = new Point(-1, -1);
+    this.position.y = 40;
+    this.position.x = this.wrapper.clientWidth / 2;
+    this.xZoomOffset = this.position.x;
+    this.yZoomOffset = this.position.y;
   }
 
   public snapBack() {

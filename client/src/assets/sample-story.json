@@ -11,11 +11,11 @@
       "links": [
         {
           "prompt": "Open the door and go outside",
-          "next": 2
+          "next": "2"
         },
         {
           "prompt": "Stay in the house and wait",
-          "next": 3
+          "next": "3"
         }
       ]
     },
@@ -28,7 +28,7 @@
       "links": [
         {
           "prompt": "Open the mailbox",
-          "next:": 4
+          "next": "4"
         }
       ]
     },
@@ -41,7 +41,7 @@
       "links": [
         {
           "prompt": "Open the door and go outside",
-          "next": 2
+          "next": "2"
         }
       ]
     },
@@ -54,11 +54,11 @@
       "links": [
         {
           "prompt": "Open the letter.",
-          "next": 5
+          "next": "5"
         },
         {
           "prompt": "Rip up the letter.",
-          "next": 6
+          "next": "6"
         }
       ]
     },
@@ -71,7 +71,7 @@
       "links": [
         {
           "prompt": "Examine the coin.",
-          "next": 7
+          "next": "7"
         }
       ]
     },
@@ -84,7 +84,7 @@
       "links": [
         {
           "prompt": "Examine the coin.",
-          "next": 7
+          "next": "7"
         }
       ]
     },
@@ -105,7 +105,8 @@
           "path": "https://preview.redd.it/ozcrlpthg5tx.jpg",
           "type": "AUDIO"
         }
-      ]
+      ],
+      "links": []
     }
   },
   "start": "1"

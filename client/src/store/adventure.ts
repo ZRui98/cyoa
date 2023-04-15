@@ -1,9 +1,9 @@
 import type { Adventure } from "@backend/Adventure";
 import type { Node } from "@backend/Node";
 import {
-  derived,
   get,
   writable,
+  type Writable,
 } from "svelte/store";
 import * as sampleAdventure from "../assets/sample-story.json";
 
@@ -14,8 +14,7 @@ export const createAdventureStore = () => {
   return {
     subscribe: adventureStore.subscribe,
     setAdventure: async (id: string) => {
-      console.log("loading adventure");
-      return new Promise(r => setTimeout(r, 1000)).then(() => {
+      return new Promise(r => setTimeout(r, 500)).then(() => {
         const loadedAdventure = sampleAdventure as unknown as Adventure;
         adventureStore.set(loadedAdventure);
       });
@@ -30,6 +29,16 @@ export const createAdventureStore = () => {
 export const adventureStore = createAdventureStore();
 export type AdventureStore = typeof adventureStore;
 
-export const currentActiveNode = derived(adventureStore, ($adventure) => {
-    return $adventure?.start
-});
+
+
+export const createCurrenctActiveNode = (): Writable<string|undefined> => {
+  const val = writable<string|undefined>();
+  adventureStore.subscribe(newAdventure => {
+    if (newAdventure?.start !== get(val)) {
+      val.set(newAdventure?.start);
+    }
+  });
+  return val;
+}
+
+export const currentActiveNode = createCurrenctActiveNode();

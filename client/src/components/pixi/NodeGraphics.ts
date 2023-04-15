@@ -1,9 +1,9 @@
 import type { Node } from "@backend/Node";
-import { PixiGraphics } from "./PixiGraphics";
-import { Text } from "pixi.js";
+import { Text, TextStyle } from "pixi.js";
 import { currentActiveNode } from "../../store/adventure";
+import { SmoothGraphics } from "@pixi/graphics-smooth";
 
-export class NodeGraphics extends PixiGraphics{
+export class NodeGraphics extends SmoothGraphics{
   private node: Node;
   private titleText: Text;
   private isActive: boolean;
@@ -18,18 +18,30 @@ export class NodeGraphics extends PixiGraphics{
     this
       .on('pointerdown', this.onPointerDown)
       .on('pointerup', this.onPointerUp);
-    this.x = x;
-    this.y = y;
-    this.titleText = new Text(this.node.name);
+    this.x = x - 250 / 2;
+    this.y = y - 130 / 2;
+    this.titleText = new Text(this.node.name, new TextStyle({
+      fill: 0xE0DEF4
+    }
+    ));
     this.draw();
     currentActiveNode.subscribe((activeId: string | undefined) => {
-      this.isActive = activeId === this.id;
-      console.log("update detected", this.isActive, activeId, this.id);
+      const newIsActive = activeId === this.id;
+      if (newIsActive !== this.isActive) {
+        this.isActive = activeId === this.id;
+        this.draw();
+      }
     });
   }
 
   draw() {
-    this.beginFill(0xEB6F92);
+    const color = this.isActive ? 0xEB6F92 : 0xE0DEF4;
+    if (this.isActive) {
+      this.beginFill(color, 1.0, true);
+    } else {
+      this.beginFill(0x191724, 1.0, true)
+    }
+    this.lineStyle(5, color, 1.0)
     this.drawRoundedRect(0, 0, 250, 130, 5);
     this.endFill();
     this.titleText.anchor.set(0.5, 0);
@@ -41,8 +53,7 @@ export class NodeGraphics extends PixiGraphics{
   }
 
   onPointerDown() {
-    this.isActive = true;
-    return;
+    currentActiveNode.set(this.id);
   }
 
   onPointerUp() {

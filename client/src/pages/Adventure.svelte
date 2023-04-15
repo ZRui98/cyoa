@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Moon } from "lucide-svelte";
     import { Lightbulb } from "lucide-svelte";
-    import GraphOverview from "../components/GraphOverview.svelte";
+    import GraphOverview from "../components/ui/GraphOverview.svelte";
     import Node from "../components/ui/Node.svelte";
     import Sidebar from "../components/ui/Sidebar.svelte";
     import { onMount } from "svelte";
