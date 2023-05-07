@@ -1,0 +1,60 @@
+html {
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: 'sans-serif';
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+    background-color: var(--main-bg);
+    color: var(--main-fg);
+    display: flex;
+    flex-direction: column;
+}
+
+* {
+    transition: background-color 0.5s;
+}
+
+button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+#app {
+    height: 100%;
+}
+
+.card {
+    padding: 20px 40px;
+    background-color: var(--main-surface);
+    border-radius: 10px;
+}
+
+.button {
+    text-decoration: none;
+    color: var(--main-love);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.button:hover {
+    background-color: var(--main-highlight-med);
+}
+
+.button:active {
+    background-color: var(--main-highlight-high);
+}
+
+a {
+    text-decoration: underline;
+    color: var(--main-iris);
+}

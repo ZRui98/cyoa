@@ -32,11 +32,11 @@
   .toggle-button {
     z-index: 1;
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 20px;
+    right: 20px;
   }
 
-  .open {
+  aside.open {
     right: 0;
   }
 </style>

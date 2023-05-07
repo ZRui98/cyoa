@@ -1,14 +1,13 @@
-import { Application, type IApplicationOptions } from 'pixi.js';
+import { Application, type IApplicationOptions } from 'pixi.js'
 
 export class PixiApplication {
-  private _app: Application;
+    private app: Application;
 
-  init(appOptions?: IApplicationOptions) {
-    this._app = new Application(appOptions);
-  }
+    constructor(appOptions?: IApplicationOptions) {
+        this.app = new Application(appOptions)
+    }
 
-  get application() {
-    return this._app;
-  }
-
+    get application() {
+        return this.app
+    }
 }

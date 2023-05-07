@@ -1,0 +1,44 @@
+{
+  "name": "cyoa-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -e ts --exec ts-node-esm -r dotenv/config src/index.ts dotenv_config_path=.env.local | pino-pretty",
+    "build": "rollup -c rollup.dev.config.js",
+    "build:prod": "rollup -c rollup.prod.config.js",
+    "start": "node -r dotenv/config ./dist/index.js dotenv_config_path=.env.local | pino-pretty",
+    "build:start": "npm run build && npm run start",
+    "db:migrate": "ts-node-esm db/migrate.ts",
+    "dependency-test": "npx madge --circular --extensions ts ./src"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@datastructures-js/queue": "^4.2.3",
+    "ajv": "^8.12.0",
+    "fastify": "^4.15.0",
+    "kysely": "^0.24.2",
+    "pg-pool": "^3.6.0",
+    "simple-runtypes": "^7.1.2"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.317.0",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^18.13.0",
+    "@types/pg": "^8.6.6",
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.34.0",
+    "nodemon": "^2.0.19",
+    "pino-pretty": "^9.2.0",
+    "rollup": "^3.15.0",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  }
+}

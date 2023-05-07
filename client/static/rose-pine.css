@@ -1,0 +1,31 @@
+:root {
+    --main-bg: #faf4ed;
+    --main-fg: #575279;
+    --main-surface: #fffaf3;
+    --main-overlay: #f2e9e1;
+    --main-gold: #ea9d34;
+    --main-love: #b4637a;
+    --main-rose: #d7827e;
+    --main-pine: #3e8fb0;
+    --main-foam: #9ccfd8;
+    --main-iris: #c4a7e7;
+    --main-highlight-low: #f4ede8;
+    --main-highlight-med: #dfdad9;
+    --main-highlight-high: #cecacd;
+}
+
+[dark-mode] {
+    --main-bg: #232136;
+    --main-fg: #e0def4;
+    --main-surface: #2a273f;
+    --main-overlay: #393552;
+    --main-gold: #f6c177;
+    --main-love: #eb6f92;
+    --main-rose: #ea9a97;
+    --main-pine: #286983;
+    --main-foam: #56949f;
+    --main-iris: #907aa9;
+    --main-highlight-low: #2a283e;
+    --main-highlight-med: #44415a;
+    --main-highlight-high: #56526e;
+}

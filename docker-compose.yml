@@ -1,0 +1,44 @@
+version: '3.5'
+services:
+  r2:
+    container_name: r2
+    restart: always
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio:/data:Z
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    command: server --console-address ":9001" /data
+    networks:
+      - cyoa
+  create-buckets:
+    image: minio/mc
+    depends_on:
+      - r2
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add minio http://r2:9000 admin password;
+      /usr/bin/mc mb minio/cyoa-storage;
+      /usr/bin/mc policy download minio/cyoa-storage;
+      /usr/bin/mc anonymous set readonly minio/cyoa-storage;
+      exit 0;
+      "
+  db:
+    container_name: db
+    restart: always
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cyoa
+    networks:
+      - cyoa 
+
+networks:
+    cyoa:
+        name: cyoa

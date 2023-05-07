@@ -1,44 +1,47 @@
-import type { Adventure } from "@backend/Adventure";
-import type { Node } from "@backend/Node";
-import {
-  get,
-  writable,
-  type Writable,
-} from "svelte/store";
-import * as sampleAdventure from "../assets/sample-story.json";
+import type { Adventure } from '@backend/Adventure'
+import type { Node } from '@backend/Node'
+import { get, writable } from 'svelte/store'
+import { getAdventure } from '../utils/api'
 
 export const createAdventureStore = () => {
-  const adventureStore = writable<Adventure|undefined>(undefined)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-
-  return {
-    subscribe: adventureStore.subscribe,
-    setAdventure: async (id: string) => {
-      return new Promise(r => setTimeout(r, 500)).then(() => {
-        const loadedAdventure = sampleAdventure as unknown as Adventure;
-        adventureStore.set(loadedAdventure);
-      });
-    },
-    getNodeById: (id: string): Node | undefined => {
-      const adventure = get(adventureStore);
-      return adventure?.nodes[id]
+    const adventureStore = writable<Adventure | undefined>(undefined)
+    return {
+        subscribe: adventureStore.subscribe,
+        setAdventure: async (author: string, adventureName: string) => {
+            const adventure = await getAdventure(
+                "user1",
+                "sample-story"
+            );
+            adventureStore.set(adventure);
+        },
+        getNodeById: (id: string): Node | undefined => {
+            const adventure = get(adventureStore)
+            return adventure?.nodes[id]
+        },
     }
-  }
 }
 
-export const adventureStore = createAdventureStore();
-export type AdventureStore = typeof adventureStore;
+export const adventureStore = createAdventureStore()
+export type AdventureStore = typeof adventureStore
 
-
-
-export const createCurrenctActiveNode = (): Writable<string|undefined> => {
-  const val = writable<string|undefined>();
-  adventureStore.subscribe(newAdventure => {
-    if (newAdventure?.start !== get(val)) {
-      val.set(newAdventure?.start);
+export const createCurrenctActiveNode = () => {
+    const val = writable<string | undefined>();
+    const {subscribe, set, update} = val;
+    adventureStore.subscribe((newAdventure) => {
+        if (newAdventure?.start !== get(val)) {
+            set(newAdventure?.start)
+        }
+    })
+    return {
+        subscribe,
+        set: (newVal: string | undefined) => {
+            if (newVal && adventureStore.getNodeById(newVal)) {
+                const newHash = `#${newVal}`;
+                location.replace(newHash);
+                set(newVal);
+            }
+        }
     }
-  });
-  return val;
 }
 
-export const currentActiveNode = createCurrenctActiveNode();
+export const currentActiveNode = createCurrenctActiveNode()
