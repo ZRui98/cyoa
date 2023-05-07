@@ -58,3 +58,7 @@ a {
     text-decoration: underline;
     color: var(--main-iris);
 }
+
+canvas {
+    display: block;
+}
