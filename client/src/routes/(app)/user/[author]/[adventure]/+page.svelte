@@ -30,9 +30,9 @@
     }
 
     const layoutStyling = getContext<Writable<string>>('layoutStyling');
-
+    const STATIC_STYLE = 'transition: 0.3s ease-in-out;'
     $: {
-        layoutStyling.set(open ? "margin: 0 5%;margin-right: 55%;transition: 0.3s ease-in-out;" : "transition: 0.3s ease-in-out;");
+        layoutStyling.set(open ? `margin: 0 5%;margin-right: 55%;${STATIC_STYLE}` : STATIC_STYLE);
     }
 
     onMount(async () => {
