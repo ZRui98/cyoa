@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import {env} from '$env/dynamic/public';
 
     let googleButton: HTMLElement;
@@ -21,8 +20,6 @@
             }
         );
     }
-    // onMount();
-
 </script>
 
 <svelte:head>

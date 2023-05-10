@@ -1,14 +1,22 @@
 <script lang="ts">
     import { Moon, User } from "lucide-svelte";
     import { Lightbulb } from "lucide-svelte";
+    import loginState from "../../store/loginState";
+
+    $: loggedIn = $loginState?.username !== undefined;
     let darkMode: boolean = false;
 </script>
 
 <header>
     <div>
-        <a href="/" class="button static-padding">Home</a>
-        <a href="/login" class="button static-padding">Login</a>
-        <a href="/signup" class="button static-padding">Upload</a>
+        <a href="/" class="button">Home</a>
+        {#if loggedIn }
+        <a href="/assets" class="button static-padding">Assets</a>
+        <a href="/adventures" class="button static-padding">Adventures</a>
+        {:else}
+            <a href="/login" class="button static-padding">Log in</a>
+            <a href="/signup" class="button static-padding">Sign up</a>
+        {/if}
     </div>
     <div class="left-panel">
         <button
