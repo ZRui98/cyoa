@@ -16,6 +16,7 @@
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^2.0.2",
 		"@sveltejs/kit": "^1.5.0",
+		"@types/howler": "^2.2.7",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
@@ -34,6 +35,7 @@
 	"dependencies": {
 		"@datastructures-js/queue": "^4.2.3",
 		"@pixi/graphics-smooth": "^1.1.0",
+		"howler": "^2.2.3",
 		"lucide-svelte": "^0.188.0",
 		"pixi.js": "^7.2.4"
 	}

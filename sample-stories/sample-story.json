@@ -1,5 +1,5 @@
 {
-    "name": "This is the name of my story",
+    "name": "sample story",
     "author": "user1",
     "description": "This is an interesting story! Check it out :) [link to some stuff](https://google.com)",
     "nodes": {
@@ -106,10 +106,10 @@
                     "content": "It's a coin with a picture on it. It looks like the most beautiful thing you have ever seen."
                 },
                 {
-                    "path": "https://preview.redd.it/ozcrlpthg5tx.jpg"
+                    "path": "https://soundboardguy.com/wp-content/uploads/2021/06/youve-been-gnomed.mp3"
                 },
                 {
-                    "path": "https://preview.redd.it/ozcrlpthg5tx.jpg"
+                    "path": "https://i.etsystatic.com/9776273/r/il/d37251/2206623680/il_794xN.2206623680_ih1i.jpg"
                 }
             ],
             "links": []
