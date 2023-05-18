@@ -1,9 +1,9 @@
 import Ajv, {JSONSchemaType} from "ajv"
-import { Resource, resourceSchema } from "./Resource"
+import { Asset, assetSchema } from "./Asset"
 
 export interface Node {
   name: string,
-  resources: Resource[],
+  assets?: Asset[],
   links: Edge[]
 }
 
@@ -21,7 +21,7 @@ export const edgeSchema: JSONSchemaType<Edge> = {
   },
   required: ["prompt", "next"],
   additionalProperties: false
-}
+} as const;
 
 export const nodeSchema: JSONSchemaType<Node> = {
   $id: "node",
@@ -32,10 +32,12 @@ export const nodeSchema: JSONSchemaType<Node> = {
       type: 'array',
       items: edgeSchema,
     },
-    resources: {
+    assets: {
       type: 'array',
-      items: resourceSchema,
+      items: assetSchema,
+      nullable: true,
     }
   },
-  required: ["links", "resources", "name"]
-}
+  required: ["links", "name"],
+  additionalProperties: false
+} as const;

@@ -1,7 +1,9 @@
-import fastify, { FastifyRequest } from 'fastify';
-import { Adventure, adventureSchema } from './models/Adventure';
-import { getFilePathFromId, saveAdventure } from './api/storage';
-import { getAdventureSummaries } from './api/user';
+import multipart from '@fastify/multipart';
+import fastify from 'fastify';
+import { adventureSchema } from './models/Adventure';
+import { default as adventureRoutes } from './routes/adventure';
+import { default as assetRoutes } from './routes/asset';
+import { default as userRoutes } from './routes/user';
 
 const app = fastify({
   logger: true,
@@ -14,48 +16,11 @@ const app = fastify({
 
 app
   .addSchema(adventureSchema);
+app.register(multipart);
 
-app.get('/adventure/:user/:filename', {
-  handler: async function (req: FastifyRequest<{Params: {user: string, filename: string}}>, res) { 
-    const { user, filename } = req.params;
-    const url = await getFilePathFromId(user, filename);
-    res.code(200).send({url});
-  },
-  schema: {
-    params: {user: {type: 'string'}, filename: {type: 'string'}}
-  }
-});
 
-app.put('/adventure/:user', {
-  handler: async function (req: FastifyRequest<{Params: {id: number}}>, res) {
-    const { id } = req.params;
-  },
-  // schema: {
-  //   body: {$ref: 'adventure#'},
-  //   params: {id: {type: 'number'}}
-  // }
-});
-
-app.post('/adventure/:user/', {
-  handler: async function (req: FastifyRequest<{Params: {user: string}, Body: Adventure}>, res) { 
-    const { user } = req.params;
-    const adventure = req.body;
-    await saveAdventure(user, adventure)
-    res.code(201);
-  },
-  schema: {
-    params: {user: {type: 'string'}},
-    body: {$ref: 'adventure#'}
-  }
-});
-
-app.get('/user/:user/adventures', {
-  handler: async function(req: FastifyRequest<{Params: {user: string}}>, res) {
-    const { user } = req.params;
-    const adventures = await getAdventureSummaries(user);
-    res.send(adventureSchema);
-    res.code(200);
-  }
-})
+app.register(adventureRoutes, {prefix: '/adventure'});
+app.register(assetRoutes, { prefix: '/asset'});
+app.register(userRoutes, { prefix: '/user'});
 
 export default app;

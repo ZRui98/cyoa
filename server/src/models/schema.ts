@@ -1,9 +1,9 @@
 import Ajv from "ajv";
 import { adventureSchema } from "./Adventure"
-import { resourceSchema } from "./Resource";
+import { assetSchema } from "./Asset";
 
 const ajv = new Ajv();
 
-const schema = ajv.compile(resourceSchema);
+const schema = ajv.compile(assetSchema);
 
 export default schema;
