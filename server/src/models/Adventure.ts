@@ -2,26 +2,22 @@ import { JSONSchemaType } from "ajv";
 import { Node, nodeSchema } from "./Node";
 import { Generated, Insertable, Selectable, Updateable } from "kysely";
 
-export interface Adventure {
+interface AdventureMetaData {
   name: string
-  author: string,
-  description?: string,
+  author: string
+  description?: string
+}
+
+export interface Adventure extends AdventureMetaData {
   nodes: {[key: string] : Node}
   start: string
 }
 
-export interface AdventureTable {
+export interface AdventureTable extends AdventureMetaData {
   id: Generated<number>
-  name: string
-  author: string
-  description?: string
-  filePath: string
+  fileName: string
   playCount: number
 }
-
-export type AdventureRow = Selectable<AdventureTable>
-export type InsertableAdventureRow = Insertable<AdventureTable>
-export type UpdateableAdventureRow = Updateable<AdventureTable>
 
 export const adventureSchema: JSONSchemaType<Adventure> = {
   $id: 'adventure',
@@ -38,4 +34,4 @@ export const adventureSchema: JSONSchemaType<Adventure> = {
     }
   },
   required: ["name", "nodes", "start", "author"]
-}
+} as const;

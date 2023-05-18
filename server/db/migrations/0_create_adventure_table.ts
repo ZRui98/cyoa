@@ -1,21 +1,25 @@
-import { Kysely, sql } from 'kysely'
+import { Kysely } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('adventure')
     .addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('name', 'varchar', (col) => col.notNull())
-    .addColumn('filePath', 'varchar', (col) =>col.notNull())
+    .addColumn('fileName', 'varchar', (col) =>col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
     .addColumn('playCount', 'integer', (col) => col.defaultTo(0).notNull())
     .execute();
-  await db.schema.createIndex('author_filepath_unique')
+  await db.schema.createIndex('adventure_author_filename_unique')
     .on('adventure')
-    .columns(['filePath', 'author'])
+    .columns(['fileName', 'author'])
+    .execute();
+  await db.schema.createIndex('adventure_author_name_unique')
+    .on('adventure')
+    .columns(['name', 'author'])
     .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable('adventure').execute();
-  await db.schema.dropIndex('author_filepath_unique').execute();
+  await db.schema.dropIndex('author_filename_unique').execute();
 }
