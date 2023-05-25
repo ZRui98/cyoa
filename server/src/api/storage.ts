@@ -22,7 +22,7 @@ const s3 = new S3({
   },
   forcePathStyle: true
 });
-
+console.log(process.env.STORAGE_URL)
 export function getAdventureFilePath(fileName: string) {
   return `adventures/${fileName}.json`;
 }

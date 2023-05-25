@@ -11,6 +11,14 @@ export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: 
     return adventures;
 }
 
+export async function getAllAssetsByUser(user: string): Promise<Selectable<AssetTable>[]> {
+    const assets = await db.selectFrom('asset')
+        .where('author', '=', user)
+        .selectAll()
+        .execute();
+    return assets;
+}
+
 export async function getAssetFromDb(
     {user, name}: {user: string, name: string},
     trx: Transaction<Database> | Kysely<Database> = db

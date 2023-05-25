@@ -1,22 +1,21 @@
 import { FileMigrationProvider, Kysely, Migrator, PostgresDialect } from "kysely";
 import { promises as fs } from "fs";
 import path from "path";
-import pg from 'pg';
-const { Pool } = pg;
+import { Database } from "../src/db";
+import Pool from "pg-pool";
 
 const __dirname = process.cwd();
 async function migrate() {
-  const db = new Kysely<any>({
+  const db = new Kysely<Database>({
     dialect: new PostgresDialect({
       pool: new Pool({
-        host: 'localhost',
-        database: 'cyoa',
-        user: 'postgres',
-        password: 'password'
+        host: `${process.env.DB_HOST}`,
+        database: `${process.env.DB_NAME}`,
+        user: `${process.env.DB_USER}`,
+        password: `${process.env.DB_PASSWORD}`,
       })
     }),
   });
-
   const migrator = new Migrator({
     db,
     provider: new FileMigrationProvider({

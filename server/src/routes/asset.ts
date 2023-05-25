@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest } from "fastify"
 import { saveAsset } from "../api/storage";
+import { getAllAssetsByUser } from "../db/asset";
 
 const FILE_SIZE_150_MB = 150000000;
 
@@ -33,6 +34,13 @@ const routes = (app: FastifyInstance, _opts, next) => {
                 console.log(err);
                 res.code(500);
             }
+        }
+    });
+
+    app.get('/', {
+        handler: async function(req: FastifyRequest, res) {
+            const assets = await getAllAssetsByUser('user1');
+            res.send(assets)
         }
     });
 

@@ -1,5 +1,5 @@
 import {JSONSchemaType} from "ajv"
-import { Generated, Insertable, Selectable, Updateable } from "kysely"
+import { Generated } from "kysely"
 
 export interface Asset {
 }

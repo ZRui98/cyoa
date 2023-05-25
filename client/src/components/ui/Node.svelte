@@ -1,11 +1,11 @@
 <script lang="ts">
     import type { Edge } from "@backend/Node";
-    import { isAudioExportableResource, isTextResource, type ExportableResource, type TextResource, type Resource, isImgExportableResource } from "@backend/Resource";
+    import { isAudioExportableAsset, isTextAsset, type ExportableAsset, type TextAsset, type Asset, isImgExportableResource } from "@backend/Asset";
     import { adventureStore, currentActiveNode } from "../../store/adventure";
     import AudioPlayer from "./AudioPlayer.svelte";
 
     const { getNodeById } = adventureStore;
-    let nodeResources: Resource[] = [];
+    let nodeResources: Asset[] = [];
     let options: Edge[] = [];
     $: {
         if ($currentActiveNode) {
@@ -13,8 +13,10 @@
             options = [];
             const node = getNodeById($currentActiveNode);
             if (node) {
-                const {links, resources} = node;
-                nodeResources = resources;
+                const {links, assets} = node;
+                if (assets) {
+                    nodeResources = assets;
+                }
                 options = links;
             }
         }
@@ -24,11 +26,11 @@
 <div>
     {#each nodeResources as resource}
         <div class="resource">
-            {#if isTextResource(resource)}
+            {#if isTextAsset(resource)}
                 <div id="node-content">
                     <span>{resource.content}</span>
                 </div>
-            {:else if isAudioExportableResource(resource)}
+            {:else if isAudioExportableAsset(resource)}
                 <AudioPlayer src={resource.path} autoplay html5/>
             {:else if isImgExportableResource(resource)}
                 <img src={resource.path} alt={resource.path} />
