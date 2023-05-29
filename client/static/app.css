@@ -54,6 +54,22 @@ button {
     background-color: var(--main-highlight-high);
 }
 
+.button-inverse {
+    text-decoration: none;
+    background-color: var(--main-love);
+    color: var(--main-fg);
+}
+
+.button-inverse:hover {
+    background-color: var(--main-highlight-rose);
+}
+
+.static-padding { 
+    -moz-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+     box-sizing: border-box; 
+}
+
 a {
     text-decoration: underline;
     color: var(--main-iris);
@@ -61,4 +77,21 @@ a {
 
 canvas {
     display: block;
+}
+
+input[type="text"] {
+    padding: 5px 10px;
+    background-color: var(--main-overlay);
+    border: 2px solid var(--main-highlight-med);
+    border-radius: 5px;
+    color: var(--main-fg);
+}
+input:focus{
+    border: 2px solid var(--main-highlight-high);
+    background-color: var(--main-highlight-med);
+    outline: none;
+}
+
+::selection {
+    background-color: var(--main-highlight-high);
 }

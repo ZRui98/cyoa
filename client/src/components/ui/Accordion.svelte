@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ChevronDown, ChevronRight } from "lucide-svelte";
+    import { ChevronRight } from "lucide-svelte";
 import { slide } from "svelte/transition";
     export let open = false;
     $: chevronstyle = `
@@ -7,8 +7,8 @@ import { slide } from "svelte/transition";
     `;
 </script>
 
-<div id="container">
-    <div class="card" id="accordion-button" aria-expanded={open}
+<div id="container" class="static-padding">
+    <div class="card static-padding" id="accordion-button" aria-expanded={open}
         on:click={() => open = !open}
         on:keydown|self={(e) => e.code === 'Enter' ?? (open = !open)}
     >
@@ -18,7 +18,7 @@ import { slide } from "svelte/transition";
         </slot>
     </div>
     {#if open}
-    <div transition:slide={{duration: 300}}>
+    <div id="accordion-content" class="static-padding" transition:slide={{duration: 300}}>
         <slot name="toggle-content"/>
     </div>
     {/if}
@@ -35,7 +35,14 @@ import { slide } from "svelte/transition";
     #container {
         display: flex;
         width: 100%;
-        padding: 50px 0;
+        padding: 10px 0;
         flex-direction: column;
+    }
+
+    #accordion-content {
+        border-radius: 10px;
+        background-color: var(--main-highlight-med);
+        width: 100%;
+        padding: 20px;
     }
 </style>
