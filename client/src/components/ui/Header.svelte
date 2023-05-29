@@ -6,9 +6,9 @@
 
 <header>
     <div>
-        <a href="/" class="button">Home</a>
-        <a href="/login" class="button">Login</a>
-        <a href="/signup" class="button">Upload</a>
+        <a href="/" class="button static-padding">Home</a>
+        <a href="/login" class="button static-padding">Login</a>
+        <a href="/signup" class="button static-padding">Upload</a>
     </div>
     <div class="left-panel">
         <button
@@ -38,8 +38,6 @@
         padding-top: 20px;
         padding-bottom: 20px;
         justify-content: space-between;
-        margin-left: -10px;
-        margin-right: -10px;
     }
 
     .left-panel {
