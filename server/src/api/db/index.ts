@@ -1,7 +1,7 @@
 import { Kysely, PostgresDialect } from "kysely";
 import Pool from "pg-pool";
-import { AdventureTable } from "../models/Adventure";
-import { AdventureAssetTable, AssetTable } from "../models/Asset";
+import { AdventureTable } from "../../models/Adventure";
+import { AdventureAssetTable, AssetTable } from "../../models/Asset";
 
 export interface Database {
   adventure: AdventureTable

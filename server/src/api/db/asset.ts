@@ -1,6 +1,6 @@
-import { Insertable, Kysely, Selectable, Transaction } from "kysely";
+import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from "kysely";
 import db, { Database } from ".";
-import { AdventureAssetTable, AssetMetaData, AssetTable } from "../models/Asset";
+import { AdventureAssetTable, AssetTable } from "../../models/Asset";
 
 export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: number, fileName: string}[]> {
     const adventures = await db.selectFrom('adventure_asset')
@@ -20,25 +20,25 @@ export async function getAllAssetsByUser(user: string): Promise<Selectable<Asset
 }
 
 export async function getAssetFromDb(
-    {user, name}: {user: string, name: string},
+    values: Partial<Selectable<AssetTable>>,
     trx: Transaction<Database> | Kysely<Database> = db
 ): Promise<Selectable<AssetTable> | undefined> {
-    const asset = await trx.selectFrom('asset')
-        .where('author', '=', user)
-        .where('name', '=', name)
-        .selectAll()
-        .executeTakeFirst();
-    return asset;
+    let transaction = trx.selectFrom('asset')
+    Object.entries(values).forEach(([key, val]) => {
+      transaction = transaction.where(key as ReferenceExpression<Database, 'asset'>, '=', val)
+    })
+    return await transaction.selectAll()
+      .executeTakeFirst()
 };
 
 export async function updateAssetDiff(
-    user: string,
+    author: string,
     adventureId: number,
     { namesToRemove, namesToAdd }: {namesToRemove?: string[], namesToAdd?: string[]},
     trx: Transaction<Database> | Kysely<Database> = db
 ) {
     if (namesToAdd?.length) {
-        const assets = await Promise.all(namesToAdd.map(async (assetName) => getAssetFromDb({user, name: assetName}, trx)));
+        const assets = await Promise.all(namesToAdd.map(async (assetName) => getAssetFromDb({author, name: assetName}, trx)));
         const insertingRows = assets.reduce((acc, asset) => {
             if (asset === undefined) return acc;
             const row: Insertable<AdventureAssetTable> = {
@@ -53,7 +53,7 @@ export async function updateAssetDiff(
 
     if (namesToRemove?.length) {
         const assets = (
-            await Promise.all(namesToRemove.map(async (assetName) => getAssetFromDb({user, name: assetName}, trx))))
+            await Promise.all(namesToRemove.map(async (assetName) => getAssetFromDb({author, name: assetName}, trx))))
             .filter((asset): asset is Selectable<AssetTable> => asset !== undefined);
         await trx.deleteFrom('adventure_asset').where(({and , or, cmpr}) => or(
             assets.map(asset => and([
@@ -66,14 +66,18 @@ export async function updateAssetDiff(
 
 export async function upsertAsset(
     asset: Insertable<AssetTable>,
-    trx: Transaction<Database> | Kysely<Database> = db
+    trx: Transaction<Database> | Kysely<Database> = db,
+    id?: number,
 ) {
-    let response = await trx.updateTable('asset').set(asset)
-        .where('asset.author', '=', asset.author)
+    let response: Selectable<AssetTable>[] | undefined;
+    if (id) {
+      response = await trx.updateTable('asset').set(asset)
+        .where('author', '=', asset.author)
         .where('name', '=', asset.name)
         .returningAll()
         .execute();
-    if (!response.length) {
+    }
+    if (!response || !response.length) {
         response = await trx.insertInto('asset').values(asset).returningAll().execute();
     }
     return response[0];

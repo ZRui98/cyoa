@@ -1,4 +1,4 @@
-import db from "../db";
+import db from "./db";
 
 export async function getAdventureSummaries(user: string): Promise<{name: string, description?: string}[]> {
     const results = await db.selectFrom('adventure')

@@ -1,8 +1,8 @@
 import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from "kysely";
 import db, { Database } from ".";
-import { getFileURLFromAdventure } from "../api/storage";
-import { AdventureTable } from "../models/Adventure";
-import { AssetTable } from "../models/Asset";
+import { getFileURLFromAdventure } from "../storage/adventure";
+import { AdventureTable } from "../../models/Adventure";
+import { AssetTable } from "../../models/Asset";
 
 export async function getFileURLFromId(user: string, file: string, trx: Transaction<Database> | Kysely<Database> = db): Promise<string | undefined> {
     const {fileName, author} = await trx.selectFrom('adventure')
@@ -14,7 +14,7 @@ export async function getFileURLFromId(user: string, file: string, trx: Transact
 }
 
 export async function getAdventureFromDb(
-  values: Partial<Selectable<AssetTable>>,
+  values: Partial<Selectable<AdventureTable>>,
   trx: Transaction<Database> | Kysely<Database> = db
 ): Promise<Selectable<AdventureTable> | undefined> {
   let transaction = trx.selectFrom('adventure')
@@ -27,14 +27,17 @@ export async function getAdventureFromDb(
 
 export async function upsertAdventure(
   adventure: Insertable<AdventureTable>,
-  trx: Transaction<Database> | Kysely<Database> = db
+  trx: Transaction<Database> | Kysely<Database> = db,
+  id?: number
 ) {
-  let response = await trx.updateTable('adventure').set(adventure)
-      .where('author', '=', adventure.author)
-      .where('name', '=', adventure.name)
+  let response: Selectable<AdventureTable>[] | undefined;
+  if (id) {
+    response = await trx.updateTable('adventure').set(adventure)
+      .where('id', '=', id)
       .returningAll()
       .execute();
-  if (!response.length) {
+  }
+  if (!response || !response.length) {
       response = await trx.insertInto('adventure').values(adventure).returningAll().execute();
   }
   return response[0];
