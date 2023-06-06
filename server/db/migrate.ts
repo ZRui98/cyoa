@@ -1,7 +1,7 @@
 import { FileMigrationProvider, Kysely, Migrator, PostgresDialect } from "kysely";
 import { promises as fs } from "fs";
 import path from "path";
-import { Database } from "../src/db";
+import { Database } from "../src/api/db";
 import Pool from "pg-pool";
 
 const __dirname = process.cwd();
