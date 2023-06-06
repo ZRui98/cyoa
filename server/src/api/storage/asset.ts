@@ -1,7 +1,7 @@
 import { BusboyFileStream } from "@fastify/busboy";
-import { Insertable } from "kysely";
+import { Insertable, Updateable } from "kysely";
 import path from "path";
-import { getAssetFromDb, upsertAsset } from "../db/asset";
+import { getAssetFromDb, insertAssetDb, updateAssetDb } from "../db/asset";
 import { AssetTable } from "../../models/Asset";
 import { ApiError } from "../../util/error";
 import { updateAdventuresWithAsset } from "./adventure";
@@ -29,7 +29,7 @@ export async function saveAsset({file, filename, name}: {file: BusboyFileStream,
         name,
         author,
     };
-    await upsertAsset(row, undefined);
+    await insertAssetDb(row, undefined);
     const filePath = getAssetFilePath(filename);
     const {pass, upload} = uploadFromStream(filePath, author);
     file.pipe(pass);
@@ -47,12 +47,10 @@ export async function saveAsset({file, filename, name}: {file: BusboyFileStream,
         const newFileName = filename ?? asset.fileName;
         const newName = name ?? asset.name;
         try {
-            const row: Insertable<AssetTable> = {
-            fileName: newFileName,
-            name: newName,
-            author,
-            };
-            await upsertAsset(row, undefined, id);
+            const row: Updateable<AssetTable> = {};
+            if (!!newFileName) row.fileName = newFileName;
+            if (!!newName) row.name = newName;
+            await updateAssetDb(row, undefined, id);
         } catch(e) {
             if ((e as {message: string}).message.startsWith('duplicate key value')) {
                 throw new ApiError(409, "Asset with same name or filename already exists!");
@@ -64,6 +62,7 @@ export async function saveAsset({file, filename, name}: {file: BusboyFileStream,
         });
         updated = true;
     }
+    console.log('what is happening?', file, filename);
     if (file && filename) {
         const filePath = getAssetFilePath(filename);
         console.log('filePath', filePath);

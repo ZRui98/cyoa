@@ -41,6 +41,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
             let fileData: {file: BusboyFileStream, filename: string} | undefined;
             let name: string | undefined;
             const data = await req.file(assetUploadConfig);
+            console.log('data here', data);
             if (data) {
                 fileData = {file: data.file, filename: data.filename};
                 const fields = data.fields as unknown as {
@@ -49,22 +50,12 @@ const routes = (app: FastifyInstance, _opts, next) => {
                     };
                 };
                 name = fields.name?.value ?? data.filename;
-            } else {
-                const parts = req.parts(assetUploadConfig);
-                for await (const part of parts) {
-                    console.log('running this now', part.type);
-                    const fields = part.fields as unknown as {
-                        name?: {
-                            value?: string
-                        };
-                    };
-                    name = fields.name?.value
-                }
             }
             if (!name && !fileData) {
                 res.code(204);
                 return;
             }
+            console.log(name, id, fileData)
             const value = await updateAsset({...fileData, name, id});
             res.code(value ? 201 : 200);
         },

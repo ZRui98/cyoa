@@ -5,7 +5,7 @@
     import { derived, writable } from 'svelte/store';
 
     export let src: string;
-    export let autoplay: boolean = true;
+    export let autoplay: boolean = false;
     export let html5: boolean = true;
     const maxTime = 1000;
 

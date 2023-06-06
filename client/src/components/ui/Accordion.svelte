@@ -18,7 +18,7 @@ import { slide } from "svelte/transition";
         </slot>
     </div>
     {#if open}
-    <div id="accordion-content" class="static-padding" transition:slide={{duration: 300}}>
+    <div id="accordion-content" class="static-padding" transition:slide|local={{duration: 300}}>
         <slot name="toggle-content"/>
     </div>
     {/if}
@@ -30,18 +30,22 @@ import { slide } from "svelte/transition";
         display: flex;
         flex-direction: row;
         cursor: pointer;
+        align-items: center;
     }
 
     #container {
         display: flex;
         width: 100%;
-        padding: 10px 0;
+        margin: 10px 0;
         flex-direction: column;
+        background-color: var(--main-highlight-low);
+        border: 1px solid var(--main-highlight-high);
+        border-radius: 10px;
     }
 
     #accordion-content {
         border-radius: 10px;
-        background-color: var(--main-highlight-med);
+        background-color: var(--main-highlight-low);
         width: 100%;
         padding: 20px;
     }

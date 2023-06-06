@@ -12,6 +12,7 @@
     </div>
     <div class="left-panel">
         <button
+            class="button"
             on:click="{
                 () => {
                     window.document.querySelector("html")?.toggleAttribute('dark-mode');
@@ -20,12 +21,12 @@
             }"
         >
             {#if darkMode}
-                <Lightbulb />
+                <Lightbulb size={21}/>
             {:else}
-                <Moon />
+                <Moon size={21}/>
             {/if}
         </button>
-        <a class="left-panel" href="/user/me"><User/></a>
+        <a class="left-panel button" href="/user/me"><User size={21}/></a>
     </div>
 
 </header>
@@ -40,7 +41,12 @@
         justify-content: space-between;
     }
 
-    .left-panel {
+    a {
+        height: auto;
+        font-size: 20px;
+    }
+
+    .left-panel, .left-panel .button {
         color: var(--main-fg);
     }
 

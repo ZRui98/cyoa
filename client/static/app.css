@@ -52,22 +52,44 @@ button {
 
 .button:active {
     background-color: var(--main-highlight-high);
+    outline: 2px solid var(--main-pine);
 }
 
-.button-inverse {
+.button-round {
     text-decoration: none;
-    background-color: var(--main-love);
     color: var(--main-fg);
+    background-color: var(--main-highlight-med);
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
 }
 
-.button-inverse:hover {
-    background-color: var(--main-highlight-rose);
+.button-round:hover {
+    background-color: var(--main-highlight-high);
+}
+
+.button-round:active {
+    outline: 2px solid var(--main-pine);
+}
+
+.button-round:disabled {
+    background-color: var(--main-highlight-low);
+    color: var(--main-highlight-med);
+    cursor: initial;
+}
+.button-round:disabled:active {
+    outline: none;
 }
 
 .static-padding { 
     -moz-box-sizing: border-box; 
     -webkit-box-sizing: border-box; 
      box-sizing: border-box; 
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
 }
 
 a {
@@ -94,4 +116,13 @@ input:focus{
 
 ::selection {
     background-color: var(--main-highlight-high);
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
 }

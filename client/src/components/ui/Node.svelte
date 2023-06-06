@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Edge } from "@backend/Node";
-    import { isAudioExportableAsset, isTextAsset, type ExportableAsset, type TextAsset, type Asset, isImgExportableResource } from "@backend/Asset";
+    import { isAudioExportableAsset, isTextAsset, type ExportableAsset, type TextAsset, type Asset, isImgExportableAsset } from "@backend/Asset";
     import { adventureStore, currentActiveNode } from "../../store/adventure";
     import AudioPlayer from "./AudioPlayer.svelte";
 
@@ -32,7 +32,7 @@
                 </div>
             {:else if isAudioExportableAsset(resource)}
                 <AudioPlayer src={resource.path} autoplay html5/>
-            {:else if isImgExportableResource(resource)}
+            {:else if isImgExportableAsset(resource)}
                 <img src={resource.path} alt={resource.path} />
             {/if}
         </div>

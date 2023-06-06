@@ -1,6 +1,6 @@
 import type { Adventure } from "@backend/Adventure";
 import {env} from '$env/dynamic/public';
-import type { AssetMetaData } from "@backend/Asset";
+import type { AssetResponse } from "@backend/Asset";
 
 export async function getAdventure(
     author: string,
@@ -16,9 +16,24 @@ export async function getAdventure(
     return response;
 }
 
-export async function getAssets(): Promise<AssetMetaData[]> {
+export async function getAssets(): Promise<AssetResponse[]> {
     const url = `${env.PUBLIC_API_BASE_PATH}/asset`
     const response = await fetch(url).then(response => response.json());
     console.log('response', response);
     return response;
 }
+
+export async function updateAsset(id?: number, newName?: string, file?: File) {
+
+    let url = `${env.PUBLIC_API_BASE_PATH}/asset`;
+    if (id) {
+        url = `${url}/${id}`;
+    }
+    console.log(url, id);
+    const formData = new FormData();
+    const name = newName ?? file?.name;
+    formData.append('name', name!);
+    formData.append('', file ?? new File([''], ''));
+    const response = await fetch(url, {method: id ? 'PUT' : 'POST', body: formData});
+    return;
+} 

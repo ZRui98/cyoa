@@ -1,6 +1,7 @@
-import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from "kysely";
+import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction, Updateable } from "kysely";
 import db, { Database } from ".";
-import { AdventureAssetTable, AssetTable } from "../../models/Asset";
+import { AdventureAssetTable, AssetResponse, AssetTable } from "../../models/Asset";
+import { getAssetFilePath, getFileURLFromAsset } from "../storage/asset";
 
 export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: number, fileName: string}[]> {
     const adventures = await db.selectFrom('adventure_asset')
@@ -11,12 +12,13 @@ export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: 
     return adventures;
 }
 
-export async function getAllAssetsByUser(user: string): Promise<Selectable<AssetTable>[]> {
+export async function getAllAssetsByUser(user: string): Promise<Selectable<AssetResponse>[]> {
     const assets = await db.selectFrom('asset')
         .where('author', '=', user)
         .selectAll()
         .execute();
-    return assets;
+    const response = assets.map(asset => ({...asset, path: getFileURLFromAsset(user, asset.fileName).href}));
+    return response;
 }
 
 export async function getAssetFromDb(
@@ -64,21 +66,21 @@ export async function updateAssetDiff(
     }
 }
 
-export async function upsertAsset(
+export async function insertAssetDb(
     asset: Insertable<AssetTable>,
     trx: Transaction<Database> | Kysely<Database> = db,
-    id?: number,
 ) {
-    let response: Selectable<AssetTable>[] | undefined;
-    if (id) {
-      response = await trx.updateTable('asset').set(asset)
-        .where('author', '=', asset.author)
-        .where('name', '=', asset.name)
+    return trx.insertInto('asset').values(asset).returningAll().execute();
+}
+
+export async function updateAssetDb(
+    asset: Insertable<AssetTable> | Updateable<AssetTable>,
+    trx: Transaction<Database> | Kysely<Database> = db,
+    id: number,
+) {
+    const response = await trx.updateTable('asset').set(asset)
+        .where('id', '=', id)
         .returningAll()
         .execute();
-    }
-    if (!response || !response.length) {
-        response = await trx.insertInto('asset').values(asset).returningAll().execute();
-    }
     return response[0];
 }

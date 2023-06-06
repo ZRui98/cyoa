@@ -14,7 +14,7 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			'@backend/*': "../server/src/models/*",
-		},
+		}
 	},
 };
 
