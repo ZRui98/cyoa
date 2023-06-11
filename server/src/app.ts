@@ -1,3 +1,4 @@
+import cors from '@fastify/cors'
 import multipart from '@fastify/multipart';
 import fastify from 'fastify';
 import { default as adventureRoutes } from './routes/adventure';
@@ -20,7 +21,11 @@ app
 
 
 // plugins
-app.register(multipart);
+app.register(cors, {
+  origin: `${process.env.CORS_DOMAIN}`.split(','),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+})
+  .register(multipart);
 
 // routes
 app.register(adventureRoutes, {prefix: '/adventure'})
