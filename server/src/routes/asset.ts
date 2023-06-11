@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyRequest } from "fastify"
-import { saveAsset, updateAsset } from "../api/storage/asset";
+import { deleteAsset, saveAsset, updateAsset } from "../api/storage/asset";
 import { getAllAssetsByUser } from "../api/db/asset";
 import { BusboyFileStream } from "@fastify/busboy";
+import { ApiError, isApiError } from "../util/error";
 
 const FILE_SIZE_150_MB = 150000000;
 const assetUploadConfig = { limits: { fields: 5, files: 1, fileSize: FILE_SIZE_150_MB }};
@@ -14,22 +15,25 @@ const routes = (app: FastifyInstance, _opts, next) => {
 
                 if (!data) throw Error("no file uploaded!");
                 data.file.on('limit', () => {
-                    throw Error('file too large! Exceeded file limit of 150MB.')
+                    throw new ApiError(400, 'file too large! Exceeded file limit of 150MB.')
                 });
                 const fields = data.fields as unknown as {
                     name?: {
                         value?: string
                     };
                 };
-                const name = fields.name?.value ?? data.filename;
-                await saveAsset({file: data.file, filename: data.filename, name});
+                const name = (!!fields.name?.value) ? fields.name?.value : data.filename;
+                const response = await saveAsset({file: data.file, filename: data.filename, name});
     
                 res.code(201);
+                res.send(response);
             } catch (err) {
-                if (err === 'file too large! Exceeded file limit of 150MB.') {
-                    res.code(400);
+                if (isApiError(err)) {
+                    console.log('api error:', err.message);
+                    res.code(err.code);
+                    res.send({message: err.message});
+                    return;
                 }
-                console.log('err', err.message);
                 res.code(500);
             }
         }
@@ -58,9 +62,22 @@ const routes = (app: FastifyInstance, _opts, next) => {
             console.log(name, id, fileData)
             const value = await updateAsset({...fileData, name, id});
             res.code(value ? 201 : 200);
+            res.send(value);
         },
         schema: {params: {id: {type: 'number'}}}
-    })
+    });
+
+
+    app.delete('/:id', {
+        handler: async function(req: FastifyRequest<{Params: {id: number}}>, res) {
+            const { id } = req.params;
+            const response = await deleteAsset(id);
+            res.code(201);
+            res.send(response);
+            console.log(response);
+        },
+        schema: {params: {id: {type: 'number'}}}
+    });
 
     app.get('/', {
         handler: async function(req: FastifyRequest, res) {

@@ -113,6 +113,7 @@
     .audio-player input {
         flex-grow: 1;
         border: solid 1px var(--main-love);
+        background-color: var(--main-bg);
         border-radius: 8px;
         height: 5px;
         outline: none;

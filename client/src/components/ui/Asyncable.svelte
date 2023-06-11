@@ -6,7 +6,7 @@
     export let promise: Promise<T> | undefined;
     const dispatch = createEventDispatcher();
     $: {
-        if (promise) {
+        if (promise !== undefined) {
             promise.then((data) => {
                 dispatch('load', {data})
             }).catch((e) => {

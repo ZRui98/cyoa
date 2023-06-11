@@ -1,6 +1,6 @@
 <script lang="ts">
     import { type AssetResponse, hasAudioFileExtension, hasImgFileExtension } from "@backend/Asset";
-    import { getAssets, updateAsset } from "../../../utils/api";
+    import { getAssets, updateAsset, deleteAsset } from "../../../utils/api";
     import { onMount } from "svelte";
     import Popup from "../../../components/ui/Popup.svelte";
     import FileDrop from "../../../components/ui/FileDrop.svelte";
@@ -10,24 +10,29 @@
     import Spinner from "../../../components/ui/Spinner.svelte";
     import AudioPlayer from "../../../components/ui/AudioPlayer.svelte";
     import Asyncable from "../../../components/ui/Asyncable.svelte";
+    import { flip } from "svelte/animate";
 
-    let getAssetsPromise: Promise<AssetResponse[]> = Promise.resolve([]);
-    let updateAssetPromise: Promise<void> | undefined;
+    export let data: {assets: AssetResponse[]};
+    let updateAssetPromise: Promise<AssetResponse | null> | undefined;
+    let errorMsg: Writable<string | undefined> = writable();
+    let deleteAssetPromise: Promise<AssetResponse | null> | undefined;
+    let assets: Writable<AssetResponse[]> = writable(data.assets);
     let newAssetFileName: Writable<string | undefined> = writable();
     let originalAsset: Writable<AssetResponse | undefined> = writable();
-    onMount(() => {
-        getAssetsPromise = getAssets();
+
+    onMount(async () => {
+        console.log('special data', data);
     });
 
-    // when get Assets is active, cancel the update asset action otherwise it will cause an infinite loop
-    $: {
-        if (getAssetsPromise !== undefined) {
-            updateAssetPromise = undefined;
-        }
-    }
+    $: loading = $assets === undefined || deleteAssetPromise !== undefined;
+
     let file: File | undefined;
     let show: boolean;
+
     $: dirty = (($newAssetFileName && !$originalAsset) || $originalAsset && $originalAsset.name !== $newAssetFileName) || !!file;
+
+    // when get Assets is active, cancel the update asset action otherwise it will cause an infinite loop
+
     function uploadFile(files: File[]) {
         file = files[0];
     }
@@ -37,12 +42,11 @@
     }
 
     async function saveAsset() {
-        console.log('saving asset', $originalAsset, $newAssetFileName)
         updateAssetPromise = updateAsset($originalAsset?.id, $newAssetFileName, file);
+        $errorMsg = undefined;
     }
 
     function onClose() {
-        console.log(file?.name);
         file = undefined;
         newAssetFileName.set(undefined);
         originalAsset.set(undefined);
@@ -52,78 +56,144 @@
         show = false;
     }
 
-    function onAssetNameChange(e: Event & { currentTarget: HTMLInputElement}) {
-        console.log('asset name change', e.currentTarget.value)
-        $newAssetFileName = e.currentTarget.value;
-    }
-
-    function onAssetUpdate(event: {detail: {data: void}}) {
-        show = false;
-        console.log("loaded!");
-        alert();
-        getAssetsPromise = getAssets();
-    }
-
     function handleNewAsset() {
         $newAssetFileName = '';
         show = true;
     }
+
+    function onAssetNameChange(e: Event & { currentTarget: HTMLInputElement}) {
+        $newAssetFileName = e.currentTarget.value;
+    }
+
+    function onAssetUpdate(event: {detail: {data: AssetResponse | null}}) {
+        show = false;
+        const newAsset = event.detail.data;
+        if (newAsset) {
+            assets.update((current) => {
+                if (!current) return current;
+                const i = current.findIndex((val) => val.id === newAsset.id);
+                if (i >= 0) {
+                    current[i] = newAsset;
+                    return current;
+                }
+                return[...current, newAsset];
+            });
+        }
+        updateAssetPromise = undefined;
+    }
+
+    function onAssetUpdateError(e: CustomEvent<{error: Error}>) {
+        console.log(e);
+        $errorMsg = e.detail.error.message;
+        console.log(errorMsg);
+        updateAssetPromise = undefined;
+    }
+
+    function handleAssetDelete(asset: AssetResponse) {
+        deleteAssetPromise = deleteAsset(asset.id);
+        deleteAssetPromise.then(val => onAssetDelete(val)).catch(() => {
+            deleteAssetPromise = undefined;
+        });
+    }
+
+    function onAssetDelete(data: AssetResponse | null) {
+        if (data) {
+            assets.update(current => {
+                if (!current) return current;
+                const i = current.findIndex((val) => val.id === data.id);
+                current.splice(i, 1);
+                return current;
+            });
+        };
+        deleteAssetPromise = undefined;
+    }
 </script>
 
-<div id="title" class="row">
-    <span>assets</span>
-    <button on:click={handleNewAsset} class="button-round">
-        <Plus/>
-    </button>
-</div>
-
-{#await getAssetsPromise}
-    <Spinner/>
-{:then assets}
-    <Popup onClose={onClose} style={`width:50%;`} bind:show={show}>
-        <Asyncable on:load={onAssetUpdate} on:error={(e) => console.log("error", e)} promise={updateAssetPromise}>
-            <div id="popup-wrapper">
-                <input placeholder={file?.name ?? ''} class="popup-input static-padding" type="text" style="font-size: 20px;" value={$newAssetFileName} on:input={onAssetNameChange}/>
-                {#if $originalAsset}
-                <div>Current file: <a href=#>{$originalAsset?.fileName}</a></div>
-                {/if}
-                {#if file}
-                    <div id="selected-file">
-                        <span>New file: {file.name}</span>
-                        <button style="color: var(--main-love); align-items: center;" on:click|stopPropagation={clearFile}><Delete/></button>
+<div id="wrapper">
+    {#if loading}
+    <div class="container" id="overlay">
+        <Spinner />
+    </div>
+    {/if}
+    <div class="container">
+        <div id="title" class="row">
+            <span>assets</span>
+            <button on:click={handleNewAsset} class="button-round">
+                <Plus/>
+            </button>
+        </div>
+        
+        {#if $assets !== undefined}
+            <Popup onClose={onClose} style={`width:50%;`} bind:show={show}>
+                <Asyncable on:load={onAssetUpdate} on:error={onAssetUpdateError} promise={updateAssetPromise}>
+                    <div id="popup-wrapper">
+                        <input placeholder={file?.name ?? ''} class="popup-input static-padding" type="text" style="font-size: 20px;" value={$newAssetFileName} on:input={onAssetNameChange}/>
+                        {#if $originalAsset}
+                        <div>Current file: <a href=#>{$originalAsset?.fileName}</a></div>
+                        {/if}
+                        {#if file}
+                            <div id="selected-file">
+                                <span>New file: {file.name}</span>
+                                <button style="color: var(--main-love); align-items: center;" on:click|stopPropagation={clearFile}><Delete/></button>
+                            </div>
+                        {:else}
+                            <FileDrop onFileChange={uploadFile}/>
+                        {/if}
+                        <div id="popup-buttons" class="row">
+                            <button class="button-round" on:click={closePopup}><X/></button>
+                            <button disabled={!dirty} class="button-round" on:click={saveAsset}><Save/></button>
+                            {#if $errorMsg}
+                            <div class="error">{$errorMsg}</div>
+                            {/if}
+                        </div>
                     </div>
-                {:else}
-                    <FileDrop onFileChange={uploadFile}/>
-                {/if}
-                <div id="popup-buttons" class="row">
-                    <button class="button-round" on:click={closePopup}><X/></button>
-                    <button disabled={!dirty} class="button-round" on:click={saveAsset}><Save/></button>
-                </div>
+                </Asyncable>
+            </Popup>
+            {#each $assets as asset (asset)}
+            <div animate:flip>
+                <Accordion>
+                    <div class="content" slot="toggle-button">
+                        <span>{asset.name}</span> 
+                        <div>
+                            <button class="button" on:click|stopPropagation={() => {show = true; originalAsset.set(asset); newAssetFileName.set(asset.name)}}><Edit/></button>
+                            <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}><Trash2/></button>
+                        </div>
+                    </div>
+                    <div slot="toggle-content">
+                        <div>{asset.fileName}</div>
+                        {#if hasAudioFileExtension(asset.path)}
+                        <AudioPlayer src={asset.path} html5/>
+                        {:else if hasImgFileExtension(asset.path)}
+                            <img src={asset.path} alt={asset.path} />
+                        {/if}
+                    </div>
+                </Accordion>
             </div>
-        </Asyncable>
-    </Popup>
-    {#each assets as asset, i}
-    <Accordion>
-        <div class="content" slot="toggle-button">
-            <span>{asset.name}</span> 
-            <div>
-                <button class="button" on:click|stopPropagation={() => {show = true; originalAsset.set(asset); newAssetFileName.set(asset.name)}}><Edit/></button>
-                <button class="button" on:click|stopPropagation={() => {show = false; originalAsset.set(undefined); newAssetFileName.set(undefined)}}><Trash2/></button>
-            </div>
-        </div>
-        <div slot="toggle-content">
-            <div>{asset.fileName}</div>
-            {#if hasAudioFileExtension(asset.path)}
-            <AudioPlayer src={asset.path} html5/>
-            {:else if hasImgFileExtension(asset.path)}
-                <img src={asset.path} alt={asset.path} />
-            {/if}
-        </div>
-    </Accordion>
-    {/each}
-{/await}
-
+            {/each}
+        {/if}
+    </div>
+</div>
+    
 <style>
+    #wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+    }
+
+    #overlay {
+        z-index: 1;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
     #title {
         font-size: 32px;
         display: flex;
@@ -142,8 +212,13 @@
         align-items: center;
     }
 
+    .error {
+        color: var(--main-love);
+    }
+
     .button-round {
         padding: 10px;
+        margin: 2px;
     }
 
     #selected-file {
@@ -159,6 +234,7 @@
 
     #popup-buttons {
         gap: 0 10px;
+        align-items: center;
     }
 
     .popup-input {

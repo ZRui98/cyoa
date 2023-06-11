@@ -2,6 +2,7 @@ import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction, Updat
 import db, { Database } from ".";
 import { AdventureAssetTable, AssetResponse, AssetTable } from "../../models/Asset";
 import { getAssetFilePath, getFileURLFromAsset } from "../storage/asset";
+import { ApiError } from "../../util/error";
 
 export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: number, fileName: string}[]> {
     const adventures = await db.selectFrom('adventure_asset')
@@ -15,6 +16,7 @@ export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: 
 export async function getAllAssetsByUser(user: string): Promise<Selectable<AssetResponse>[]> {
     const assets = await db.selectFrom('asset')
         .where('author', '=', user)
+        .orderBy('id')
         .selectAll()
         .execute();
     const response = assets.map(asset => ({...asset, path: getFileURLFromAsset(user, asset.fileName).href}));
@@ -69,18 +71,36 @@ export async function updateAssetDiff(
 export async function insertAssetDb(
     asset: Insertable<AssetTable>,
     trx: Transaction<Database> | Kysely<Database> = db,
-) {
-    return trx.insertInto('asset').values(asset).returningAll().execute();
+): Promise<Selectable<AssetTable>> {
+    let v: Selectable<AssetTable> | undefined;
+    try {
+        v = await trx.insertInto('asset').values(asset).returningAll().executeTakeFirst();
+    } catch(e) {
+        if (e.code === "23505") {
+            throw new ApiError(400, "Asset with identical filename or name exists");
+        }
+    }
+    if (v === undefined) throw new ApiError(500, "Insert failed, unable to fetch object");
+    return v;
 }
 
 export async function updateAssetDb(
     asset: Insertable<AssetTable> | Updateable<AssetTable>,
     trx: Transaction<Database> | Kysely<Database> = db,
     id: number,
-) {
-    const response = await trx.updateTable('asset').set(asset)
+): Promise<Selectable<AssetTable>> {
+    const v = await trx.updateTable('asset').set(asset)
         .where('id', '=', id)
         .returningAll()
-        .execute();
+        .executeTakeFirst();
+    if (v === undefined) throw new ApiError(500, "Insert failed, unable to fetch object");
+    return v;
+}
+
+export async function deleteAssetDb(
+    id: number,
+    trx: Transaction<Database> | Kysely<Database> = db,
+) {
+    const response = await trx.deleteFrom('asset').where('id', '=', id).executeTakeFirst();
     return response[0];
 }

@@ -23,7 +23,7 @@ export async function getAssets(): Promise<AssetResponse[]> {
     return response;
 }
 
-export async function updateAsset(id?: number, newName?: string, file?: File) {
+export async function updateAsset(id?: number, newName?: string, file?: File): Promise<AssetResponse | null> {
 
     let url = `${env.PUBLIC_API_BASE_PATH}/asset`;
     if (id) {
@@ -34,6 +34,24 @@ export async function updateAsset(id?: number, newName?: string, file?: File) {
     const name = newName ?? file?.name;
     formData.append('name', name!);
     formData.append('', file ?? new File([''], ''));
-    const response = await fetch(url, {method: id ? 'PUT' : 'POST', body: formData});
-    return;
-} 
+    let value: AssetResponse | null = null;
+    await fetch(url, {method: id ? 'PUT' : 'POST', body: formData})
+        .then(async (response) => {
+            const body = await response.json();
+            value = body;
+            if (!response.ok) {
+                throw new Error(body.message);
+            }
+        });
+    return value;
+}
+
+export async function deleteAsset(id: number): Promise<AssetResponse | null> {
+    const url = `${env.PUBLIC_API_BASE_PATH}/asset/${id}`;
+    let value: AssetResponse | null = null;
+    await fetch(url, {method: 'DELETE'})
+        .then((response) => response.json())
+        .then((data: AssetResponse | null) => value = data)
+        .catch(e => {throw new Error(e.message)});
+    return value;
+}

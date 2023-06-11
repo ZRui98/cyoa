@@ -7,7 +7,7 @@ import { slide } from "svelte/transition";
     `;
 </script>
 
-<div id="container" class="static-padding">
+<div id="container" class="static-padding" {...$$restProps}>
     <div class="card static-padding" id="accordion-button" aria-expanded={open}
         on:click={() => open = !open}
         on:keydown|self={(e) => e.code === 'Enter' ?? (open = !open)}

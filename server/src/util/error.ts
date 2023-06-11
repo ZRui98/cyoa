@@ -5,3 +5,8 @@ export class ApiError extends Error {
         this.code = code;
     } 
 }
+
+export function isApiError(e: Error): e is ApiError {
+    const test = (e as ApiError);
+    return test.code >= 0 && test.message !== undefined;
+}
