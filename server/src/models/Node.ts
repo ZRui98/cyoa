@@ -1,4 +1,4 @@
-import Ajv, {JSONSchemaType} from "ajv"
+import {JSONSchemaType} from "ajv"
 import { Asset, assetSchema } from "./Asset"
 
 export interface Node {

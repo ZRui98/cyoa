@@ -13,7 +13,7 @@
 <div class="card">
     <div>
         <div class="title">
-            <a class="play-button" href={`/user/${author}/${name}`}>Play <ArrowRight /></a>
+            <a class="button-round" href={`/user/${author}/${name}`}>Play <ArrowRight /></a>
             {name}
         </div>
         <div>
@@ -29,6 +29,7 @@
         display: flex;
         justify-content: space-between;
         gap: 10%;
+        border: 1px solid var(--main-highlight-high);
     }
     .title {
         font-size: 32px;
@@ -38,20 +39,10 @@
         gap: 10px;
     }
 
-    .play-button {
-        text-decoration: none;
-        color: var(--main-fg);
-        font-size: 16px;
+    .button-round {
         padding: 8px 30px;
-        background-color: var(--main-highlight-med);
-        border-radius: 25px;
-        display: flex;
-        align-items: center;
         gap: 5px;
-    }
-
-    .play-button:hover {
-        background-color: var(--main-highlight-high);
+        font-size: 16px;
     }
 
     .count {

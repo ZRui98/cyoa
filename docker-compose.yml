@@ -1,5 +1,12 @@
 version: '3.5'
 services:
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:Z,ro
+    network_mode: host
+
   r2:
     container_name: r2
     restart: always

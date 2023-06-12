@@ -6,12 +6,13 @@
 
 <header>
     <div>
-        <a href="/" class="button">Home</a>
-        <a href="/login" class="button">Login</a>
-        <a href="/signup" class="button">Upload</a>
+        <a href="/" class="button static-padding">Home</a>
+        <a href="/login" class="button static-padding">Login</a>
+        <a href="/signup" class="button static-padding">Upload</a>
     </div>
     <div class="left-panel">
         <button
+            class="button"
             on:click="{
                 () => {
                     window.document.querySelector("html")?.toggleAttribute('dark-mode');
@@ -20,12 +21,12 @@
             }"
         >
             {#if darkMode}
-                <Lightbulb />
+                <Lightbulb size={21}/>
             {:else}
-                <Moon />
+                <Moon size={21}/>
             {/if}
         </button>
-        <a class="left-panel" href="/user/me"><User/></a>
+        <a class="left-panel button" href="/user/me"><User size={21}/></a>
     </div>
 
 </header>
@@ -38,11 +39,14 @@
         padding-top: 20px;
         padding-bottom: 20px;
         justify-content: space-between;
-        margin-left: -10px;
-        margin-right: -10px;
     }
 
-    .left-panel {
+    a {
+        height: auto;
+        font-size: 20px;
+    }
+
+    .left-panel, .left-panel .button {
         color: var(--main-fg);
     }
 

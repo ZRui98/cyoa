@@ -1,5 +1,5 @@
 import {JSONSchemaType} from "ajv"
-import { Generated, Insertable, Selectable, Updateable } from "kysely"
+import { Generated } from "kysely"
 
 export interface Asset {
 }
@@ -12,30 +12,51 @@ export interface ExportableAsset extends Asset {
   path: string
 }
 
+export interface AudioAsset extends ExportableAsset {
+  autoplay?: boolean
+}
+
+export interface ImageAsset extends ExportableAsset {
+  width?: number
+  height?: number
+}
+
 export interface ManagedExportableAsset extends ExportableAsset {
   managedAssetName: string
 }
 
+export interface ManagedAudioExportableAsset extends AudioAsset, ExportableAsset {
+  html5: boolean
+}
+
 export const isTextAsset = (x: Asset): x is TextAsset =>
   (x as TextAsset).content !== undefined
+
 export const isExportableAsset = (x: Asset): x is ExportableAsset =>
   (x as ExportableAsset).path !== undefined
+
 export const isManagedExportableAsset = (x: Asset): x is ManagedExportableAsset => 
   (x as ManagedExportableAsset).managedAssetName !== undefined
 
-export const isAudioExportableAsset = (x: Asset): x is ExportableAsset => {
+export const isAudioExportableAsset = (x: Asset): x is AudioAsset => {
   if (isExportableAsset(x)) {
-    return x.path.endsWith('.mp3');
+    return hasAudioFileExtension(x.path);
   }
   return false;
 }
 
-export const isImgExportableResource = (x: Asset): x is ExportableAsset => {
+export const hasAudioFileExtension =(fileName: string): boolean => 
+  ['.mp3'].some(ext => fileName.endsWith(ext));
+
+export const isImgExportableAsset = (x: Asset): x is ImageAsset => {
   if (isExportableAsset(x)) {
-    return ['.jpg', '.png'].some(ext => x.path.endsWith(ext));
+    return hasImgFileExtension(x.path);
   }
   return false;
 }
+
+export const hasImgFileExtension =(fileName: string): boolean => 
+  ['.jpg', '.png'].some(ext => fileName.endsWith(ext));
 
 export interface AssetMetaData {
   name: string;
@@ -45,7 +66,12 @@ export interface AssetMetaData {
 }
 
 export interface AssetTable extends AssetMetaData {
-  id: Generated<number>
+  id: Generated<number>;
+}
+
+export interface AssetResponse extends Omit<AssetTable, 'id'> {
+  id: number,
+  path: string;
 }
 
 export interface AdventureAssetTable {

@@ -25,7 +25,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('assetId', 'bigint', (col) => col)
     .addColumn('adventureId', 'bigint', (col) => col)
     .execute();
-await db.schema.createIndex('adventure_asset_unique')
+  await db.schema.createIndex('adventure_asset_unique')
     .on('adventure_asset')
     .columns(['assetId', 'adventureId'])
     .unique()

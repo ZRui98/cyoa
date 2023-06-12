@@ -52,6 +52,44 @@ button {
 
 .button:active {
     background-color: var(--main-highlight-high);
+    outline: 2px solid var(--main-pine);
+}
+
+.button-round {
+    text-decoration: none;
+    color: var(--main-fg);
+    background-color: var(--main-highlight-med);
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.button-round:hover {
+    background-color: var(--main-highlight-high);
+}
+
+.button-round:active {
+    outline: 2px solid var(--main-pine);
+}
+
+.button-round:disabled {
+    background-color: var(--main-highlight-low);
+    color: var(--main-highlight-med);
+    cursor: initial;
+}
+.button-round:disabled:active {
+    outline: none;
+}
+
+.static-padding { 
+    -moz-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+     box-sizing: border-box; 
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
 }
 
 a {
@@ -61,4 +99,30 @@ a {
 
 canvas {
     display: block;
+}
+
+input[type="text"] {
+    padding: 5px 10px;
+    background-color: var(--main-overlay);
+    border: 2px solid var(--main-highlight-med);
+    border-radius: 5px;
+    color: var(--main-fg);
+}
+input:focus{
+    border: 2px solid var(--main-highlight-high);
+    background-color: var(--main-highlight-med);
+    outline: none;
+}
+
+::selection {
+    background-color: var(--main-highlight-high);
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
 }

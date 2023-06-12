@@ -5,17 +5,19 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
+    "dev:docker": "nodemon -e ts --exec ts-node-esm src/index.ts | pino-pretty",
     "dev": "nodemon -e ts --exec ts-node-esm -r dotenv/config src/index.ts dotenv_config_path=.env.local | pino-pretty",
     "build": "rollup -c rollup.dev.config.js",
     "build:prod": "rollup -c rollup.prod.config.js",
     "start": "node -r dotenv/config ./dist/index.js dotenv_config_path=.env.local | pino-pretty",
     "build:start": "npm run build && npm run start",
-    "db:migrate": "ts-node-esm db/migrate.ts",
+    "db:migrate": "ts-node-esm -r dotenv/config db/migrate.ts dotenv_config_path=.env.local",
     "dependency-test": "npx madge --circular --extensions ts ./src"
   },
   "license": "MIT",
   "dependencies": {
     "@datastructures-js/queue": "^4.2.3",
+    "@fastify/cors": "^8.3.0",
     "@fastify/multipart": "^7.6.0",
     "ajv": "^8.12.0",
     "fastify": "^4.15.0",

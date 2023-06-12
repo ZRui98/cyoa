@@ -1,9 +1,10 @@
 import Ajv from "ajv";
-import { adventureSchema } from "./Adventure"
-import { assetSchema } from "./Asset";
+import { adventureMetadataSchema, adventureSchema } from "./Adventure";
 
 const ajv = new Ajv();
 
-const schema = ajv.compile(assetSchema);
+const schema = ajv
+    .addSchema(adventureMetadataSchema)
+    .compile(adventureSchema);
 
 export default schema;

@@ -16,10 +16,6 @@ const config = {
 			'@backend/*': "../server/src/models/*",
 		}
 	},
-
-	// vite: {
-	// 	plugins: [resolve()]
-	// }
 };
 
 export default config;

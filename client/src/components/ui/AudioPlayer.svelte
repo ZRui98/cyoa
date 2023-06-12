@@ -5,7 +5,7 @@
     import { derived, writable } from 'svelte/store';
 
     export let src: string;
-    export let autoplay: boolean = true;
+    export let autoplay: boolean = false;
     export let html5: boolean = true;
     const maxTime = 1000;
 
@@ -113,6 +113,7 @@
     .audio-player input {
         flex-grow: 1;
         border: solid 1px var(--main-love);
+        background-color: var(--main-bg);
         border-radius: 8px;
         height: 5px;
         outline: none;

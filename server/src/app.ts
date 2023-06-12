@@ -1,9 +1,10 @@
+import cors from '@fastify/cors'
 import multipart from '@fastify/multipart';
 import fastify from 'fastify';
-import { adventureSchema } from './models/Adventure';
 import { default as adventureRoutes } from './routes/adventure';
 import { default as assetRoutes } from './routes/asset';
 import { default as userRoutes } from './routes/user';
+import { adventureMetadataSchema, adventureSchema } from './models/Adventure';
 
 const app = fastify({
   logger: true,
@@ -15,12 +16,20 @@ const app = fastify({
 });
 
 app
-  .addSchema(adventureSchema);
-app.register(multipart);
+  .addSchema(adventureSchema)
+  .addSchema(adventureMetadataSchema);
 
 
-app.register(adventureRoutes, {prefix: '/adventure'});
-app.register(assetRoutes, { prefix: '/asset'});
-app.register(userRoutes, { prefix: '/user'});
+// plugins
+app.register(cors, {
+  origin: `${process.env.CORS_DOMAIN}`.split(','),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+})
+  .register(multipart);
+
+// routes
+app.register(adventureRoutes, {prefix: '/adventure'})
+  .register(assetRoutes, { prefix: '/asset'})
+  .register(userRoutes, { prefix: '/user'});
 
 export default app;
