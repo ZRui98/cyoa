@@ -29,7 +29,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
                 res.send(response);
             } catch (err) {
                 if (isApiError(err)) {
-                    console.log('api error:', err.message);
+                    app.log.info(err, 'api error');
                     res.code(err.code);
                     res.send({message: err.message});
                     return;
@@ -45,7 +45,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
             let fileData: {file: BusboyFileStream, filename: string} | undefined;
             let name: string | undefined;
             const data = await req.file(assetUploadConfig);
-            console.log('data here', data);
+            app.log.info({data}, "data here");
             if (data) {
                 fileData = {file: data.file, filename: data.filename};
                 const fields = data.fields as unknown as {
@@ -59,7 +59,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
                 res.code(204);
                 return;
             }
-            console.log(name, id, fileData)
+            app.log.info({name, id, fileData}, "uploaded file")
             const value = await updateAsset({...fileData, name, id});
             res.code(value ? 201 : 200);
             res.send(value);
