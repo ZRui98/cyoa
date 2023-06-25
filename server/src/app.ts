@@ -10,9 +10,9 @@ import { default as assetRoutes } from './routes/asset';
 import { default as userRoutes } from './routes/user';
 import { default as authRoutes } from './routes/auth';
 import { adventureMetadataSchema, adventureSchema } from './models/Adventure';
-import path from 'path';
-import * as fs from 'fs';
-import { SignInWithGoogleStrategy } from './api/middleware/SignInWithGoogleStrategy';
+import { SignInWithGoogleStrategy, verify as verifyGoogle } from './api/auth/SignInWithGoogleStrategy';
+import { deserializeUser, serializeUser } from './api/auth/serializers';
+import { errorHandler } from './util/error';
 
 const app = fastify({
   logger: true,
@@ -34,7 +34,7 @@ app.register(fastifySecureSession, {
   key: Buffer.from(`${process.env.SECRET_SESSION_KEY}`, 'hex'),
   cookie: {
     path: '/',
-    sameSite: 'strict',
+    httpOnly: true
   }
 }).register(passport.initialize())
 .register(passport.secureSession());
@@ -42,30 +42,19 @@ app.register(fastifySecureSession, {
 passport.use('sign-in-with-google', new SignInWithGoogleStrategy({
   clientID: `${process.env.GOOGLE_SIGN_IN_CLIENT_ID}`,
   clientSecret: `${process.env.GOOGLE_SIGN_IN_CLIENT_SECRET}`
-}, async (profile, done) => {
-  
-  const user = {
-    name: profile.name,
-    email: profile.email,
-    id: profile.sub
-  }
-  done(undefined, user);
-}))
+}, verifyGoogle))
 
-passport.registerUserSerializer(async (user, req) => {
-  app.log.info({user}, "user serialization");
-  return user;
-});
+passport.registerUserSerializer(serializeUser);
 
-passport.registerUserDeserializer(async (user, req) => {
-  return user;
-})
+passport.registerUserDeserializer(deserializeUser);
 
 app.register(cors, {
   origin: `${process.env.CORS_DOMAIN}`.split(','),
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  credentials: true
 });
 app.register(multipart).register(formbody);
+app.setErrorHandler(errorHandler);
 
 // routes
 app.register(adventureRoutes, {prefix: '/adventure'})

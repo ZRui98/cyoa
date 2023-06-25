@@ -1,5 +1,5 @@
-import type { Adventure } from '@backend/Adventure'
-import type { Node } from '@backend/Node'
+import type { Adventure } from '@backend/models/Adventure'
+import type { Node } from '@backend/models/Node'
 import { get, writable } from 'svelte/store'
 import { getAdventure } from '../utils/api'
 
@@ -9,8 +9,8 @@ export const createAdventureStore = () => {
         subscribe: adventureStore.subscribe,
         setAdventure: async (author: string, adventureName: string) => {
             const adventure = await getAdventure(
-                "user1",
-                "sample-story"
+                author,
+                adventureName
             );
             adventureStore.set(adventure);
         },
@@ -22,16 +22,16 @@ export const createAdventureStore = () => {
 }
 
 export const adventureStore = createAdventureStore()
-export type AdventureStore = typeof adventureStore
+export type AdventureStore = typeof adventureStore;
 
 export const createCurrenctActiveNode = () => {
     const val = writable<string | undefined>();
-    const {subscribe, set, update} = val;
+    const {subscribe, set} = val;
     adventureStore.subscribe((newAdventure) => {
         if (newAdventure?.start !== get(val)) {
             set(newAdventure?.start)
         }
-    })
+    });
     return {
         subscribe,
         set: (newVal: string | undefined) => {

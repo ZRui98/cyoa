@@ -110,7 +110,6 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
         if (!inserted) throw new ApiError(500, "failed to insert");
         if (oldAdventure.name !== row.name || oldAdventure.description !== row.description) {
             const nameChanged = oldAdventure.name !== row.name;
-            console.log('what happened', oldAdventure.name, row.name, nameChanged, filePath);
             oldAdventure.name = row.name;
             oldAdventure.description = row.description;
             await s3.putObject({

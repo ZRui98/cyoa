@@ -4,7 +4,9 @@ services:
     image: nginx:latest
     restart: unless-stopped
     volumes:
-      - ./nginx:/etc/nginx/conf.d:Z,ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:Z
+      - ./ssl/domain.crt:/root/ssl/domain.crt:Z
+      - ./ssl/domain.key:/root/ssl/domain.key:Z
     network_mode: host
 
   r2:

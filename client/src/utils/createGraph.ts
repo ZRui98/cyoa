@@ -1,4 +1,4 @@
-import type { Node } from '@backend/Node'
+import type { Node } from '@backend/models/Node'
 import { Queue } from '@datastructures-js/queue'
 import {
     Direction,

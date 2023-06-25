@@ -25,7 +25,7 @@
   id="filedrop"
   on:drop={handleDrop}
   on:dragover={(e)=>e.preventDefault()}
-  on:click={(e) => {e.preventDefault(); console.log('clicked');input.click()}}
+  on:click={(e) => {e.preventDefault();input.click()}}
   on:keydown|self={(e) => e.code === 'Enter' ?? input.click()}
   {...$$restProps}
 >

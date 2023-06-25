@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import type { Adventure } from "@backend/Adventure";
+    import type { Adventure } from "@backend/models/Adventure";
     import { NodeGraphics } from "../pixi/NodeGraphics";
     import { PixiApplication } from "../pixi/PixiApplication";
     import { PixiZoomPanContainer } from "../pixi/PixiZoomPanContainer";
@@ -8,8 +8,10 @@
     import {adventureStore } from "../../store/adventure";
     import { getWidthAndHeight, processLayersToCoords } from "../../utils/createGraph";
     import { ArrowGraphics } from "../pixi/ArrowGraphics";
+    import type { Unsubscriber } from "svelte/store";
     let zoomContainer: PixiZoomPanContainer;
     let div: HTMLElement;
+    let unsub: Unsubscriber;
   
     onMount(() => {
       const pixi = new PixiApplication({
@@ -21,7 +23,7 @@
       pixi.application.stage.addChild(zoomContainer);
       div.appendChild(pixi.application.view as unknown as Node);
   
-      adventureStore.subscribe((adventure) => {
+      unsub = adventureStore.subscribe((adventure) => {
         zoomContainer.removeChildren();
         if (adventure) {
           drawGraph(adventure);
@@ -31,6 +33,7 @@
   
     onDestroy(() => {
       zoomContainer?.removeAllListeners();
+      unsub();
     })
   
     function drawGraph(adventure: Adventure) {
