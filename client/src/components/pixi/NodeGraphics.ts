@@ -1,4 +1,4 @@
-import type { Node } from '@backend/Node'
+import type { Node } from '@backend/models/Node'
 import { Text, TextStyle } from 'pixi.js'
 import { currentActiveNode } from '../../store/adventure'
 import { SmoothGraphics } from '@pixi/graphics-smooth'
@@ -57,7 +57,7 @@ export class NodeGraphics extends SmoothGraphics {
     }
 
     onPointerDown() {
-        currentActiveNode.set(this.id)
+        currentActiveNode.set(this.id);
     }
 
     onPointerUp() {

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Edge } from "@backend/Node";
-    import { isAudioExportableAsset, isTextAsset, type ExportableAsset, type TextAsset, type Asset, isImgExportableAsset } from "@backend/Asset";
+    import type { Edge } from "@backend/models/Node";
+    import { isAudioExportableAsset, isTextAsset, type ExportableAsset, type TextAsset, type Asset, isImgExportableAsset } from "@backend/models/Asset";
     import { adventureStore, currentActiveNode } from "../../store/adventure";
     import AudioPlayer from "./AudioPlayer.svelte";
 

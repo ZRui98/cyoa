@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { type AssetResponse, hasAudioFileExtension, hasImgFileExtension } from "@backend/Asset";
-    import { getAssets, updateAsset, deleteAsset } from "../../../utils/api";
-    import { onMount } from "svelte";
+    import { type AssetResponse, hasAudioFileExtension, hasImgFileExtension } from "@backend/models/Asset";
+    import { updateAsset, deleteAsset } from "../../../utils/api";
     import Popup from "../../../components/ui/Popup.svelte";
     import FileDrop from "../../../components/ui/FileDrop.svelte";
     import Accordion from "../../../components/ui/Accordion.svelte";
@@ -19,10 +18,6 @@
     let assets: Writable<AssetResponse[]> = writable(data.assets);
     let newAssetFileName: Writable<string | undefined> = writable();
     let originalAsset: Writable<AssetResponse | undefined> = writable();
-
-    onMount(async () => {
-        console.log('special data', data);
-    });
 
     $: loading = $assets === undefined || deleteAssetPromise !== undefined;
 
@@ -83,9 +78,7 @@
     }
 
     function onAssetUpdateError(e: CustomEvent<{error: Error}>) {
-        console.log(e);
         $errorMsg = e.detail.error.message;
-        console.log(errorMsg);
         updateAssetPromise = undefined;
     }
 

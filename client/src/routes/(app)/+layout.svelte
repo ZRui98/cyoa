@@ -4,6 +4,7 @@
     import { writable } from "svelte/store";
     const layoutStyling = writable<string>("");
     setContext('layoutStyling', layoutStyling);
+
 </script>
 
 <div id="content" style={$layoutStyling}>

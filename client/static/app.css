@@ -92,7 +92,7 @@ button {
     flex-direction: row;
 }
 
-a {
+a, .link {
     text-decoration: underline;
     color: var(--main-iris);
 }

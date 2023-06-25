@@ -1,10 +1,18 @@
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 
 export interface LoginState {
-    username: string;
-    token: string;
+    user?: string;
+    activated: boolean;
 }
 
-const loginState = writable<LoginState | undefined>(undefined);
+function createLoginState() {
+    const state = writable<LoginState | undefined>(undefined);
+
+    return {
+        ...state
+    }
+}
+
+const loginState = createLoginState();
 
 export default loginState;

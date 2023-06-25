@@ -21,6 +21,11 @@ export interface AdventureTable extends AdventureMetaData {
   playCount: number
 }
 
+export interface AdventureSummary {
+  name: string,
+  description?: string
+};
+
 export const adventureMetadataSchema: JSONSchemaType<AdventureMetaData> = {
   $id: 'adventure_metadata',
   type: 'object',

@@ -3,11 +3,10 @@
 
     let googleButton: HTMLElement;
     const initGoogleButton = async () => {
-        console.log('ready');
         google.accounts.id.initialize({
             client_id: env.PUBLIC_GOOGLE_CLIENT_ID,
             ux_mode: 'redirect',
-            login_uri: 'http://localhost:3000/auth/google/callback'
+            login_uri: 'https://api.localtest.me:8080/auth/google/login'
         });
         google.accounts.id.renderButton(
             googleButton,
@@ -26,9 +25,15 @@
     <script src="https://accounts.google.com/gsi/client" on:load={initGoogleButton}></script>
 </svelte:head>
 
-<main>
+<div id="content">
     <div id=buttonDiv bind:this={googleButton}></div>
-</main>
+</div>
 
-<style global>
+<style>
+    #content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 </style>

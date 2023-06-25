@@ -1,4 +1,5 @@
 node_modules
 dist
 minio
-.env.local
+ssl/domain.crt
+ssl/domain.key

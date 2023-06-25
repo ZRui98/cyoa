@@ -17,9 +17,7 @@ export function getFileURLFromAsset(user: string, fileName: string): URL {
     return url;
 }
 
-export async function saveAsset({file, filename, name}: {file: BusboyFileStream, filename: string, name: string}): Promise<AssetResponse> {
-    let author = 'user1';
-    console.log('filename is ',filename, file);
+export async function saveAsset({file, filename, name}: {file: BusboyFileStream, filename: string, name: string}, author: string): Promise<AssetResponse> {
     const existingAsset = await getAssetFromDb({author, name, fileName: filename});
     if (existingAsset) throw new ApiError(409, "Asset already exists.");
   
@@ -40,8 +38,7 @@ export async function saveAsset({file, filename, name}: {file: BusboyFileStream,
     }
 }
   
-export async function updateAsset({file, filename, name, id}: {file?: BusboyFileStream, filename?: string, name?: string, id: number}): Promise<AssetResponse | null> {
-    let author = 'user1';
+export async function updateAsset({file, filename, name, id}: {file?: BusboyFileStream, filename?: string, name?: string, id: number}, author: string): Promise<AssetResponse | null> {
     const asset = await getAssetFromDb({id});
     if (!asset) throw new ApiError(404, "asset not found");
     // if filename or asset name has changed, and asset should be updated, then reupload all json adventures using updated asset.
@@ -77,8 +74,7 @@ export async function updateAsset({file, filename, name, id}: {file?: BusboyFile
     return assetResponse;
 }
 
-export async function deleteAsset(id: number): Promise<AssetResponse | null> {
-    let author = 'user1';
+export async function deleteAsset(id: number, author: string): Promise<AssetResponse | null> {
     const asset = await getAssetFromDb({id});
     
     if (!asset) throw new ApiError(404, 'asset not found');
