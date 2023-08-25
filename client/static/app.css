@@ -1,128 +1,133 @@
 html {
-    margin: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    font-family: 'sans-serif';
-    height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: 'sans-serif';
+  height: 100%;
 }
 
 body {
-    margin: 0;
-    height: 100%;
-    background-color: var(--main-bg);
-    color: var(--main-fg);
-    display: flex;
-    flex-direction: column;
+  margin: 0;
+  height: 100%;
+  background-color: var(--main-bg);
+  color: var(--main-fg);
+  display: flex;
+  flex-direction: column;
 }
 
 * {
-    transition: background-color 0.5s;
+  transition: background-color 0.5s;
 }
 
 button {
-    background: none;
-    color: inherit;
-    border: none;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
 }
 
 #app {
-    height: 100%;
+  height: 100%;
 }
 
 .card {
-    padding: 20px 40px;
-    background-color: var(--main-surface);
-    border-radius: 10px;
+  padding: 20px 40px;
+  background-color: var(--main-surface);
+  border-radius: 10px;
 }
 
 .button {
-    text-decoration: none;
-    color: var(--main-love);
-    padding: 5px 10px;
-    border-radius: 5px;
+  text-decoration: none;
+  color: var(--main-love);
+  padding: 5px 10px;
+  border-radius: 5px;
 }
 
 .button:hover {
-    background-color: var(--main-highlight-med);
+  background-color: var(--main-highlight-med);
 }
 
 .button:active {
-    background-color: var(--main-highlight-high);
-    outline: 2px solid var(--main-pine);
+  background-color: var(--main-highlight-high);
+  outline: 2px solid var(--main-pine);
 }
 
 .button-round {
-    text-decoration: none;
-    color: var(--main-fg);
-    background-color: var(--main-highlight-med);
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
+  padding: 8px 30px;
+  text-decoration: none;
+  color: var(--main-fg);
+  background-color: var(--main-highlight-med);
+  border-radius: 25px;
+}
+
+.button-round > * {
+  display: block;
+  margin: auto;
 }
 
 .button-round:hover {
-    background-color: var(--main-highlight-high);
+  background-color: var(--main-highlight-high);
 }
 
 .button-round:active {
-    outline: 2px solid var(--main-pine);
+  outline: 2px solid var(--main-pine);
 }
 
 .button-round:disabled {
-    background-color: var(--main-highlight-low);
-    color: var(--main-highlight-med);
-    cursor: initial;
+  background-color: var(--main-highlight-low);
+  color: var(--main-highlight-med);
+  cursor: initial;
 }
 .button-round:disabled:active {
-    outline: none;
+  outline: none;
 }
 
-.static-padding { 
-    -moz-box-sizing: border-box; 
-    -webkit-box-sizing: border-box; 
-     box-sizing: border-box; 
+.static-padding {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .row {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
-a, .link {
-    text-decoration: underline;
-    color: var(--main-iris);
+a,
+.link {
+  text-decoration: underline;
+  color: var(--main-iris);
 }
 
 canvas {
-    display: block;
+  display: block;
 }
 
-input[type="text"] {
-    padding: 5px 10px;
-    background-color: var(--main-overlay);
-    border: 2px solid var(--main-highlight-med);
-    border-radius: 5px;
-    color: var(--main-fg);
+input[type='text'] {
+  padding: 5px 10px;
+  background-color: var(--main-overlay);
+  border: 2px solid var(--main-highlight-med);
+  border-radius: 5px;
+  color: var(--main-fg);
 }
-input:focus{
-    border: 2px solid var(--main-highlight-high);
-    background-color: var(--main-highlight-med);
-    outline: none;
+input:focus {
+  border: 2px solid var(--main-highlight-high);
+  background-color: var(--main-highlight-med);
+  outline: none;
 }
 
 ::selection {
-    background-color: var(--main-highlight-high);
+  background-color: var(--main-highlight-high);
 }
 
 @keyframes rotation {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(359deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }

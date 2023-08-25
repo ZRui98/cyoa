@@ -3,7 +3,7 @@ import { Asset, assetSchema } from "./Asset"
 
 export interface Node {
   name: string,
-  assets?: Asset[],
+  assets: Asset[],
   links: Edge[]
 }
 
@@ -35,9 +35,8 @@ export const nodeSchema: JSONSchemaType<Node> = {
     assets: {
       type: 'array',
       items: assetSchema,
-      nullable: true,
     }
   },
-  required: ["links", "name"],
+  required: ["name", "assets", "links"],
   additionalProperties: false
 } as const;

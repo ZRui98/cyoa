@@ -1,134 +1,144 @@
 <script lang="ts">
-    import { Howl } from 'howler';
-    import { Pause, Play } from 'lucide-svelte';
-    import { onDestroy, onMount } from 'svelte';
-    import { derived, writable } from 'svelte/store';
+  import { Howl } from 'howler';
+  import { Pause, Play } from 'lucide-svelte';
+  import { onDestroy, onMount } from 'svelte';
+  import { derived, writable } from 'svelte/store';
 
-    export let src: string;
-    export let autoplay: boolean = false;
-    export let html5: boolean = true;
-    const maxTime = 1000;
+  export let src: string;
+  export let autoplay: boolean = false;
+  export let html5: boolean = true;
+  const maxTime = 1000;
 
-    let bar: HTMLElement;
-    let howl: Howl | undefined;
-    let playing = writable(false);
-    let progress = writable(0);
-    progress.subscribe((val) => {
-        if (!bar) return;
-        const value = Math.ceil((val / maxTime) * 1000) / 10;
-        bar.style.background = 'linear-gradient(to right, var(--main-rose) 0%, var(--main-rose) ' + value + '%, var(--main-surface) ' + value + '%, var(--main-surface) 100%)';
+  let bar: HTMLElement;
+  let howl: Howl | undefined;
+  let playing = writable(false);
+  let progress = writable(0);
+  progress.subscribe((val) => {
+    if (!bar) return;
+    const value = Math.ceil((val / maxTime) * 1000) / 10;
+    bar.style.background =
+      'linear-gradient(to right, var(--main-rose) 0%, var(--main-rose) ' +
+      value +
+      '%, var(--main-surface) ' +
+      value +
+      '%, var(--main-surface) 100%)';
+  });
+  let time = derived(progress, (val) => {
+    if (!howl) return '0:00';
+    const newTime = Math.round(((val / maxTime) * howl.duration() + Number.EPSILON) * 100);
+    const numSec = Math.floor(newTime / 100).toLocaleString('en-US', {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
     });
-    let time = derived(progress, (val) => {
-        if (!howl) return "0:00";
-        const newTime = Math.round((val / maxTime * howl.duration() + Number.EPSILON) * 100);
-        const numSec = Math.floor(newTime / 100).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-        const numMin = Math.floor(newTime / (100 * 60)).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-        return `${numMin}:${numSec}`
+    const numMin = Math.floor(newTime / (100 * 60)).toLocaleString('en-US', {
+      minimumIntegerDigits: 2,
+      useGrouping: false,
     });
+    return `${numMin}:${numSec}`;
+  });
 
-    let interval: NodeJS.Timer;
+  let interval: NodeJS.Timer;
 
-    function step() {
-        if (!howl) return;
-        const time = howl.seek();
-        const val = time / howl.duration() * maxTime;
-        progress.set(val);
+  function step() {
+    if (!howl) return;
+    const time = howl.seek();
+    const val = (time / howl.duration()) * maxTime;
+    progress.set(val);
+  }
+
+  function seek(e: Event) {
+    if (!howl) return;
+    const val = +(e.target as HTMLInputElement).value;
+    progress.set(val);
+    if ($playing) {
+      howl.pause();
     }
+    howl.seek((val / maxTime) * howl.duration());
+  }
 
-    function seek(e: Event) {
-        if (!howl) return;
-        const val = +(e.target as HTMLInputElement).value;
-        progress.set(val);
-        if ($playing) {
-            howl.pause();
-        }
-        howl.seek(val / maxTime * howl.duration());
-
+  function togglePlay() {
+    if (!howl) return;
+    if (howl.playing()) {
+      howl.pause();
+    } else {
+      howl.play();
     }
+  }
 
-    function togglePlay() {
-        if (!howl) return;
-        if (howl.playing()) {
-            howl.pause();
-        } else {
-            howl.play();
-        }
-    }
+  function onPlay() {
+    playing.set(true);
+    interval = setInterval(step, 15);
+  }
 
-    function onPlay() {
-        playing.set(true);
-        interval = setInterval(step, 15);
-    }
+  function onPause() {
+    playing.set(false);
+    clearInterval(interval);
+  }
 
-    function onPause() {
-        playing.set(false);
-        clearInterval(interval);
-    }
-
-    onMount(() => {
-        howl = new Howl({
-            src: [src],
-            autoplay,
-            onplay: onPlay,
-            onpause: onPause,
-            onstop: onPause,
-            onend: onPause,
-            html5
-        });
+  onMount(() => {
+    howl = new Howl({
+      src: [src],
+      autoplay,
+      onplay: onPlay,
+      onpause: onPause,
+      onstop: onPause,
+      onend: onPause,
+      html5,
     });
+  });
 
-    onDestroy(() => {
-        howl?.stop();
-    })
+  onDestroy(() => {
+    howl?.stop();
+  });
 </script>
 
 <div class="audio-player">
-    <button class="play-button" disabled={!howl} on:click={togglePlay}>
-        {#if $playing}
-            <Pause/>
-        {:else}
-            <Play />
-        {/if}
-        </button>
-    <input bind:this={bar} type="range" max={maxTime} value={$progress} on:input={seek} on:change={() => howl?.play()}/>
-    <div class="time">{$time}</div>
+  <button class="play-button" disabled={!howl} on:click={togglePlay}>
+    {#if $playing}
+      <Pause />
+    {:else}
+      <Play />
+    {/if}
+  </button>
+  <input bind:this={bar} type="range" max={maxTime} value={$progress} on:input={seek} on:change={() => howl?.play()} />
+  <div class="time">{$time}</div>
 </div>
 
 <style>
-    .audio-player {
-        display: flex;
-        flex-direction: row;
-        height: 50px;
-        align-items: center;
-        width: 100%;
-    }
+  .audio-player {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    width: 100%;
+  }
 
-    .audio-player .play-button {
-        margin-right: 10px;
-    }
-    .audio-player .time {
-        margin-left: 10px;
-    }
+  .audio-player .play-button {
+    margin-right: 10px;
+  }
+  .audio-player .time {
+    margin-left: 10px;
+  }
 
-    .audio-player input {
-        flex-grow: 1;
-        border: solid 1px var(--main-love);
-        background-color: var(--main-bg);
-        border-radius: 8px;
-        height: 5px;
-        outline: none;
-        transition: background 450ms ease-in;
-        appearance: none;
-        -webkit-appearance: none;
-    }
+  .audio-player input {
+    flex-grow: 1;
+    border: solid 1px var(--main-love);
+    background-color: var(--main-bg);
+    border-radius: 8px;
+    height: 5px;
+    outline: none;
+    transition: background 450ms ease-in;
+    appearance: none;
+    -webkit-appearance: none;
+  }
 
-    .audio-player input[type=range]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        margin-top: 0px;
-        background-color: var(--main-rose);
-        height:5px;
-        width: 5px;
-        border-radius: 0 90px 90px 0;
-    }
+  .audio-player input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: 0px;
+    background-color: var(--main-rose);
+    height: 5px;
+    width: 5px;
+    border-radius: 0 90px 90px 0;
+  }
 </style>

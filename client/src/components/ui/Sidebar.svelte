@@ -5,7 +5,7 @@
 </script>
 
 <div>
-  <button class="toggle-button" on:click="{() => open = !open}">
+  <button class="toggle-button" on:click={() => (open = !open)}>
     {#if open}
       <X />
     {:else}
@@ -25,7 +25,7 @@
     height: 100%;
     position: absolute;
     top: 0;
-    justify-content:center;
+    justify-content: center;
     display: flex;
   }
 
