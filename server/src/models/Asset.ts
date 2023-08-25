@@ -8,38 +8,38 @@ export interface TextAsset extends Asset {
   content: string
 };
 
-export interface ExportableAsset extends Asset {
+export interface FileAsset extends Asset {
   path: string
 }
 
-export interface AudioAsset extends ExportableAsset {
+export interface AudioAsset extends FileAsset {
   autoplay?: boolean
 }
 
-export interface ImageAsset extends ExportableAsset {
+export interface ImageAsset extends FileAsset {
   width?: number
   height?: number
 }
 
-export interface ManagedExportableAsset extends ExportableAsset {
+export interface ManagedExportableAsset extends FileAsset {
   managedAssetName: string
 }
 
-export interface ManagedAudioExportableAsset extends AudioAsset, ExportableAsset {
+export interface ManagedAudioExportableAsset extends AudioAsset, FileAsset {
   html5: boolean
 }
 
 export const isTextAsset = (x: Asset): x is TextAsset =>
   (x as TextAsset).content !== undefined
 
-export const isExportableAsset = (x: Asset): x is ExportableAsset =>
-  (x as ExportableAsset).path !== undefined
+export const isFileAsset = (x: Asset): x is FileAsset =>
+  (x as FileAsset).path !== undefined
 
 export const isManagedExportableAsset = (x: Asset): x is ManagedExportableAsset => 
   (x as ManagedExportableAsset).managedAssetName !== undefined
 
 export const isAudioExportableAsset = (x: Asset): x is AudioAsset => {
-  if (isExportableAsset(x)) {
+  if (isFileAsset(x)) {
     return hasAudioFileExtension(x.path);
   }
   return false;
@@ -49,7 +49,7 @@ export const hasAudioFileExtension =(fileName: string): boolean =>
   ['.mp3'].some(ext => fileName.endsWith(ext));
 
 export const isImgExportableAsset = (x: Asset): x is ImageAsset => {
-  if (isExportableAsset(x)) {
+  if (isFileAsset(x)) {
     return hasImgFileExtension(x.path);
   }
   return false;
@@ -100,5 +100,5 @@ export const assetSchema: JSONSchemaType<Asset> = {
   ]
 } as const;
 
-const ASSET_TYPES = ['IMAGE', 'LIVE', 'TEXT'] as const;
-export type AssetType = typeof ASSET_TYPES[number];
+export const AssetType = { MANAGED: 'MANAGED', EXPORTED: 'FILE', TEXT: 'TEXT'} as const;
+export type AssetType = typeof AssetType[keyof typeof AssetType];

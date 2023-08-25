@@ -27,6 +27,7 @@
     "google-auth-library": "^8.8.0",
     "kysely": "^0.24.2",
     "pg-pool": "^3.6.0",
+    "prettier": "^3.0.0",
     "simple-runtypes": "^7.1.2"
   },
   "devDependencies": {
