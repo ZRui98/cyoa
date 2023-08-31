@@ -12,6 +12,7 @@
   import Node from '../../../../components/ui/Node.svelte';
   import loginState from '../../../../store/loginState';
   import Sidebar from '../../../../components/ui/Sidebar.svelte';
+  import Dropdown from '../../../../components/ui/Dropdown.svelte';
 
   adventureStore.initializeAdventure();
 
@@ -40,20 +41,20 @@
     $adventureStore.nodes[id] = {
       name: 'new node',
       links: [],
-      assets: []
+      assets: [],
     };
   }
 
   function createNewAsset(type: string): Asset {
-    switch(type) {
+    switch (type) {
       case 'MANAGED':
         return {};
       case 'FILE':
-        return {path: 'https://example.com/audio.mp3'};
+        return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
-        return {content: 'Sample Text Content'};
+        return { content: 'Sample Text Content' };
     }
-    return {}
+    return {};
   }
 
   function getAssetType(asset: Asset): AssetType {
@@ -66,25 +67,26 @@
     return 'TEXT';
   }
 
-  function addNewEdge(nodeKey: string) {
-    const edges = getPossibleEdgesForNode(nodeKey);
-    const edgeKeys = Object.keys(edges)
-    if (edgeKeys.length > 0)
-      adventureStore.addEdge(nodeKey, { prompt: '', next: edgeKeys[0] });
-    // if (!$adventureStore?.nodes[nodeKey]) return;
-    // if (!$adventureStore.nodes[nodeKey].links) $adventureStore.nodes[nodeKey].links = [];
-    // $adventureStore.nodes[nodeKey].links.push({prompt: "", next: "0"});
+  function changeAssetType(event: CustomEvent<{oldValue: AssetType, value: AssetType}>, nodeKey: string, i: number) {
+    const newAsset = createNewAsset(event.detail.value);
+    adventureStore.updateAsset(nodeKey, i, newAsset);
   }
 
-  function getPossibleEdgesForNode(nodeKey: string): { [key: string]: string } {
-    if (!$adventureStore) return {};
-    return Object.keys($adventureStore.nodes)
+  function addNewEdge(nodeKey: string) {
+    const edges = getPossibleEdgesForNode(nodeKey);
+    if (edges.length > 0) adventureStore.addEdge(nodeKey, { prompt: '', next: edges[0].value! });
+  }
+
+  function getPossibleEdgesForNode(nodeKey: string): {text: string, value?: string}[] {
+    if (!$adventureStore) return [];
+    const ans = Object.keys($adventureStore.nodes)
       .filter((val) => val !== nodeKey)
-      .reduce((acc: { [key: string]: string }, curr) => {
+      .reduce((acc: {text: string, value?: string}[], curr) => {
         if (!$adventureStore) return acc;
-        acc[curr] = $adventureStore.nodes[curr].name;
+        acc.push({text: $adventureStore.nodes[curr].name, value: curr});
         return acc;
-      }, {});
+      }, []);
+      return ans;
   }
 
   // let content = {
@@ -112,26 +114,37 @@
               <div>
                 <h2>
                   Content
-                  <button class="button-round" on:click={() => adventureStore.addAsset(nodeKey, {content: 'Sample Text Content'})}>
+                  <button
+                    class="button-round"
+                    on:click={() => adventureStore.addAsset(nodeKey, createNewAsset('TEXT'))}
+                  >
                     <Plus />
                   </button>
                   <div class="content">
-                    {#each ($adventureStore).nodes[nodeKey].assets as asset, i}
-                      <div>
-                        <select value={getAssetType(asset)} on:change={(e) => adventureStore.updateAsset(nodeKey, createNewAsset(e.currentTarget.value), i)}>
+                    {#each $adventureStore.nodes[nodeKey].assets as asset, i}
+                      <div class="row">
+                        <!-- <select
+                          value={getAssetType(asset)}
+                          on:change={(e) =>
+                            adventureStore.updateAsset(nodeKey, createNewAsset(e.currentTarget.value), i)}
+                        >
                           {#each assetTypes as option}
-                          <option value={option}>{option}</option>
+                            <option value={option}>{option}</option>
                           {/each}
-                        </select>
+                        </select> -->
                         {#if isTextAsset(asset)}
-                          <input type="text" bind:value={asset.content}/>
+                          <input type="text" bind:value={asset.content} />
                         {:else if isManagedExportableAsset(asset)}
-                        <div>
-                          Asset Preview
-                        </div>
+                          <div>Asset Preview</div>
                         {:else if isFileAsset(asset)}
                           <input type="text" bind:value={asset.path} />
                         {/if}
+                        <Dropdown
+                          text={getAssetType(asset)}
+                          on:change={(e) => changeAssetType(e, nodeKey, i)}
+                          options={assetTypes.map(type => ({text: type}))}
+                          style={'font-size: 12px; width: 120px;'}
+                          />
                       </div>
                     {/each}
                   </div>
@@ -144,14 +157,15 @@
                     <Plus />
                   </button>
                   <div class="links">
-                    {#each $adventureStore.nodes[nodeKey].links || [] as link}
-                      <div>
+                    {#each $adventureStore.nodes[nodeKey].links as link}
+                      <div class="row">
                         <input type="text" bind:value={link.prompt} />
-                        <select bind:value={link.next}>
-                          {#each Object.entries(getPossibleEdgesForNode(nodeKey)) as [edgeId, edgeLabel]}
-                            <option value={edgeId}>{edgeLabel}</option>
-                          {/each}
-                        </select>
+                        <Dropdown
+                          bind:value={link.next}
+                          text={$adventureStore.nodes[link.next].name}
+                          options={getPossibleEdgesForNode(nodeKey)}
+                          style={'font-size: 12px; width: 120px;'}
+                        />
                       </div>
                     {/each}
                   </div>
@@ -171,8 +185,7 @@
     </Tabs>
 
     <div id="preview">
-      <div>
-      </div>
+      <div />
       <Sidebar bind:open>
         <GraphOverview />
       </Sidebar>
@@ -225,5 +238,13 @@
   .links {
     flex-direction: column;
     display: flex;
+  }
+
+  .row {
+    display: flex;
+    max-height: 75px;
+    align-items: flex-start;
+    align-items: center;
+    gap: 20px;
   }
 </style>

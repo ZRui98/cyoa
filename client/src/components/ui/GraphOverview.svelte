@@ -53,8 +53,8 @@
       for (const coord of nodes) {
         zoomContainer.addChild(new NodeGraphics(coord.i, adventure.nodes[coord.i], coord.x, coord.y));
       }
-    } catch(e) {
-      console.log("graph has cycle!");
+    } catch (e) {
+      console.log('graph has cycle!');
     }
   }
 </script>

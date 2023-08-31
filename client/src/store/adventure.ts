@@ -10,7 +10,6 @@ export const createAdventureStore = () => {
     subscribe: adventureStore.subscribe,
     loadAdventure: async (author: string, adventureName: string) => {
       const adventure = await getAdventure(author, adventureName);
-      console.log('adventure', adventure);
       adventureStore.set(adventure);
     },
     clearAdventure: () => {
@@ -43,16 +42,16 @@ export const createAdventureStore = () => {
           adventure.nodes[nodeKey].assets!.push(asset);
         }
         return adventure;
-      })
+      });
     },
-    updateAsset: (nodeKey: string, asset: Asset, index: number) => {
+    updateAsset: (nodeKey: string, index: number, asset: Asset) => {
       adventureStore.update((adventure) => {
         if (!adventure) return;
         if (adventure.nodes[nodeKey] && adventure.nodes[nodeKey].assets.length > index) {
           adventure.nodes[nodeKey].assets[index] = asset;
         }
         return adventure;
-      })
+      });
     },
     updateAssets: (nodeKey: string, assets: Asset[]) => {
       adventureStore.update((adventure) => {
@@ -61,7 +60,7 @@ export const createAdventureStore = () => {
           adventure.nodes[nodeKey].assets = assets;
         }
         return adventure;
-      })
+      });
     },
     set: adventureStore.set,
     initializeAdventure: (author = 'anonymous') => {

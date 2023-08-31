@@ -19,8 +19,6 @@
   let newAssetFileName: Writable<string | undefined> = writable();
   let originalAsset: Writable<AssetResponse | undefined> = writable();
 
-  console.log('hello!');
-
   $: loading = $assets === undefined || deleteAssetPromise !== undefined;
 
   let file: File | undefined;
