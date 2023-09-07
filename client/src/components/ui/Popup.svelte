@@ -32,7 +32,6 @@
 
 <style>
   dialog {
-    max-width: 32em;
     border-radius: 0.2em;
     border: 2px solid hsl(var(--main-highlight-high));
     padding: 0;
@@ -44,6 +43,8 @@
     backdrop-filter: blur(2px);
   }
   dialog > div {
-    padding: 1em;
+    margin: 1em;
+    width: calc(100% - 2em);
+    height: calc(100% - 2em);
   }
 </style>

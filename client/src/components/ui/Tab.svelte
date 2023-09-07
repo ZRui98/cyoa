@@ -10,8 +10,10 @@
   let titles = getContext<TitleContext>(TITLES);
   titles.registerTab(index, title);
   onDestroy(() => titles.unregisterTab(index));
+  $: visible = $selectedIndex === index;
 </script>
 
-{#if $selectedIndex === index}
+<div style={visible ? '' : 'display: none;'}>
   <slot />
-{/if}
+</div>
+<!-- </div> -->

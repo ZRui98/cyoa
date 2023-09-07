@@ -4,6 +4,7 @@
   export let open = false;
   export let contentStyle = '';
   export let buttonStyle = '';
+  export let chevronSize = 24;
   $: chevronstyle = `
         ${open ? 'transform: rotate(0.25turn);' : ''}transition: transform 0.1s ease-in;;
     `;
@@ -21,18 +22,13 @@
     on:click={() => (open = !open)}
     on:keydown|self={(e) => e.code === 'Enter' ?? (open = !open)}
   >
-    <ChevronRight style={chevronstyle} aria-expanded={open} />
+    <ChevronRight size={chevronSize} style={chevronstyle} aria-expanded={open} />
     <slot name="toggle-button">
       <div>Expand</div>
     </slot>
   </div>
   {#if open}
-    <div
-      id="accordion-content"
-      class="static-padding"
-      style={contentStyle}
-      transition:slide|local={{ duration: 300 }}
-    >
+    <div id="accordion-content" class="static-padding" style={contentStyle} transition:slide|local={{ duration: 300 }}>
       <slot name="toggle-content" />
     </div>
   {/if}
@@ -59,6 +55,6 @@
     border-radius: 10px;
     background-color: hsl(var(--main-highlight-low));
     width: 100%;
-    padding: 20px;
+    padding: 20px 40px;
   }
 </style>

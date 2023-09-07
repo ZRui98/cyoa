@@ -41,6 +41,7 @@
   function drawGraph(adventure: Adventure) {
     const graph = adventure.nodes;
     if (!graph[adventure.start]) return;
+    console.log('render', new Date());
     try {
       const { layers, edgeLayers } = getWidthAndHeight(adventure.start, graph);
       const { nodes, edges } = processLayersToCoords(layers, edgeLayers);

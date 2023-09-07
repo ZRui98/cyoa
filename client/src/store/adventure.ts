@@ -1,6 +1,6 @@
 import type { Adventure } from '@backend/models/Adventure';
 import type { Edge, Node } from '@backend/models/Node';
-import { get, writable } from 'svelte/store';
+import { derived, get, writable } from 'svelte/store';
 import { getAdventure } from '../utils/api';
 import type { Asset } from '@backend/models/Asset';
 
@@ -75,6 +75,7 @@ export const createAdventureStore = () => {
 };
 
 export const adventureStore = createAdventureStore();
+
 export type AdventureStore = typeof adventureStore;
 
 export const createCurrenctActiveNode = () => {
