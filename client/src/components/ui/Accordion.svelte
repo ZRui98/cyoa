@@ -12,6 +12,9 @@
     class="card static-padding"
     id="accordion-button"
     aria-expanded={open}
+    role="button"
+    tabindex="0"
+    aria-roledescription="expand/collapse"
     on:click={() => (open = !open)}
     on:keydown|self={(e) => e.code === 'Enter' ?? (open = !open)}
   >
