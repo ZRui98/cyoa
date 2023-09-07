@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^2.0.2",
-    "@sveltejs/kit": "^1.5.0",
+    "@sveltejs/kit": "^1.24.0",
     "@types/google.accounts": "^0.0.7",
     "@types/howler": "^2.2.7",
     "@types/jest": "^29.5.2",
@@ -26,7 +26,6 @@
     "eslint-plugin-svelte": "^2.26.0",
     "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.10.1",
-    "svelte": "^3.54.0",
     "svelte-check": "^3.0.1",
     "tslib": "^2.4.1",
     "typescript": "^5.0.0",
@@ -38,8 +37,8 @@
     "@datastructures-js/queue": "^4.2.3",
     "@pixi/graphics-smooth": "^1.1.0",
     "howler": "^2.2.3",
-    "lucide-svelte": "^0.188.0",
+    "lucide-svelte": "^0.274.0",
     "pixi.js": "^7.2.4",
-    "svelte-jsoneditor": "^0.17.8"
+    "svelte-jsoneditor": "^0.18.3"
   }
 }
