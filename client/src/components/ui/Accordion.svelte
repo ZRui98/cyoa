@@ -44,14 +44,14 @@
     width: 100%;
     margin: 10px 0;
     flex-direction: column;
-    background-color: var(--main-highlight-low);
-    border: 1px solid var(--main-highlight-high);
+    background-color: hsl(var(--main-highlight-low));
+    border: 1px solid hsl(var(--main-highlight-high));
     border-radius: 10px;
   }
 
   #accordion-content {
     border-radius: 10px;
-    background-color: var(--main-highlight-low);
+    background-color: hsl(var(--main-highlight-low));
     width: 100%;
     padding: 20px;
   }

@@ -9,8 +9,8 @@ html {
 body {
   margin: 0;
   height: 100%;
-  background-color: var(--main-bg);
-  color: var(--main-fg);
+  background-color: hsl(var(--main-bg));
+  color: hsl(var(--main-fg));
   display: flex;
   flex-direction: column;
 }
@@ -35,31 +35,31 @@ button {
 
 .card {
   padding: 20px 40px;
-  background-color: var(--main-surface);
+  background-color: hsl(var(--main-surface));
   border-radius: 10px;
 }
 
 .button {
   text-decoration: none;
-  color: var(--main-love);
+  color: hsl(var(--main-love));
   padding: 5px 10px;
   border-radius: 5px;
 }
 
 .button:hover {
-  background-color: var(--main-highlight-med);
+  background-color: hsl(var(--main-highlight-med));
 }
 
 .button:active {
-  background-color: var(--main-highlight-high);
-  outline: 2px solid var(--main-pine);
+  background-color: hsl(var(--main-highlight-high));
+  outline: 2px solid hsl(var(--main-pine));
 }
 
 .button-round {
   padding: 8px 30px;
   text-decoration: none;
-  color: var(--main-fg);
-  background-color: var(--main-highlight-med);
+  color: hsl(var(--main-fg));
+  background-color: hsl(var(--main-highlight-med));
   border-radius: 25px;
 }
 
@@ -69,16 +69,16 @@ button {
 }
 
 .button-round:hover {
-  background-color: var(--main-highlight-high);
+  background-color: hsl(var(--main-highlight-high));
 }
 
 .button-round:active {
-  outline: 2px solid var(--main-pine);
+  outline: 2px solid hsl(var(--main-pine));
 }
 
 .button-round:disabled {
-  background-color: var(--main-highlight-low);
-  color: var(--main-highlight-med);
+  background-color: hsl(var(--main-highlight-low));
+  color: hsl(var(--main-highlight-med));
   cursor: initial;
 }
 .button-round:disabled:active {
@@ -99,7 +99,7 @@ button {
 a,
 .link {
   text-decoration: underline;
-  color: var(--main-iris);
+  color: hsl(var(--main-iris));
 }
 
 canvas {
@@ -108,19 +108,19 @@ canvas {
 
 input[type='text'] {
   padding: 5px 10px;
-  background-color: var(--main-overlay);
-  border: 2px solid var(--main-highlight-med);
+  background-color: hsl(var(--main-overlay));
+  border: 2px solid hsl(var(--main-highlight-med));
   border-radius: 5px;
-  color: var(--main-fg);
+  color: hsl(var(--main-fg));
 }
 input:focus {
-  border: 2px solid var(--main-highlight-high);
-  background-color: var(--main-highlight-med);
+  border: 2px solid hsl(var(--main-highlight-high));
+  background-color: hsl(var(--main-highlight-med));
   outline: none;
 }
 
 ::selection {
-  background-color: var(--main-highlight-high);
+  background-color: hsl(var(--main-highlight-high));
 }
 
 @keyframes rotation {

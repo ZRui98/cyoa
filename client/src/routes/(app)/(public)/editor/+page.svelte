@@ -186,17 +186,17 @@
 
 <style>
   .json-preview {
-    --jse-key-color: var(--main-fg);
-    --jse-value-color: var(--main-fg);
-    --jse-value-color-number: var(--main-love);
-    --jse-value-color-boolean: var(--main-pine);
+    --jse-key-color: hsl(var(--main-fg));
+    --jse-value-color: hsl(var(--main-fg));
+    --jse-value-color-number: hsl(var(--main-love));
+    --jse-value-color-boolean: hsl(var(--main-pine));
     --jse-value-color-null: #004ed0;
-    --jse-value-color-string: var(--main-gold);
+    --jse-value-color-string: hsl(var(--main-gold));
     --jse-value-color-url: #008000;
     --jse-delimiter-color: rgba(0, 0, 0, 0.38);
     --jse-edit-outline: 2px solid #656565;
-    --jse-selection-background-color: var(--main-highlight-low);
-    --jse-background-color: var(--main-bg);
+    --jse-selection-background-color: hsl(var(--main-highlight-low));
+    --jse-background-color: hsl(var(--main-bg));
     height: 100%;
     display: flex;
     flex-flow: column;

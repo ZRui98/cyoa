@@ -1,35 +1,35 @@
 :root {
-  --main-bg: #faf4ed;
-  --main-fg: #575279;
-  --main-subtle: #797593;
-  --main-muted: #9893a5;
-  --main-surface: #fffaf3;
-  --main-overlay: #f2e9e1;
-  --main-love: #b4637a;
-  --main-gold: #ea9d34;
-  --main-rose: #d7827e;
-  --main-pine: #286983;
-  --main-foam: #56949f;
-  --main-iris: #907aa9;
-  --main-highlight-low: #f4ede8;
-  --main-highlight-med: #dfdad9;
-  --main-highlight-high: #cecacd;
+  --main-bg: 32deg, 57%, 95%;
+  --main-fg: 248deg, 19%, 40%;
+  --main-subtle: 248deg, 12%, 52%;
+  --main-muted: 257deg, 9%, 61%;
+  --main-surface: 35deg, 100%, 98%;
+  --main-overlay: 33deg, 43%, 91%;
+  --main-love: 343deg, 35%, 55%;
+  --main-gold: 35deg, 81%, 56%;
+  --main-rose: 3deg, 53%, 67%;
+  --main-pine: 197deg, 53%, 34%;
+  --main-foam: 189deg, 30%, 48%;
+  --main-iris: 268deg, 21%, 57%;
+  --main-highlight-low: 25deg, 35%, 93%;
+  --main-highlight-med: 10deg, 9%, 86%;
+  --main-highlight-high: 315deg, 4%, 80%;
 }
 
 [dark-mode] {
-  --main-bg: #232136;
-  --main-fg: #e0def4;
-  --main-subtle: #908caa;
-  --main-muted: #6e6a86;
-  --main-surface: #2a273f;
-  --main-overlay: #393552;
-  --main-love: #eb6f92;
-  --main-gold: #f6c177;
-  --main-rose: #ea9a97;
-  --main-pine: #3e8fb0;
-  --main-foam: #9ccfd8;
-  --main-iris: #c4a7e7;
-  --main-highlight-low: #35344a;
-  --main-highlight-med: #44415a;
-  --main-highlight-high: #56526e;
+  --main-bg: 246deg, 24%, 17%;
+  --main-fg: 245deg, 50%, 91%;
+  --main-subtle: 248deg, 15%, 61%;
+  --main-muted: 249deg, 12%, 47%;
+  --main-surface: 248deg, 24%, 20%;
+  --main-overlay: 248deg, 21%, 26%;
+  --main-love: 343deg, 76%, 68%;
+  --main-gold: 35deg, 88%, 72%;
+  --main-rose: 2deg, 66%, 75%;
+  --main-pine: 197deg, 48%, 47%;
+  --main-foam: 189deg, 43%, 73%;
+  --main-iris: 267deg, 57%, 78%;
+  --main-highlight-low: 242deg, 17%, 24%;
+  --main-highlight-med: 247deg, 16%, 30%;
+  --main-highlight-high: 249deg, 15%, 38%;
 }

@@ -17,11 +17,11 @@
     if (!bar) return;
     const value = Math.ceil((val / maxTime) * 1000) / 10;
     bar.style.background =
-      'linear-gradient(to right, var(--main-rose) 0%, var(--main-rose) ' +
+      'linear-gradient(to right, hsl(var(--main-rose)) 0%, hsl(var(--main-rose)) ' +
       value +
-      '%, var(--main-surface) ' +
+      '%, hsl(var(--main-surface)) ' +
       value +
-      '%, var(--main-surface) 100%)';
+      '%, hsl(var(--main-surface)) 100%)';
   });
   let time = derived(progress, (val) => {
     if (!howl) return '0:00';
@@ -122,8 +122,8 @@
 
   .audio-player input {
     flex-grow: 1;
-    border: solid 1px var(--main-love);
-    background-color: var(--main-bg);
+    border: solid 1px hsl(var(--main-love));
+    background-color: hsl(var(--main-bg));
     border-radius: 8px;
     height: 5px;
     outline: none;
@@ -136,7 +136,7 @@
     -webkit-appearance: none;
     appearance: none;
     margin-top: 0px;
-    background-color: var(--main-rose);
+    background-color: hsl(var(--main-rose));
     height: 5px;
     width: 5px;
     border-radius: 0 90px 90px 0;

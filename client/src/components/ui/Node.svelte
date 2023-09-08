@@ -81,7 +81,7 @@
 
   button.option {
     text-decoration: none;
-    color: var(--main-love);
+    color: hsl(var(--main-love));
   }
 
   button.option:active {
@@ -89,7 +89,7 @@
   }
 
   button.option:hover {
-    color: var(--main-gold);
+    color: hsl(var(--main-gold));
   }
 
   button.option::before {

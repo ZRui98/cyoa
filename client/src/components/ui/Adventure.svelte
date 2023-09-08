@@ -27,7 +27,7 @@
     display: flex;
     justify-content: space-between;
     gap: 10%;
-    border: 1px solid var(--main-highlight-high);
+    border: 1px solid hsl(var(--main-highlight-high));
   }
   .title {
     font-size: 32px;
@@ -49,6 +49,6 @@
   }
 
   .count {
-    color: var(--main-foam);
+    color: hsl(var(--main-foam));
   }
 </style>
