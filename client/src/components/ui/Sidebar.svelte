@@ -23,7 +23,7 @@
     transition: right 0.3s ease-in-out;
     width: 50%;
     height: 100%;
-    position: absolute;
+    position: fixed;
     top: 0;
     justify-content: center;
     display: flex;
@@ -31,7 +31,7 @@
 
   .toggle-button {
     z-index: 1;
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 20px;
   }

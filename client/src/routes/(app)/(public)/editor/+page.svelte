@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Plus, Save, Trash2 } from 'lucide-svelte';
   import { getContext, onDestroy } from 'svelte';
   import type { Writable } from 'svelte/store';
   import { isFileAsset, isManagedExportableAsset, isTextAsset, type Asset, AssetType } from '@backend/models/Asset';
@@ -14,6 +14,9 @@
   import Sidebar from '../../../../components/ui/Sidebar.svelte';
   import Dropdown from '../../../../components/ui/Dropdown.svelte';
   import TextPreview from '../../../../components/ui/TextPreview.svelte';
+  import { LOREM_IPSUM } from '../../../../components/pixi/constants';
+  import { toast } from 'svelte-sonner';
+  import { saveAdventure } from '../../../../utils/api';
 
   adventureStore.initializeAdventure();
 
@@ -54,8 +57,7 @@
         return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
         return {
-          content:
-            'Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content Sample Text Content',
+          content: LOREM_IPSUM
         };
     }
     return {};
@@ -73,14 +75,13 @@
 
   function changeAssetType(event: CustomEvent<{ oldValue: AssetType; value: AssetType }>, nodeKey: string, i: number) {
     const newAsset = createNewAsset(event.detail.value);
-    console.log(event.detail.value, nodeKey, i, newAsset);
     adventureStore.updateAsset(nodeKey, i, newAsset);
-    console.log($adventureStore?.nodes[nodeKey].assets[i]);
   }
 
   function addNewEdge(nodeKey: string) {
     const edges = getPossibleEdgesForNode(nodeKey);
-    if (edges.length > 0) adventureStore.addEdge(nodeKey, { prompt: '', next: edges[0].value! });
+    const uniqueEdges = edges.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
+    if (uniqueEdges.length > 0) adventureStore.addEdge(nodeKey, { prompt: 'Sample Option Text', next: uniqueEdges[0].value! });
   }
 
   function getPossibleEdgesForNode(nodeKey: string): { text: string; value?: string }[] {
@@ -92,12 +93,26 @@
         acc.push({ text: $adventureStore.nodes[curr].name, value: curr });
         return acc;
       }, []);
-    return ans;
+    
+    const uniqueEdges = ans.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
+    return uniqueEdges;
   }
 
   // let content = {
   //   json: adventure
   // } as unknown as Content;
+
+  function handleSave() {
+    const promise = saveAdventure($adventureStore);
+    toast.promise(promise, {
+      duration: 300,
+      loading: 'Loading...',
+      success: 'Adventure was saved',
+      info: '',
+      warning: '',
+      error: 'Failed to save adventure!',
+    })
+  }
 
   onDestroy(() => {
     layoutStyling.set('');
@@ -107,8 +122,10 @@
 
 {#if $adventureStore}
   <div class="json-preview">
-    <div>
-      <span>Title: </span><input bind:value={$adventureStore.name} class="static-padding" type="text" />
+    <div id="title">
+      <span>Title: </span>
+      <input bind:value={$adventureStore.name} class="static-padding" type="text" />
+      <button class="button" on:click={handleSave}><Save /></button>
     </div>
     <Tabs style="flex: 1 1 auto;">
       <Tab index="0" title="Nodes">
@@ -119,7 +136,7 @@
           <Accordion>
             <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
-              <button class="button"><Trash2 /></button>
+              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}><Trash2 /></button>
             </div>
             <div slot="toggle-content">
               <input bind:value={$adventureStore.nodes[nodeKey].name} class="static-padding" type="text" />
@@ -142,17 +159,16 @@
                         {:else if isManagedExportableAsset(asset)}
                           <div>Asset Preview</div>
                         {:else if isFileAsset(asset)}
-                          <input type="text" bind:value={asset.path} />
+                          <input type="text" bind:value={asset.path} style="flex-grow:1;"/>
                         {/if}
                         <Dropdown
                           text={getAssetType(asset)}
                           on:change={(e) => changeAssetType(e, nodeKey, i)}
                           options={assetTypes.map((type) => ({ text: type }))}
                           style={'font-size:12px;min-width:90px;width:90px;align-self:center'}
-                          class="dropdown"
                         />
                       </div>
-                      <button class="button"><Trash2 /></button>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeAsset(nodeKey, i)}><Trash2 /></button>
                     </div>
                   {/each}
                 </div>
@@ -176,7 +192,7 @@
                           style={'font-size:12px;min-width:90px;;width:90px;align-self:center'}
                         />
                       </div>
-                      <button class="button"><Trash2 /></button>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeEdge(nodeKey, link)}><Trash2 /></button>
                     </div>
                   {/each}
                 </div>
@@ -224,6 +240,12 @@
     flex-flow: column;
   }
 
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
   .button-round {
     width: 44px;
     height: 44px;
@@ -242,6 +264,12 @@
     flex-flow: column;
     width: 100%;
     height: 100%;
+  }
+
+  #title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .links {
@@ -264,9 +292,5 @@
     align-items: center;
     max-width: 80%;
     width: 80%;
-  }
-
-  .row {
-    max-height: 75px;
   }
 </style>

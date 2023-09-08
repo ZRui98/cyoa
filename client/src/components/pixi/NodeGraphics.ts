@@ -1,17 +1,16 @@
-import type { Node } from '@backend/models/Node';
 import { Text, TextStyle } from 'pixi.js';
-import { currentActiveNode } from '../../store/adventure';
+import { currentActiveNode, type GraphNode } from '../../store/adventure';
 import { SmoothGraphics } from '@pixi/graphics-smooth';
 import { NODE_HEIGHT, NODE_WIDTH } from './constants';
 import type { Unsubscriber } from 'svelte/store';
 
 export class NodeGraphics extends SmoothGraphics {
-  private node: Node;
+  private node: GraphNode;
   private titleText: Text;
   private isActive: boolean;
   private id: string;
   private unsub: Unsubscriber;
-  constructor(id: string, node: Node, x = 0, y = 0) {
+  constructor(id: string, node: GraphNode, x = 0, y = 0) {
     super();
     this.id = id;
     this.isActive = false;

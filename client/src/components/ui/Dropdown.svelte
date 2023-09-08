@@ -10,9 +10,9 @@
     margin-top: 10px;
     position: absolute;
     display: block;
-    -webkit-box-shadow: 9px 7px 18px -3px rgba(0,0,0,0.1); 
-    box-shadow: 9px 7px 18px -3px rgba(0,0,0,0.1);
-    border: 1px solid var(--main-highlight-high);
+    -webkit-box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid hsl(var(--main-highlight-high));
     padding: 10px 5px;
     z-index: 999;
   `;
@@ -50,6 +50,8 @@
     {#each options as option}
       <div
         class="option"
+        role="button"
+        tabindex="0"
         on:keydown={(e) => e.code === 'Enter' ?? handleValueChange(option)}
         on:click={() => handleValueChange(option)}
       >
@@ -61,7 +63,7 @@
 
 <style>
   .option:hover {
-    background-color: var(--main-highlight-med);
+    background-color: hsl(var(--main-highlight-med));
   }
 
   .option {

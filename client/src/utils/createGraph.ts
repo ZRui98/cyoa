@@ -7,33 +7,35 @@ import {
   NODE_HEIGHT,
   NODE_WIDTH,
 } from '../components/pixi/constants';
+import type { Graph } from '../store/adventure';
 
 export function createGraph() {
   return;
 }
 
 // https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
-export function hasCycle(graph: { [key: string]: Node }): boolean {
+export function hasCycle(graph: Graph): boolean {
+  const { nodes } = graph;
   const L: string[] = [];
-  const keys = Object.keys(graph);
+  const keys = Object.keys(nodes);
   const indegrees: { [key: string]: number } = keys.reduce((acc: { [key: string]: number }, curr) => {
     acc[curr] = 0;
     return acc;
   }, {});
 
   for (const key of keys) {
-    const node = graph[key];
+    const node = nodes[key];
     if (!node.links) continue;
     for (const v of node.links) {
       if (!v.next) continue;
       indegrees[v.next] = (indegrees[v.next] ?? 0) + 1;
     }
   }
-  const S: Queue<string> = new Queue(Object.keys(graph).filter((key: string) => indegrees[key] === 0));
+  const S: Queue<string> = new Queue(Object.keys(nodes).filter((key: string) => indegrees[key] === 0));
   while (!S.isEmpty()) {
     const n = S.pop();
     L.push(n);
-    for (const v of graph[n].links) {
+    for (const v of nodes[n].links) {
       const m = v.next;
       indegrees[m]--;
       if (indegrees[m] <= 0) {
@@ -193,7 +195,7 @@ export function processLayersToCoords(
 
 export function getWidthAndHeight(
   start: string,
-  graph: { [key: string]: Node }
+  graph: Graph
 ): { layers: Set<string>[]; edgeLayers: string[][][] } {
   if (hasCycle(graph)) {
     throw new Error("Can't get width and height for graph with cycle");
@@ -212,7 +214,7 @@ export function getWidthAndHeight(
       if (visited.has(n)) continue;
       layer.add(n);
       visited.add(n);
-      const node = graph[n];
+      const node = graph.nodes[n];
       node.links.forEach((e) => {
         edgeLayer.push([n, e.next]);
         nextQ.push(e.next);

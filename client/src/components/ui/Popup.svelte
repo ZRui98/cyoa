@@ -18,6 +18,7 @@
   };
 </script>
 
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <dialog
   {...$$restProps}
   bind:this={dialog}
@@ -40,7 +41,7 @@
     border-radius: 10px;
   }
   dialog::backdrop {
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(3px);
   }
   dialog > div {
     margin: 1em;

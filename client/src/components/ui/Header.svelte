@@ -69,6 +69,6 @@
 
   .left-panel,
   .left-panel .button {
-    color: var(--main-fg);
+    color: hsl(var(--main-fg));
   }
 </style>

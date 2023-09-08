@@ -20,7 +20,7 @@
   };
 </script>
 
-<Popup show={editing} style={`position:relative;width:50%;height:70%;`}>
+<Popup bind:show={editing} style={`position:relative;width:50%;height:70%;`}>
   <form on:submit={formSubmit}>
     <textarea name="content" id="editor" {value} />
     <button type="submit" id="save" class="button"><Save /></button>
@@ -46,10 +46,10 @@
     right: 25px;
   }
   #preview {
-    border: 2px solid var(--main-fg);
+    border: 2px solid hsl(var(--main-highlight-high));
     border-radius: 4px;
-    background-color: var(--main-bg);
-    color: var(--main-fg);
+    background-color: hsl(var(--main-bg));
+    color: hsl(var(--main-fg));
     position: relative;
   }
 
@@ -68,13 +68,8 @@
 
   textarea {
     width: 100%;
-    padding: 12px 20px;
     box-sizing: border-box;
-    border: 2px solid var(--main-fg);
-    border-radius: 4px;
-    background-color: var(--main-bg);
-    color: var(--main-fg);
-    font-size: 10px;
+    font-size: 16px;
     resize: none;
   }
 </style>
