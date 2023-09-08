@@ -46,6 +46,6 @@
   }
 
   .link {
-    color: var(--main-gold);
+    color: hsl(var(--main-gold));
   }
 </style>

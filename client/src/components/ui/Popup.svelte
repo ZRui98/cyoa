@@ -34,10 +34,10 @@
   dialog {
     max-width: 32em;
     border-radius: 0.2em;
-    border: 2px solid var(--main-highlight-high);
+    border: 2px solid hsl(var(--main-highlight-high));
     padding: 0;
-    background: var(--main-bg);
-    color: var(--main-fg);
+    background: hsl(var(--main-bg));
+    color: hsl(var(--main-fg));
     border-radius: 10px;
   }
   dialog::backdrop {

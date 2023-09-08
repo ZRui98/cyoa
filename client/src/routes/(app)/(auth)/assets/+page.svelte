@@ -141,7 +141,7 @@
             {#if file}
               <div id="selected-file">
                 <span>New file: {file.name}</span>
-                <button style="color: var(--main-love); align-items: center;" on:click|stopPropagation={clearFile}
+                <button style="color: hsl(var(--main-love)); align-items: center;" on:click|stopPropagation={clearFile}
                   ><Delete /></button
                 >
               </div>
@@ -229,7 +229,7 @@
   }
 
   .error {
-    color: var(--main-love);
+    color: hsl(var(--main-love));
   }
 
   .button-round {
