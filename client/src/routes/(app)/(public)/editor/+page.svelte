@@ -105,7 +105,7 @@
   function handleSave() {
     const promise = saveAdventure($adventureStore);
     toast.promise(promise, {
-      duration: 300,
+      duration: 1500,
       loading: 'Loading...',
       success: 'Adventure was saved',
       info: '',

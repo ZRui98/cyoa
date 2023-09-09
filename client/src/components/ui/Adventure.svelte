@@ -2,10 +2,10 @@
   import { ArrowRight } from 'lucide-svelte';
   export let name: string;
   export let author: string;
-  export let description: string;
+  export let description: string | undefined;
   export let count: number;
   const linkRegex = /(\[([^\]]+)])\(([^)]+)\)/g;
-  let formattedDescription = description.replace(linkRegex, '<a href="$3"> $2 </a>');
+  let formattedDescription = description?.replace(linkRegex, '<a href="$3"> $2 </a>') ?? '';
 </script>
 
 <div class="card">

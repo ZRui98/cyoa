@@ -12,22 +12,23 @@ const routes = (app: FastifyInstance, _opts, next) => {
     app.post('/', {
         preHandler: isLoggedInAndAuthenticated,
         handler: async function(req: FastifyRequest, res) {
-                const data = await req.file(assetUploadConfig);
+            
+            const data = await req.file(assetUploadConfig);
 
-                if (!data) throw Error("no file uploaded!");
-                data.file.on('limit', () => {
-                    throw new ApiError(400, 'file too large! Exceeded file limit of 150MB.')
-                });
-                const fields = data.fields as unknown as {
-                    name?: {
-                        value?: string
-                    };
+            if (!data) throw Error("no file uploaded!");
+            data.file.on('limit', () => {
+                throw new ApiError(400, 'file too large! Exceeded file limit of 150MB.')
+            });
+            const fields = data.fields as unknown as {
+                name?: {
+                    value?: string
                 };
-                const name = (!!fields.name?.value) ? fields.name?.value : data.filename;
-                const response = await saveAsset({file: data.file, filename: data.filename, name}, req.user!.name);
+            };
+            const name = (!!fields.name?.value) ? fields.name?.value : data.filename;
+            const response = await saveAsset({file: data.file, filename: data.filename, name}, req.user!.name);
     
-                res.code(201);
-                res.send(response);
+            res.code(201);
+            res.send(response);
         }
     });
 

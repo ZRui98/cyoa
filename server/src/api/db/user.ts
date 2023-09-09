@@ -12,7 +12,7 @@ export async function getAdventureSummaries(user: string): Promise<AdventureSumm
     if (!results) {
         return [];
     }
-    return results.map(({name, description}) => ({name, description}));
+    return results.map(({name, description, playCount}) => ({name, description, playCount}));
 }
 
 export async function getUserFromDb(
