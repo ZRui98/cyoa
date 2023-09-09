@@ -1,22 +1,15 @@
 <script lang="ts">
   import type { Edge } from '@backend/models/Node';
-  import {
-    isAudioExportableAsset,
-    isTextAsset,
-    type Asset,
-    isImgExportableAsset,
-  } from '@backend/models/Asset';
+  import { isAudioExportableAsset, isTextAsset, type Asset, isImgExportableAsset } from '@backend/models/Asset';
   import { adventureStore, currentActiveNode } from '../../store/adventure';
   import AudioPlayer from './AudioPlayer.svelte';
-
-  const { getNodeById } = adventureStore;
   let nodeResources: Asset[] = [];
   let options: Edge[] = [];
   $: {
-    if ($currentActiveNode) {
+    if ($currentActiveNode && $adventureStore) {
       nodeResources = [];
       options = [];
-      const node = getNodeById($currentActiveNode);
+      const node = adventureStore.getNodeById($currentActiveNode);
       if (node) {
         const { links, assets } = node;
         if (assets) {
@@ -32,9 +25,7 @@
   {#each nodeResources as resource}
     <div class="resource">
       {#if isTextAsset(resource)}
-        <div id="node-content">
-          <span>{resource.content}</span>
-        </div>
+        <pre>{resource.content}</pre>
       {:else if isAudioExportableAsset(resource)}
         <AudioPlayer src={resource.path} autoplay html5 />
       {:else if isImgExportableAsset(resource)}
@@ -59,10 +50,6 @@
 </div>
 
 <style>
-  #node-content {
-    flex-grow: 1;
-  }
-
   #choices {
     display: block;
     margin-bottom: 30px;

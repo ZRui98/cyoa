@@ -18,6 +18,7 @@
   };
 </script>
 
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <dialog
   {...$$restProps}
   bind:this={dialog}
@@ -32,7 +33,6 @@
 
 <style>
   dialog {
-    max-width: 32em;
     border-radius: 0.2em;
     border: 2px solid hsl(var(--main-highlight-high));
     padding: 0;
@@ -41,9 +41,11 @@
     border-radius: 10px;
   }
   dialog::backdrop {
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(3px);
   }
   dialog > div {
-    padding: 1em;
+    margin: 1em;
+    width: calc(100% - 2em);
+    height: calc(100% - 2em);
   }
 </style>

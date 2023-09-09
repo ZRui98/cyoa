@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Plus } from 'lucide-svelte';
-  import { getContext } from 'svelte';
+  import { Plus, Save, Trash2 } from 'lucide-svelte';
+  import { getContext, onDestroy } from 'svelte';
   import type { Writable } from 'svelte/store';
   import { isFileAsset, isManagedExportableAsset, isTextAsset, type Asset, AssetType } from '@backend/models/Asset';
   import JsonView from '../../../../components/ui/JsonView.svelte';
@@ -12,6 +12,11 @@
   import Node from '../../../../components/ui/Node.svelte';
   import loginState from '../../../../store/loginState';
   import Sidebar from '../../../../components/ui/Sidebar.svelte';
+  import Dropdown from '../../../../components/ui/Dropdown.svelte';
+  import TextPreview from '../../../../components/ui/TextPreview.svelte';
+  import { LOREM_IPSUM } from '../../../../components/pixi/constants';
+  import { toast } from 'svelte-sonner';
+  import { saveAdventure } from '../../../../utils/api';
 
   adventureStore.initializeAdventure();
 
@@ -22,7 +27,7 @@
     layoutStyling.set(open ? `margin: 0 5%;margin-right: 55%;${STATIC_STYLE}` : STATIC_STYLE);
   }
 
-  $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.EXPORTED, AssetType.TEXT];
+  $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.FILE, AssetType.TEXT];
 
   function addNewNode() {
     if (!$adventureStore?.nodes) return;
@@ -40,20 +45,22 @@
     $adventureStore.nodes[id] = {
       name: 'new node',
       links: [],
-      assets: []
+      assets: [],
     };
   }
 
-  function createNewAsset(type: string): Asset {
-    switch(type) {
+  function createNewAsset(type: AssetType): Asset {
+    switch (type) {
       case 'MANAGED':
         return {};
       case 'FILE':
-        return {path: 'https://example.com/audio.mp3'};
+        return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
-        return {content: 'Sample Text Content'};
+        return {
+          content: LOREM_IPSUM
+        };
     }
-    return {}
+    return {};
   }
 
   function getAssetType(asset: Asset): AssetType {
@@ -66,36 +73,59 @@
     return 'TEXT';
   }
 
-  function addNewEdge(nodeKey: string) {
-    const edges = getPossibleEdgesForNode(nodeKey);
-    const edgeKeys = Object.keys(edges)
-    if (edgeKeys.length > 0)
-      adventureStore.addEdge(nodeKey, { prompt: '', next: edgeKeys[0] });
-    // if (!$adventureStore?.nodes[nodeKey]) return;
-    // if (!$adventureStore.nodes[nodeKey].links) $adventureStore.nodes[nodeKey].links = [];
-    // $adventureStore.nodes[nodeKey].links.push({prompt: "", next: "0"});
+  function changeAssetType(event: CustomEvent<{ oldValue: AssetType; value: AssetType }>, nodeKey: string, i: number) {
+    const newAsset = createNewAsset(event.detail.value);
+    adventureStore.updateAsset(nodeKey, i, newAsset);
   }
 
-  function getPossibleEdgesForNode(nodeKey: string): { [key: string]: string } {
-    if (!$adventureStore) return {};
-    return Object.keys($adventureStore.nodes)
+  function addNewEdge(nodeKey: string) {
+    const edges = getPossibleEdgesForNode(nodeKey);
+    const uniqueEdges = edges.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
+    if (uniqueEdges.length > 0) adventureStore.addEdge(nodeKey, { prompt: 'Sample Option Text', next: uniqueEdges[0].value! });
+  }
+
+  function getPossibleEdgesForNode(nodeKey: string): { text: string; value?: string }[] {
+    if (!$adventureStore) return [];
+    const ans = Object.keys($adventureStore.nodes)
       .filter((val) => val !== nodeKey)
-      .reduce((acc: { [key: string]: string }, curr) => {
+      .reduce((acc: { text: string; value?: string }[], curr) => {
         if (!$adventureStore) return acc;
-        acc[curr] = $adventureStore.nodes[curr].name;
+        acc.push({ text: $adventureStore.nodes[curr].name, value: curr });
         return acc;
-      }, {});
+      }, []);
+    
+    const uniqueEdges = ans.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
+    return uniqueEdges;
   }
 
   // let content = {
   //   json: adventure
   // } as unknown as Content;
+
+  function handleSave() {
+    const promise = saveAdventure($adventureStore);
+    toast.promise(promise, {
+      duration: 300,
+      loading: 'Loading...',
+      success: 'Adventure was saved',
+      info: '',
+      warning: '',
+      error: 'Failed to save adventure!',
+    })
+  }
+
+  onDestroy(() => {
+    layoutStyling.set('');
+    adventureStore.clearAdventure();
+  });
 </script>
 
 {#if $adventureStore}
   <div class="json-preview">
-    <div>
-      <span>Title: </span><input bind:value={$adventureStore.name} class="static-padding" type="text" />
+    <div id="title">
+      <span>Title: </span>
+      <input bind:value={$adventureStore.name} class="static-padding" type="text" />
+      <button class="button" on:click={handleSave}><Save /></button>
     </div>
     <Tabs style="flex: 1 1 auto;">
       <Tab index="0" title="Nodes">
@@ -104,38 +134,44 @@
         </button>
         {#each Object.keys($adventureStore.nodes) as nodeKey}
           <Accordion>
-            <div slot="toggle-button">
+            <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
+              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}><Trash2 /></button>
             </div>
             <div slot="toggle-content">
               <input bind:value={$adventureStore.nodes[nodeKey].name} class="static-padding" type="text" />
               <div>
                 <h2>
                   Content
-                  <button class="button-round" on:click={() => adventureStore.addAsset(nodeKey, {content: 'Sample Text Content'})}>
+                  <button
+                    class="button-round"
+                    on:click={() => adventureStore.addAsset(nodeKey, createNewAsset('TEXT'))}
+                  >
                     <Plus />
                   </button>
-                  <div class="content">
-                    {#each ($adventureStore).nodes[nodeKey].assets as asset, i}
-                      <div>
-                        <select value={getAssetType(asset)} on:change={(e) => adventureStore.updateAsset(nodeKey, createNewAsset(e.currentTarget.value), i)}>
-                          {#each assetTypes as option}
-                          <option value={option}>{option}</option>
-                          {/each}
-                        </select>
-                        {#if isTextAsset(asset)}
-                          <input type="text" bind:value={asset.content}/>
-                        {:else if isManagedExportableAsset(asset)}
-                        <div>
-                          Asset Preview
-                        </div>
-                        {:else if isFileAsset(asset)}
-                          <input type="text" bind:value={asset.path} />
-                        {/if}
-                      </div>
-                    {/each}
-                  </div>
                 </h2>
+                <div class="content">
+                  {#each $adventureStore.nodes[nodeKey].assets as asset, i}
+                    <div class="row">
+                      <div class="group">
+                        {#if isTextAsset(asset)}
+                          <TextPreview bind:value={asset.content} style="flex-grow:1;" />
+                        {:else if isManagedExportableAsset(asset)}
+                          <div>Asset Preview</div>
+                        {:else if isFileAsset(asset)}
+                          <input type="text" bind:value={asset.path} style="flex-grow:1;"/>
+                        {/if}
+                        <Dropdown
+                          text={getAssetType(asset)}
+                          on:change={(e) => changeAssetType(e, nodeKey, i)}
+                          options={assetTypes.map((type) => ({ text: type }))}
+                          style={'font-size:12px;min-width:90px;width:90px;align-self:center'}
+                        />
+                      </div>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeAsset(nodeKey, i)}><Trash2 /></button>
+                    </div>
+                  {/each}
+                </div>
               </div>
               <div>
                 <h2>
@@ -143,36 +179,38 @@
                   <button class="button-round" on:click={() => addNewEdge(nodeKey)}>
                     <Plus />
                   </button>
-                  <div class="links">
-                    {#each $adventureStore.nodes[nodeKey].links || [] as link}
-                      <div>
-                        <input type="text" bind:value={link.prompt} />
-                        <select bind:value={link.next}>
-                          {#each Object.entries(getPossibleEdgesForNode(nodeKey)) as [edgeId, edgeLabel]}
-                            <option value={edgeId}>{edgeLabel}</option>
-                          {/each}
-                        </select>
-                      </div>
-                    {/each}
-                  </div>
                 </h2>
+                <div class="links">
+                  {#each $adventureStore.nodes[nodeKey].links as link}
+                    <div class="row">
+                      <div class="group">
+                        <input type="text" bind:value={link.prompt} style="flex-grow:1;" />
+                        <Dropdown
+                          bind:value={link.next}
+                          text={$adventureStore.nodes[link.next].name}
+                          options={getPossibleEdgesForNode(nodeKey)}
+                          style={'font-size:12px;min-width:90px;;width:90px;align-self:center'}
+                        />
+                      </div>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeEdge(nodeKey, link)}><Trash2 /></button>
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
           </Accordion>
         {/each}
       </Tab>
-      <Tab index="1" title="Edges">content 2</Tab>
-      <Tab index="2" title="JSON">
+      <Tab index="1" title="JSON">
         <JsonView json={$adventureStore} />
       </Tab>
-      <Tab index="3" title="Preview">
+      <Tab index="2" title="Preview">
         <Node />
       </Tab>
     </Tabs>
 
     <div id="preview">
-      <div>
-      </div>
+      <div />
       <Sidebar bind:open>
         <GraphOverview />
       </Sidebar>
@@ -202,6 +240,12 @@
     flex-flow: column;
   }
 
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
   .button-round {
     width: 44px;
     height: 44px;
@@ -222,8 +266,31 @@
     height: 100%;
   }
 
+  #title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .links {
     flex-direction: column;
     display: flex;
+  }
+
+  .node,
+  .row {
+    display: flex;
+    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .row .group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    max-width: 80%;
+    width: 80%;
   }
 </style>

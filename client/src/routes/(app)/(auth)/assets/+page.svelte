@@ -19,8 +19,6 @@
   let newAssetFileName: Writable<string | undefined> = writable();
   let originalAsset: Writable<AssetResponse | undefined> = writable();
 
-  console.log('hello!');
-
   $: loading = $assets === undefined || deleteAssetPromise !== undefined;
 
   let file: File | undefined;
@@ -122,7 +120,7 @@
     </div>
 
     {#if $assets !== undefined}
-      <Popup {onClose} style={`width:50%;`} bind:show>
+      <Popup {onClose} style={`width:32em;`} bind:show>
         <Asyncable on:load={onAssetUpdate} on:error={onAssetUpdateError} promise={updateAssetPromise}>
           <div id="popup-wrapper">
             <input

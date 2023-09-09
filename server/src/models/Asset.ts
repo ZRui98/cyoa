@@ -100,5 +100,5 @@ export const assetSchema: JSONSchemaType<Asset> = {
   ]
 } as const;
 
-export const AssetType = { MANAGED: 'MANAGED', EXPORTED: 'FILE', TEXT: 'TEXT'} as const;
+export const AssetType = { MANAGED: 'MANAGED', FILE: 'FILE', TEXT: 'TEXT'} as const;
 export type AssetType = typeof AssetType[keyof typeof AssetType];

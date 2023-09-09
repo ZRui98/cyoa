@@ -39,6 +39,7 @@
     "howler": "^2.2.3",
     "lucide-svelte": "^0.274.0",
     "pixi.js": "^7.2.4",
-    "svelte-jsoneditor": "^0.18.3"
+    "svelte-jsoneditor": "^0.18.3",
+    "svelte-sonner": "^0.1.4"
   }
 }

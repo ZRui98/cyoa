@@ -20,6 +20,19 @@ export async function getAdventureSummaries(author: string, fetchImpl?: FetchFun
   return response;
 }
 
+export async function saveAdventure(adventure: Adventure | undefined, fetchImpl?: FetchFunction): Promise<void> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/adventure`;
+  if (!adventure) return;
+  return await fetchApi<void>(url, fetchImpl, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(adventure)
+  });
+}
+
 export async function getAssets(fetchImpl?: FetchFunction): Promise<AssetResponse[]> {
   const url = `${env.PUBLIC_API_BASE_PATH}/asset`;
   const response = fetchApi<AssetResponse[]>(url, fetchImpl);
@@ -51,11 +64,10 @@ export async function deleteAsset(id: number, fetchImpl?: FetchFunction): Promis
   return fetchApi<AssetResponse | null>(url, fetchImpl, { method: 'DELETE' });
 }
 
-export async function getUserStatus(fetchImpl = fetch): Promise<LoginState> {
+export async function getUserStatus(fetchImpl?: FetchFunction): Promise<LoginState> {
   const url = `${env.PUBLIC_API_BASE_PATH}/auth/status`;
-  const resp = await fetchImpl(url, { credentials: 'include' });
-  const body = (await resp.json()) as LoginState;
-  return body;
+  const response = await fetchApi<LoginState>(url, fetchImpl, { credentials: 'include' });
+  return response;
 }
 
 export async function activateUser(name: string, fetchImpl?: FetchFunction): Promise<boolean> {

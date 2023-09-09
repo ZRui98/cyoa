@@ -2,15 +2,19 @@
   import { ChevronRight } from 'lucide-svelte';
   import { slide } from 'svelte/transition';
   export let open = false;
+  export let contentStyle = '';
+  export let buttonStyle = '';
+  export let chevronSize = 24;
   $: chevronstyle = `
         ${open ? 'transform: rotate(0.25turn);' : ''}transition: transform 0.1s ease-in;;
     `;
 </script>
 
-<div id="container" class="static-padding" {...$$restProps}>
+<div class="container static-padding" {...$$restProps}>
   <div
     class="card static-padding"
     id="accordion-button"
+    style={buttonStyle}
     aria-expanded={open}
     role="button"
     tabindex="0"
@@ -18,13 +22,13 @@
     on:click={() => (open = !open)}
     on:keydown|self={(e) => e.code === 'Enter' ?? (open = !open)}
   >
-    <ChevronRight style={chevronstyle} aria-expanded={open} />
+    <ChevronRight size={chevronSize} style={chevronstyle} aria-expanded={open} />
     <slot name="toggle-button">
       <div>Expand</div>
     </slot>
   </div>
   {#if open}
-    <div id="accordion-content" class="static-padding" transition:slide|local={{ duration: 300 }}>
+    <div id="accordion-content" class="static-padding" style={contentStyle} transition:slide|local={{ duration: 300 }}>
       <slot name="toggle-content" />
     </div>
   {/if}
@@ -39,11 +43,9 @@
     align-items: center;
   }
 
-  #container {
-    display: flex;
+  .container {
     width: 100%;
     margin: 10px 0;
-    flex-direction: column;
     background-color: hsl(var(--main-highlight-low));
     border: 1px solid hsl(var(--main-highlight-high));
     border-radius: 10px;
@@ -53,6 +55,6 @@
     border-radius: 10px;
     background-color: hsl(var(--main-highlight-low));
     width: 100%;
-    padding: 20px;
+    padding: 20px 40px;
   }
 </style>
