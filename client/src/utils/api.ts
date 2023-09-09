@@ -85,7 +85,8 @@ export async function activateUser(name: string, fetchImpl?: FetchFunction): Pro
 
 async function fetchApi<T>(url: string, fetchImpl = fetch, options?: RequestInit): Promise<T> {
   const resp = await fetchImpl(url, { ...options, credentials: 'include' });
-  const body = await resp.json();
+  const text = await resp.text();
+  const body = text === "" ? undefined : JSON.parse(text);
   if (!resp.ok) {
     throw new ApiError(resp.status, body.message);
   }

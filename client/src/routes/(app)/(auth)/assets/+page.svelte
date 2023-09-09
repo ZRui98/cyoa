@@ -10,6 +10,7 @@
   import AudioPlayer from '../../../../components/ui/AudioPlayer.svelte';
   import Asyncable from '../../../../components/ui/Asyncable.svelte';
   import { flip } from 'svelte/animate';
+  import { toast } from 'svelte-sonner';
 
   export let data: { assets: AssetResponse[] };
   let updateAssetPromise: Promise<AssetResponse | null> | undefined;
@@ -89,6 +90,11 @@
       .then((val) => onAssetDelete(val))
       .catch(() => {
         deleteAssetPromise = undefined;
+      });
+      toast.promise(deleteAssetPromise, {
+        error: `Failed to delete asset ${asset.name}`,
+        loading: `Deleting asset ${asset.name}...`,
+        success: `Deleted asset ${asset.name}`
       });
   }
 

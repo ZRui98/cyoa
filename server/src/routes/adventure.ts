@@ -24,56 +24,65 @@ const routes = (app: FastifyInstance, _opts, next) => {
             }
         }
       });
-      
-      app.put('/:id', {
-        preHandler: isLoggedInAndAuthenticated,
-        handler: async function (req: FastifyRequest<{Params: {id: number}, Body: Adventure | AdventureMetaData}>, res) {
-          const user = req.user!.name;
-          const { id } = req.params;
-          const v = req.body;
-          await updateAdventure(user, v, id);
-          res.code(201);
-        },
-        schema: {
-          body: {
-            type: "object",
-            oneOf: [
-              {
-                $ref: 'adventure'
-              },
-              {
-                $ref: 'adventure_metadata'
-              }
-            ]
+
+    app.get('/:user', {
+      handler: async function (req: FastifyRequest<{Params: {user: string}}>, res) {
+        const { user } = req.params;
+        const adventures = await getAdventureSummaries(user);
+        res.send(adventures);
+        res.code(200);
+      },
+      schema: {
+        params: {
+          type: 'object',
+          properties: {
+            user: {type: 'string'}
           },
-          params: {id: {type: 'number'}}
+          required: ['user']
         }
-      });
+      }
+    })
       
-      app.post('/', {
-        preHandler: isLoggedInAndAuthenticated,
-        handler: async function (req: FastifyRequest<{ Body: Adventure}>, res) {
-          const user = req.user!.name;
-          const adventure = req.body;
-          adventure.author = user;
-          await saveAdventure(user, adventure)
-          res.code(201);
+    app.put('/:id', {
+      preHandler: isLoggedInAndAuthenticated,
+      handler: async function (req: FastifyRequest<{Params: {id: number}, Body: Adventure | AdventureMetaData}>, res) {
+        const user = req.user!.name;
+        const { id } = req.params;
+        const v = req.body;
+        await updateAdventure(user, v, id);
+        res.code(201);
+      },
+      schema: {
+        body: {
+          type: "object",
+          oneOf: [
+            {
+              $ref: 'adventure'
+            },
+            {
+              $ref: 'adventure_metadata'
+            }
+          ]
         },
-        schema: {
-          body: {$ref: 'adventure#'}
-        }
-      });
+        params: {id: {type: 'number'}}
+      }
+    });
+      
+    app.post('/', {
+      preHandler: isLoggedInAndAuthenticated,
+      handler: async function (req: FastifyRequest<{ Body: Adventure}>, res) {
+        const user = req.user!.name;
+        const adventure = req.body;
+        adventure.author = user;
+        await saveAdventure(user, adventure)
+        res.code(201);
+      },
+      schema: {
+        body: {$ref: 'adventure#'}
+      }
+    });
 
-      app.get('/:user', {
-        handler: async function(req: FastifyRequest<{Params: {user: string}}>, res) {
-          const { user } = req.params;
-          const adventures = await getAdventureSummaries(user);
-          res.send(adventures);
-          res.code(200);
-        }
-      });
-
-      next();
+    next();
 }
 
 export default routes;
