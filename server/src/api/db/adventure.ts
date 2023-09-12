@@ -9,7 +9,7 @@ export async function getFileURLFromId(user: string, file: string, trx: Transact
       .where('fileName', '=', file)
       .where('author', '=', user)
       .select(['fileName', 'author'])
-      .executeTakeFirstOrThrow();
+      .executeTakeFirstOrThrow(() => new Error("could not find adventure"));
     return getFileURLFromAdventure(author, fileName).href;
 }
 
