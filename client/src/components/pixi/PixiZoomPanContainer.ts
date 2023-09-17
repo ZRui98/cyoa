@@ -1,6 +1,7 @@
 import { Container, Point } from 'pixi.js';
 import { getRelativeEvtPos } from '../../utils';
 
+const SCROLL_SPEED = 0.1;
 export class PixiZoomPanContainer extends Container {
   private xZoomOffset: number;
   private yZoomOffset: number;
@@ -58,8 +59,9 @@ export class PixiZoomPanContainer extends Container {
   }
 
   private onZoom(ev: WheelEvent) {
+    ev.preventDefault();
     const { x, y } = getRelativeEvtPos(ev);
-    const newScale = Math.round(Math.max(0.2, this.scale.x * (1 + this.zoomDirection(ev) * 0.15)) * 100) / 100;
+    const newScale = Math.round(this.scale.x * (1 + this.zoomDirection(ev) * SCROLL_SPEED) * 100) / 100;
 
     this.xZoomOffset = (this.xZoomOffset - x) * (newScale / this.scale.x) + x;
     this.yZoomOffset = (this.yZoomOffset - y) * (newScale / this.scale.x) + y;

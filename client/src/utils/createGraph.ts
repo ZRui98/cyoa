@@ -52,41 +52,37 @@ function getCurvePoints(
   start: { x: number; y: number },
   end: { x: number; y: number }
 ): {
-  start: { x: number; y: number; dir: Direction };
-  end: { x: number; y: number; dir: Direction };
+  start: { x: number; y: number };
+  end: { x: number; y: number };
   cp: { x: number; y: number }[];
 } {
   const startPos = [
-    { x: start.x + NODE_WIDTH / 2, y: start.y - 10, dir: Direction.UP },
+    { x: start.x + NODE_WIDTH / 2, y: start.y - 10 },
     {
       x: start.x + NODE_WIDTH + 10,
-      y: start.y + NODE_HEIGHT / 2,
-      dir: Direction.RIGHT,
+      y: start.y + NODE_HEIGHT / 2
     },
     {
       x: start.x + NODE_WIDTH / 2,
-      y: start.y + NODE_HEIGHT + 10,
-      dir: Direction.DOWN,
+      y: start.y + NODE_HEIGHT + 10
     },
-    { x: start.x - 10, y: start.y + NODE_HEIGHT / 2, dir: Direction.LEFT },
+    { x: start.x - 10, y: start.y + NODE_HEIGHT / 2 },
   ];
   const endPos = [
-    { x: end.x + NODE_WIDTH / 2, y: end.y - 10, dir: Direction.UP },
+    { x: end.x + NODE_WIDTH / 2, y: end.y - 10 },
     {
       x: end.x + NODE_WIDTH + 10,
-      y: end.y + NODE_HEIGHT / 2,
-      dir: Direction.RIGHT,
+      y: end.y + NODE_HEIGHT / 2
     },
     {
       x: end.x + NODE_WIDTH / 2,
-      y: end.y + NODE_HEIGHT + 10,
-      dir: Direction.DOWN,
+      y: end.y + NODE_HEIGHT + 10
     },
-    { x: end.x - 10, y: end.y + NODE_HEIGHT / 2, dir: Direction.LEFT },
+    { x: end.x - 10, y: end.y + NODE_HEIGHT / 2 },
   ];
   let min: number | undefined = undefined;
-  let shortestStart: { x: number; y: number; dir: Direction } = startPos[0];
-  let shortestEnd: { x: number; y: number; dir: Direction } = endPos[0];
+  let shortestStart: { x: number; y: number } = startPos[0];
+  let shortestEnd: { x: number; y: number } = endPos[0];
   for (const s of startPos) {
     for (const e of endPos) {
       const dist = Math.sqrt(Math.pow(s.x - e.x, 2) + Math.pow(s.y - e.y, 2));
@@ -98,21 +94,19 @@ function getCurvePoints(
     }
   }
   const is180Curve =
-    (shortestStart.dir === Direction.UP && shortestEnd.dir === Direction.DOWN) ||
-    (shortestStart.dir === Direction.DOWN && shortestEnd.dir === Direction.UP) ||
-    (shortestStart.dir === Direction.LEFT && shortestEnd.dir === Direction.RIGHT) ||
-    (shortestStart.dir === Direction.RIGHT && shortestEnd.dir === Direction.LEFT);
+    (shortestStart.x === shortestEnd.x) ||
+    (shortestStart.y === shortestEnd.y);
   let cp: { x: number; y: number }[];
   if (!is180Curve) {
     cp = [{ x: shortestEnd.x, y: shortestStart.y }];
   } else {
     const midX = (shortestEnd.x + shortestStart.x) / 2;
     const midY = (shortestEnd.y + shortestStart.y) / 2;
-    if (shortestStart.dir === Direction.DOWN || shortestEnd.dir === Direction.DOWN) {
-      cp = [
-        { x: shortestStart.x, y: midY },
-        { x: shortestEnd.x, y: midY },
-      ];
+    if (shortestStart.x === shortestEnd.x) {
+    cp = [
+      { x: shortestStart.x, y: midY },
+      { x: shortestEnd.x, y: midY },
+    ];
     } else {
       cp = [
         { x: midX, y: shortestStart.y },
@@ -128,14 +122,14 @@ export function processLayersToCoords(
   edgeLayers: string[][][]
 ): {
   nodes: { x: number; y: number; i: string }[];
-  edges: { points: number[][]; isSimple: boolean; dir: Direction }[];
+  edges: { points: number[][], isSimple: boolean, isDotted: boolean }[];
 } {
   if (layers[0].size !== 1) {
     throw new Error('unexpected start layer');
   }
   let posY = 80 - NODE_HEIGHT / 2;
   let nodes: { x: number; y: number; i: string }[] = [];
-  const edges: { points: number[][]; isSimple: boolean; dir: Direction }[] = [];
+  const edges: { points: number[][], isSimple: boolean, isDotted: boolean, doubleSided: boolean }[] = [];
   for (let i = 0; i < layers.length; i++) {
     const layer = [];
     let posX =
@@ -151,9 +145,19 @@ export function processLayersToCoords(
   for (let i = 0; i < edgeLayers.length; i++) {
     for (const edge of edgeLayers[i]) {
       if (!layers[i].has(edge[0])) throw new Error('Unexpected issue in creating edges');
-      const isSimpleEdge = layers[i + 1]?.has(edge[1]);
       const startNode = nodes.find((node) => node.i === edge[0]);
       const endNode = nodes.find((node) => node.i === edge[1]);
+      let isCrossAdjacentEdge = false;
+      let horizontalEdgeDiff: number | undefined;
+      if (layers[i]?.has(edge[1])) {
+        const startNodePos = [...layers[i]].findIndex(id => id === edge[0]);
+        const endNodePos = [...layers[i]].findIndex(id => id === edge[1]);
+        horizontalEdgeDiff = Math.abs(endNodePos - startNodePos);
+        if (horizontalEdgeDiff === 1) {
+          isCrossAdjacentEdge = true;
+        }
+      }
+      const isSimpleEdge = layers[i + 1]?.has(edge[1]);
       if (!startNode || !endNode) continue;
       let startX: number;
       let startY: number;
@@ -161,20 +165,32 @@ export function processLayersToCoords(
       let endY: number;
       let dir: Direction = Direction.UP;
       let points: number[][];
-      if (!isSimpleEdge) {
-        const { start, end, cp } = getCurvePoints(startNode, endNode);
-        startX = start.x;
-        startY = start.y;
-        endX = end.x;
-        endY = end.y;
-        dir = end.dir;
-        points = [[startX, startY], ...cp.map(({ x, y }) => [x, y]), [endX, endY]];
+      if (!isSimpleEdge || isCrossAdjacentEdge) {
+        if (horizontalEdgeDiff && horizontalEdgeDiff > 1) {
+          startX = startNode.x + NODE_WIDTH / 2;
+          startY = startNode.y + NODE_HEIGHT + 10;
+          endX = endNode.x + NODE_WIDTH / 2;
+          endY = endNode.y + NODE_HEIGHT + 10;
+          const midX = (startX + startY) / 2;
+          const midY = (horizontalEdgeDiff) * 40 + startNode.y + NODE_HEIGHT + 10;
+          points = [
+            [startX, startY],
+            [midX, midY],
+            [endX, endY]
+          ];
+        } else {
+          const { start, end, cp } = getCurvePoints(startNode, endNode);
+          startX = start.x;
+          startY = start.y;
+          endX = end.x;
+          endY = end.y;
+          points = [[startX, startY], ...cp.map(({ x, y }) => [x, y]), [endX, endY]];
+        }
       } else {
         startX = startNode.x + NODE_WIDTH / 2;
         startY = startNode.y + NODE_HEIGHT + 10;
         endX = endNode.x + NODE_WIDTH / 2;
         endY = endNode.y - 10;
-        const midX = (endX + startX) / 2;
         const midY = (endY + startY) / 2;
         points = [
           [startX, startY],
@@ -186,7 +202,8 @@ export function processLayersToCoords(
       edges.push({
         points,
         isSimple: isSimpleEdge,
-        dir,
+        doubleSided: false,
+        isDotted: !(isSimpleEdge || isCrossAdjacentEdge)
       });
     }
   }
@@ -194,14 +211,10 @@ export function processLayersToCoords(
 }
 
 export function getWidthAndHeight(
-  start: string,
   graph: Graph
 ): { layers: Set<string>[]; edgeLayers: string[][][] } {
-  if (hasCycle(graph)) {
-    throw new Error("Can't get width and height for graph with cycle");
-  }
   let q: Queue<string> = new Queue();
-  q.push(start);
+  q.push(graph.start);
   const layers: Set<string>[] = [];
   const visited: Set<string> = new Set();
   const edgeLayers = [];
@@ -225,4 +238,10 @@ export function getWidthAndHeight(
     q = nextQ;
   }
   return { layers, edgeLayers };
+}
+
+export function getRenderableGraph(graph: Graph) {
+  const { layers, edgeLayers } = getWidthAndHeight(graph);
+  const { nodes, edges } = processLayersToCoords(layers, edgeLayers);
+  return { nodes, edges };
 }

@@ -18,7 +18,9 @@
   import { toast } from 'svelte-sonner';
   import { saveAdventure } from '../../../../utils/api';
 
-  adventureStore.initializeAdventure();
+  if (!$adventureStore) {
+    adventureStore.initializeAdventure();
+  }
 
   const layoutStyling = getContext<Writable<string>>('layoutStyling');
   const STATIC_STYLE = 'transition: 0.3s ease-in-out;';

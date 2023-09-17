@@ -4,10 +4,10 @@ export const MIN_DIST_BETWEEN_NODES_X = 100;
 export const MIN_DIST_BETWEEN_NODES_Y = 155;
 
 export const Direction = {
-  UP: 'UP',
-  DOWN: 'DOWN',
-  LEFT: 'LEFT',
-  RIGHT: 'RIGHT',
+  UP: 90,
+  DOWN: 270,
+  LEFT: 180,
+  RIGHT: 0,
 } as const;
 
 export type Direction = (typeof Direction)[keyof typeof Direction];
