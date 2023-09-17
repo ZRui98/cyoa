@@ -163,7 +163,6 @@ export function processLayersToCoords(
       let startY: number;
       let endX: number;
       let endY: number;
-      let dir: Direction = Direction.UP;
       let points: number[][];
       if (!isSimpleEdge || isCrossAdjacentEdge) {
         if (horizontalEdgeDiff && horizontalEdgeDiff > 1) {

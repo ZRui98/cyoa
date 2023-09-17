@@ -2,7 +2,7 @@
   import { Plus, Save, Trash2 } from 'lucide-svelte';
   import { getContext, onDestroy } from 'svelte';
   import type { Writable } from 'svelte/store';
-  import { isFileAsset, isManagedExportableAsset, isTextAsset, type Asset, AssetType } from '@backend/models/Asset';
+  import { isFileAsset, isManagedExportableAsset, isTextAsset, type Asset, AssetType, type AssetResponse } from '@backend/models/Asset';
   import JsonView from '../../../../components/ui/JsonView.svelte';
   import Accordion from '../../../../components/ui/Accordion.svelte';
   import Tab from '../../../../components/ui/Tab.svelte';
@@ -16,7 +16,7 @@
   import TextPreview from '../../../../components/ui/TextPreview.svelte';
   import { LOREM_IPSUM } from '../../../../components/pixi/constants';
   import { toast } from 'svelte-sonner';
-  import { saveAdventure } from '../../../../utils/api';
+  import { getAssets, saveAdventure } from '../../../../utils/api';
 
   if (!$adventureStore) {
     adventureStore.initializeAdventure();
@@ -30,6 +30,13 @@
   }
 
   $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.FILE, AssetType.TEXT];
+  let managedAssets: AssetResponse[] | undefined = undefined;
+  $: {
+    if ($loginState?.activated) {
+      console.log($loginState);
+      getAssets().then(assets => {console.log(assets); managedAssets = assets}).catch(() => managedAssets = undefined)
+    }
+  }
 
   function addNewNode() {
     if (!$adventureStore?.nodes) return;
@@ -54,7 +61,10 @@
   function createNewAsset(type: AssetType): Asset {
     switch (type) {
       case 'MANAGED':
-        return {};
+        if (!managedAssets) {
+          throw new Error('No assets were loaded');
+        }
+        return {managedAssetName: managedAssets[0].name, path: managedAssets[0].path};
       case 'FILE':
         return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
@@ -159,7 +169,15 @@
                         {#if isTextAsset(asset)}
                           <TextPreview bind:value={asset.content} style="flex-grow:1;" />
                         {:else if isManagedExportableAsset(asset)}
-                          <div>Asset Preview</div>
+                          {#if managedAssets && managedAssets.length > 0}
+                            <Dropdown
+                              text={asset.managedAssetName}
+                              bind:value={asset}
+                              options={managedAssets.map(a => ({text: a.name, value: {managedAssetName: a.name, path: a.path}}))}
+                            />
+                          {:else}
+                            No Assets available. Add some <a href="/assets">here</a>
+                          {/if}
                         {:else if isFileAsset(asset)}
                           <input type="text" bind:value={asset.path} style="flex-grow:1;"/>
                         {/if}
