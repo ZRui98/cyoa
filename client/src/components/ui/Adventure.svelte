@@ -4,6 +4,7 @@
   export let author: string;
   export let description: string | undefined;
   export let count: number;
+  export let canEdit = false;
   const linkRegex = /(\[([^\]]+)])\(([^)]+)\)/g;
   let formattedDescription = description?.replace(linkRegex, '<a href="$3"> $2 </a>') ?? '';
 </script>
@@ -12,6 +13,9 @@
   <div>
     <div class="title">
       <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight /></span></a>
+      {#if canEdit}
+      <a class="button-round" href={`/editor?author=${author}&name=${name}`}><span>Edit <ArrowRight /></span></a>
+      {/if}
       {name}
     </div>
     <div>

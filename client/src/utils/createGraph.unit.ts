@@ -1,3 +1,4 @@
+import type { Graph } from '../store/adventure';
 import { getWidthAndHeight } from './createGraph';
 
 /**
@@ -51,7 +52,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const response = getWidthAndHeight('1', simpleGraph);
+    const response = getWidthAndHeight({start: '1', nodes: simpleGraph});
     expect(response.layers).toEqual([['1'], ['2', '3'], ['4', '5', '6', '7']]);
   });
 
@@ -98,7 +99,7 @@ describe('createGraph', () => {
       },
     };
 
-    const response = getWidthAndHeight('1', duplicateGraph);
+    const response = getWidthAndHeight({start: '1', nodes: duplicateGraph});
     expect(response).toEqual([['1'], ['2', '3'], ['4', '5', '6']]);
   });
 
@@ -106,7 +107,6 @@ describe('createGraph', () => {
     const duplicateLowGraph = {
       '1': {
         name: '',
-        resources: [],
         links: [
           { prompt: '', next: '2' },
           { prompt: '', next: '3' },
@@ -114,7 +114,6 @@ describe('createGraph', () => {
       },
       '2': {
         name: '',
-        resources: [],
         links: [
           { prompt: '', next: '4' },
           { prompt: '', next: '5' },
@@ -122,7 +121,6 @@ describe('createGraph', () => {
       },
       '3': {
         name: '',
-        resources: [],
         links: [
           { prompt: '', next: '6' },
           { prompt: '', next: '7' },
@@ -130,30 +128,26 @@ describe('createGraph', () => {
       },
       '4': {
         name: '',
-        resources: [],
         links: [],
       },
       '5': {
         name: '',
-        resources: [],
         links: [{ prompt: '', next: '7' }],
       },
       '6': {
         name: '',
-        resources: [],
         links: [],
       },
       '7': {
         name: '',
-        resources: [],
         links: [],
       },
     };
-    const response = getWidthAndHeight('1', duplicateLowGraph);
+    const response = getWidthAndHeight({start: '1', nodes: duplicateLowGraph});
     expect(response.layers).toEqual([['1'], ['2', '3'], ['4', '5', '6', '7']]);
   });
 
-  it('should throw an error when graph has a cycle', () => {
+  it('should render when graph has a cycle', () => {
     const duplicateLowGraph = {
       '1': {
         name: '',
@@ -200,7 +194,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const response = getWidthAndHeight('1', duplicateLowGraph);
+    const response = getWidthAndHeight({start: '1', nodes: duplicateLowGraph});
     expect(response.layers).toEqual([['1'], ['2', '3'], ['4', '5', '6', '7']]);
   });
 
@@ -249,7 +243,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const { layers, edgeLayers } = getWidthAndHeight('1', duplicateLowGraph);
+    const { layers, edgeLayers } = getWidthAndHeight({start: '1', nodes: duplicateLowGraph});
     expect(layers).toEqual([['1'], ['2', '3'], ['4'], ['5', '6'], ['7']]);
     expect(edgeLayers).toEqual([['1'], ['2', '3'], ['4'], ['5', '6'], ['7']]);
   });

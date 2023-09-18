@@ -25,7 +25,7 @@ export interface ManagedExportableAsset extends FileAsset {
   managedAssetName: string
 }
 
-export interface ManagedAudioExportableAsset extends AudioAsset, FileAsset {
+export interface ManagedAudioExportableAsset extends AudioAsset, ManagedExportableAsset {
   html5: boolean
 }
 

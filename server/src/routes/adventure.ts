@@ -10,8 +10,12 @@ const routes = (app: FastifyInstance, _opts, next) => {
     app.get('/:user/:adventurename', {
         handler: async function (req: FastifyRequest<{Params: {user: string, adventurename: string}}>, res) { 
           const { user, adventurename } = req.params;
-          const url = await getFileURLFromId(user, adventurename);
-          res.code(200).send({url});
+          try {
+            const url = await getFileURLFromId(user, adventurename);
+            res.code(200).send({url});
+          } catch (e) {
+            res.code(500);
+          }
         },
         schema: {
             params: {

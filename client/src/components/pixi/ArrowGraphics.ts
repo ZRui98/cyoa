@@ -1,19 +1,20 @@
 import { SmoothGraphics, DashLineShader } from '@pixi/graphics-smooth';
-import { Direction } from './constants';
+import { Point } from 'pixi.js';
 
 const dashLineShader = new DashLineShader({ dash: 5, gap: 4 });
 
 export class ArrowGraphics extends SmoothGraphics {
-  private isSimple: boolean;
+  private isDotted: boolean;
   private points: number[][];
-  private direction: Direction;
   private color: number;
-  constructor(points: number[][], isSimple: boolean, direction: Direction = Direction.DOWN) {
+  private point: SmoothGraphics;
+  constructor(points: number[][], isDotted: boolean) {
     super();
-    this.isSimple = isSimple;
     this.points = points;
-    this.direction = direction;
-    if (!this.isSimple) {
+    this.isDotted = isDotted;
+    this.point = new SmoothGraphics();
+    this.addChild(this.point);
+    if (this.isDotted) {
       this.color = 0xf6c177;
       this.lineStyle({
         width: 3,
@@ -28,22 +29,6 @@ export class ArrowGraphics extends SmoothGraphics {
   }
 
   draw() {
-    let xDiff = 0;
-    let yDiff = 0;
-    switch (this.direction) {
-      case Direction.DOWN:
-        yDiff = 7;
-        break;
-      case Direction.UP:
-        yDiff = -7;
-        break;
-      case Direction.RIGHT:
-        xDiff = 7;
-        break;
-      case Direction.LEFT:
-        xDiff = -7;
-        break;
-    }
     this.moveTo(this.points[0][0], this.points[0][1]);
     if (this.points.length === 3) {
       this.quadraticCurveTo(this.points[1][0], this.points[1][1], this.points[2][0], this.points[2][1]);
@@ -53,38 +38,28 @@ export class ArrowGraphics extends SmoothGraphics {
         this.points[1][1],
         this.points[2][0],
         this.points[2][1],
-        this.points[3][0] + xDiff,
-        this.points[3][1] + yDiff
+        this.points[3][0],
+        this.points[3][1]
       );
     }
 
     const lastPoint = this.points[this.points.length - 1];
+    const secondLastPoint = this.points[this.points.length - 2];
+    const y = lastPoint[1] - secondLastPoint[1];
+    const x = lastPoint[0] - secondLastPoint[0];
+    const angle = Math.atan2(y, x);
 
     this.lineStyle(1, this.color);
     this.moveTo(lastPoint[0], lastPoint[1]);
-    this.beginFill(this.color);
-    switch (this.direction) {
-      case Direction.DOWN:
-        this.lineTo(lastPoint[0] - 6, lastPoint[1] + 12);
-        this.lineTo(lastPoint[0] + 6, lastPoint[1] + 12);
-        this.lineTo(lastPoint[0], lastPoint[1]);
-        break;
-      case Direction.UP:
-        this.lineTo(lastPoint[0] - 6, lastPoint[1] - 12);
-        this.lineTo(lastPoint[0] + 6, lastPoint[1] - 12);
-        this.lineTo(lastPoint[0], lastPoint[1]);
-        break;
-      case Direction.RIGHT:
-        this.lineTo(lastPoint[0] + 12, lastPoint[1] - 6);
-        this.lineTo(lastPoint[0] + 12, lastPoint[1] + 6);
-        this.lineTo(lastPoint[0], lastPoint[1]);
-        break;
-      case Direction.LEFT:
-        this.lineTo(lastPoint[0] - 12, lastPoint[1] + 6);
-        this.lineTo(lastPoint[0] - 12, lastPoint[1] - 6);
-        this.lineTo(lastPoint[0], lastPoint[1]);
-        break;
-    }
-    this.endFill();
+    // this.addChild();
+    this.point.beginFill(this.color);
+
+    this.point.drawPolygon(
+      new Point(-7, -6),
+      new Point(-7, 6),
+      new Point(5, 0)
+    );
+    this.point.setTransform(lastPoint[0], lastPoint[1], 1, 1, angle, undefined, undefined, 0, 0);
+    this.point.endFill();
   }
 }

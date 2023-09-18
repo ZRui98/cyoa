@@ -5,9 +5,10 @@
   import { PixiZoomPanContainer } from '../pixi/PixiZoomPanContainer';
   import type { IApplicationOptions } from 'pixi.js';
   import { graphRenderStore, type Graph } from '../../store/adventure';
-  import { getWidthAndHeight, processLayersToCoords } from '../../utils/createGraph';
+  import { getRenderableGraph } from '../../utils/createGraph';
   import { ArrowGraphics } from '../pixi/ArrowGraphics';
   import type { Unsubscriber } from 'svelte/store';
+  import { toast } from 'svelte-sonner';
   let zoomContainer: PixiZoomPanContainer;
   let div: HTMLElement;
   let pixi: PixiApplication;
@@ -40,21 +41,19 @@
 
   function drawGraph(graph: Graph) {
     if (!graph.nodes[graph.start]) return;
-    console.log('render', new Date());
     try {
-      const { layers, edgeLayers } = getWidthAndHeight(graph.start, graph);
-      const { nodes, edges } = processLayersToCoords(layers, edgeLayers);
+      const { nodes, edges } = getRenderableGraph(graph);
       edges
         .filter((e) => !e.isSimple)
-        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isSimple, e.dir)));
+        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted)));
       edges
         .filter((e) => e.isSimple)
-        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isSimple, e.dir)));
+        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted)));
       for (const coord of nodes) {
         zoomContainer.addChild(new NodeGraphics(coord.i, graph.nodes[coord.i], coord.x, coord.y));
       }
     } catch (e) {
-      console.log('graph has cycle!');
+      toast.error("Error rendering graph");
     }
   }
 </script>
