@@ -53,6 +53,7 @@
         zoomContainer.addChild(new NodeGraphics(coord.i, graph.nodes[coord.i], coord.x, coord.y));
       }
     } catch (e) {
+      console.log(e);
       toast.error("Error rendering graph");
     }
   }

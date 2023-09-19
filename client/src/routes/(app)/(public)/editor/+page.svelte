@@ -310,7 +310,7 @@
     display: flex;
     gap: 20px;
     align-items: center;
-    max-width: 80%;
-    width: 80%;
+    max-width: 90%;
+    width: 90%;
   }
 </style>

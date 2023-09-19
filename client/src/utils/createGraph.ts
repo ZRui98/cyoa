@@ -140,6 +140,7 @@ export function processLayersToCoords(
       posX += NODE_WIDTH + MIN_DIST_BETWEEN_NODES_X;
     }
     nodes = [...nodes, ...layer];
+    console.log(posY);
     posY += NODE_HEIGHT + MIN_DIST_BETWEEN_NODES_Y;
   }
   for (let i = 0; i < edgeLayers.length; i++) {
@@ -214,7 +215,7 @@ export function getWidthAndHeight(
 ): { layers: Set<string>[]; edgeLayers: string[][][] } {
   let q: Queue<string> = new Queue();
   q.push(graph.start);
-  const layers: Set<string>[] = [];
+  const visitedLayers: Set<string>[] = [];
   const visited: Set<string> = new Set();
   const edgeLayers = [];
   while (!q.isEmpty()) {
@@ -232,10 +233,17 @@ export function getWidthAndHeight(
         nextQ.push(e.next);
       });
     }
-    if (layer.size > 0) layers.push(layer);
+    if (layer.size > 0) visitedLayers.push(layer);
     if (edgeLayer.length > 0) edgeLayers.push(edgeLayer);
     q = nextQ;
   }
+  const unconnectedNodes: Set<string> = new Set();
+  for (const node of Object.keys(graph.nodes)) {
+    if (!visited.has(node)) {
+      unconnectedNodes.add(node);
+    }
+  }
+  const layers = [...visitedLayers, unconnectedNodes]
   return { layers, edgeLayers };
 }
 
