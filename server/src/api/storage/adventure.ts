@@ -3,9 +3,9 @@ import path from "path";
 import { s3 } from ".";
 import db from "../db";
 import { getAdventureFromDb, upsertAdventure } from "../db/adventure";
-import { getAllAdventuresUsingAsset, updateAssetDiff } from "../db/asset";
+import { updateAssetDiff } from "../db/asset";
 import { Adventure, AdventureTable, AdventureMetaData, isAdventure } from "../../models/Adventure";
-import { Asset, ManagedExportableAsset, isManagedExportableAsset } from "../../models/Asset";
+import { isManagedExportableAsset } from "../../models/Asset";
 import { Node } from "../../models/Node";
 import { ApiError } from "../../util/error";
 
@@ -33,12 +33,12 @@ export async function saveAdventure(user: string, adventure: Adventure) {
         const inserted = await upsertAdventure(row, trx);
         if (!inserted) throw new ApiError(500, "failed to save new adventure");
         const { id } = inserted;
-        const uniqueAdventureAssetNames = new Set<string>(Object.values(adventure.nodes).reduce((acc: string[], node: Node) => {
+        const uniqueAdventureAssetNames = new Set<number>(Object.values(adventure.nodes).reduce((acc: number[], node: Node) => {
             if (!node.assets) return acc;
-            return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+            return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
         }, []));
         
-        await updateAssetDiff(user, id, {namesToAdd: [...uniqueAdventureAssetNames]}, trx);
+        await updateAssetDiff(user, id, {assetsToAdd: [...uniqueAdventureAssetNames]}, trx);
     });
   
     const filePath = getAdventureFilePath(row.fileName);
@@ -46,7 +46,8 @@ export async function saveAdventure(user: string, adventure: Adventure) {
     await s3.putObject({
         Bucket: `${row.author}`,
         Key: filePath,
-        Body: JSON.stringify(adventure)
+        Body: JSON.stringify(adventure),
+        ContentType: 'application/json'
     });
 }
   
@@ -76,28 +77,29 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
     // update adventure and add proper relationships
     if (isAdventure(adventure)) {
         await db.transaction().execute(async (trx) => {
-            const uniqueAdventureAssetNames = new Set<string>(Object.values(adventure.nodes).reduce((acc: string[], node: Node) => {
+            const uniqueAdventureAssetNames = new Set<number>(Object.values(adventure.nodes).reduce((acc: number[], node: Node) => {
                 if (!node.assets) return acc;
-                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
             }, []));
-            let deletedAssets: string[] = [];
+            let deletedAssets: number[] = [];
                 // adventure already exists. Maintain association table of adventures 
-            const oldUniqueAdventureAssetNames = new Set<string>(Object.values(oldAdventure!.nodes).reduce((acc: string[], node: Node) => {
+            const oldUniqueAdventureAssetNames = new Set<number>(Object.values(oldAdventure!.nodes).reduce((acc: number[], node: Node) => {
                 if (!node.assets) return acc;
-                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
             }, []));
             deletedAssets = [...oldUniqueAdventureAssetNames].filter(asset => !uniqueAdventureAssetNames.has(asset));
         
             const inserted = await upsertAdventure(row, trx, id);
             if (!inserted) throw new ApiError(500, "failed to insert");
-            await updateAssetDiff(user, id, {namesToAdd: [...uniqueAdventureAssetNames], namesToRemove: deletedAssets}, trx);
+            await updateAssetDiff(user, id, {assetsToAdd: [...uniqueAdventureAssetNames], assetsToRemove: deletedAssets}, trx);
         });
         
         // insert new adventure
         await s3.putObject({
             Bucket: `${row.author}`,
             Key: getAdventureFilePath(row.fileName),
-            Body: JSON.stringify(adventure)
+            Body: JSON.stringify(adventure),
+            ContentType: 'application/json'
         });
         if (oldAdventure.name !== row.name) {
             await s3.deleteObject({
@@ -115,7 +117,8 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
             await s3.putObject({
                 Bucket: `${row.author}`,
                 Key: getAdventureFilePath(row.fileName),
-                Body: JSON.stringify(oldAdventure)
+                Body: JSON.stringify(oldAdventure),
+                ContentType: 'application/json'
             });
             if (nameChanged) {
                 await s3.deleteObject({
@@ -126,45 +129,7 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
         }
     }
 }
-
-async function getAllAdventureFiles(user: string, fileNames: string[]): Promise<(Adventure | undefined)[]> {
-    const responses = await Promise.all(fileNames.map(async (fileName) => {
-        const filePath = getAdventureFilePath(fileName);
-        const file = await s3.getObject({Bucket: user, Key: filePath});
-        return file.Body?.transformToString()
-    }));
-    return responses
-        .map((response: string) => response !== undefined ? JSON.parse(response) as Adventure : response);
-}
   
 export async function validateAdventure(adventure: Adventure) {
   
-}
-
-export async function updateAdventuresWithAsset(user: string, assetId: number, newAsset: ManagedExportableAsset | undefined) {
-    const adventureEntries = await getAllAdventuresUsingAsset(assetId);
-    const filePaths = adventureEntries.map(({fileName}) => fileName);
-    const adventures = await getAllAdventureFiles(user, filePaths);
-    const newAdventures = adventures.map((adventure) => {
-        if (!adventure) return;
-        Object.keys(adventure.nodes).forEach((key) => {
-            let assets = adventure.nodes[key].assets;
-            if (!assets) return;
-            assets = assets.map(
-            (asset: Asset) => {
-                if (isManagedExportableAsset(asset) && asset.managedAssetName === newAsset?.managedAssetName) {
-                    return newAsset;
-                }
-                return asset;
-            }).filter((asset): asset is Asset => asset !== undefined);
-    
-            adventure.nodes[key].assets = assets;
-        });
-        return adventure;
-    });
-    const promises = newAdventures.reduce((acc: Promise<void>[], adventure, idx) => {
-        if (!adventure) return acc;
-        return [...acc, updateAdventure(user, adventure, adventureEntries[idx].id)];
-    }, []);
-    await Promise.all(promises);
 }

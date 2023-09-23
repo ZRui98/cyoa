@@ -2,15 +2,16 @@ import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from
 import db, { Database } from ".";
 import { getFileURLFromAdventure } from "../storage/adventure";
 import { AdventureTable } from "../../models/Adventure";
-import { AssetTable } from "../../models/Asset";
 
-export async function getFileURLFromId(user: string, file: string, trx: Transaction<Database> | Kysely<Database> = db): Promise<string | undefined> {
+export async function getPresignedAdventureFromId(user: string, file: string, trx: Transaction<Database> | Kysely<Database> = db): Promise<string | undefined> {
     const {fileName, author} = await trx.selectFrom('adventure')
       .where('fileName', '=', file)
       .where('author', '=', user)
       .select(['fileName', 'author'])
       .executeTakeFirstOrThrow(() => new Error("could not find adventure"));
-    return getFileURLFromAdventure(author, fileName).href;
+    const url =  getFileURLFromAdventure(author, fileName).href;
+    const signedUrl = url;
+    return signedUrl;
 }
 
 export async function getAdventureFromDb(

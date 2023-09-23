@@ -81,6 +81,13 @@ const routes = (app: FastifyInstance, _opts, next) => {
         }
     });
 
+    app.get('/:id', {
+        handler: async function(req: FastifyRequest<{Params: {id: number}}>, res) {
+            const { id } = req.params;
+            
+        }
+    })
+
     next();
 };
 

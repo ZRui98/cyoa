@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type AssetResponse, hasAudioFileExtension, hasImgFileExtension } from '@backend/models/Asset';
+  import { type ManagedAssetResponse, FileType } from '@backend/models/Asset';
   import { updateAsset, deleteAsset } from '../../../../utils/api';
   import Popup from '../../../../components/ui/Popup.svelte';
   import FileDrop from '../../../../components/ui/FileDrop.svelte';
@@ -12,13 +12,13 @@
   import { flip } from 'svelte/animate';
   import { toast } from 'svelte-sonner';
 
-  export let data: { assets: AssetResponse[] };
-  let updateAssetPromise: Promise<AssetResponse | null> | undefined;
+  export let data: { assets: ManagedAssetResponse[] };
+  let updateAssetPromise: Promise<ManagedAssetResponse | null> | undefined;
   let errorMsg: Writable<string | undefined> = writable();
-  let deleteAssetPromise: Promise<AssetResponse | null> | undefined;
-  let assets: Writable<AssetResponse[]> = writable(data.assets);
+  let deleteAssetPromise: Promise<ManagedAssetResponse | null> | undefined;
+  let assets: Writable<ManagedAssetResponse[]> = writable(data.assets);
   let newAssetFileName: Writable<string | undefined> = writable();
-  let originalAsset: Writable<AssetResponse | undefined> = writable();
+  let originalAsset: Writable<ManagedAssetResponse | undefined> = writable();
 
   $: loading = $assets === undefined || deleteAssetPromise !== undefined;
 
@@ -62,7 +62,7 @@
     $newAssetFileName = e.currentTarget.value;
   }
 
-  function onAssetUpdate(event: { detail: { data: AssetResponse | null } }) {
+  function onAssetUpdate(event: { detail: { data: ManagedAssetResponse | null } }) {
     show = false;
     const newAsset = event.detail.data;
     if (newAsset) {
@@ -84,7 +84,7 @@
     updateAssetPromise = undefined;
   }
 
-  function handleAssetDelete(asset: AssetResponse) {
+  function handleAssetDelete(asset: ManagedAssetResponse) {
     deleteAssetPromise = deleteAsset(asset.id);
     deleteAssetPromise
       .then((val) => onAssetDelete(val))
@@ -98,7 +98,7 @@
       });
   }
 
-  function onAssetDelete(data: AssetResponse | null) {
+  function onAssetDelete(data: ManagedAssetResponse | null) {
     if (data) {
       assets.update((current) => {
         if (!current) return current;
@@ -181,10 +181,12 @@
             </div>
             <div slot="toggle-content">
               <div>{asset.fileName}</div>
-              {#if hasAudioFileExtension(asset.path)}
+              {#if asset.path}
+              {#if asset.fileType === FileType.AUDIO}
                 <AudioPlayer src={asset.path} html5 />
-              {:else if hasImgFileExtension(asset.path)}
+              {:else if asset.fileType === FileType.IMG}
                 <img src={asset.path} alt={asset.path} />
+              {/if}
               {/if}
             </div>
           </Accordion>

@@ -1,5 +1,6 @@
-import { S3 } from "@aws-sdk/client-s3";
+import { GetObjectCommand, S3 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import stream from "stream";
 
 export const s3 = new S3({
@@ -12,15 +13,28 @@ export const s3 = new S3({
     forcePathStyle: true
 });
 
+export async function getPresignedUrlForFiles(user: string, files: string[]): Promise<{[key: string]: string}> {
+    const urls = {};
+    await Promise.all(files.map(async (file) => {
+        if (urls[file]) return;
+        const command = new GetObjectCommand({
+            
+            Bucket: user, 
+            Key: file
+        });
+        const url = await getSignedUrl(s3, command, {expiresIn: 900 * 60});
+        urls[file] = url;
+    }));
+    return urls;
+}
 
-export function uploadFromStream(filePath: string, user: string): {pass: stream.PassThrough, upload: Upload} {
-    var pass = new stream.PassThrough();
-    var params = {Bucket: user, Key: filePath, Body: pass};
+export function uploadFromStream(filePath: string, user: string, mimeType: string = 'application/json'): {pass: stream.PassThrough, upload: Upload} {
+    let pass = new stream.PassThrough();
+    let params = {Bucket: user, Key: filePath, Body: pass, ContentType: mimeType, ContentDisposition: 'inline'};
     const upload = new Upload({
         client: s3,
         leavePartsOnError: true, // optional manually handle dropped parts
         params,
     });
-  
     return { pass, upload };
 }

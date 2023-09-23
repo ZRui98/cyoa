@@ -1,32 +1,26 @@
 import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction, Updateable } from "kysely";
 import db, { Database } from ".";
-import { AdventureAssetTable, AssetResponse, AssetTable } from "../../models/Asset";
-import { getAssetFilePath, getFileURLFromAsset } from "../storage/asset";
+import { AdventureAssetTable, ManagedAssetResponse, ManagedAssetTable } from "../../models/Asset";
 import { ApiError } from "../../util/error";
+import { getPresignedUrlForFiles } from "../storage";
+import { getAssetFilePath } from "../storage/asset";
 
-export async function getAllAdventuresUsingAsset(assetId: number): Promise<{id: number, fileName: string}[]> {
-    const adventures = await db.selectFrom('adventure_asset')
-        .innerJoin('adventure', 'adventure.id', 'adventureId')
-        .where('assetId', '=', assetId)
-        .select(['adventure.id', 'adventure.fileName'])
-        .execute();
-    return adventures;
-}
-
-export async function getAllAssetsByUser(user: string): Promise<Selectable<AssetResponse>[]> {
+export async function getAllAssetsByUser(user: string): Promise<Selectable<ManagedAssetResponse>[]> {
     const assets = await db.selectFrom('asset')
         .where('author', '=', user)
         .orderBy('id')
         .selectAll()
         .execute();
-    const response = assets.map(asset => ({...asset, path: getFileURLFromAsset(user, asset.fileName).href}));
+    const signedUrls = await getPresignedUrlForFiles(`${user}`, assets.map(asset => getAssetFilePath(asset.fileName)));
+    console.log(signedUrls);
+    const response = assets.map(asset => ({...asset, path: signedUrls[getAssetFilePath(asset.fileName)]}));
     return response;
 }
 
 export async function getAssetFromDb(
-    values: Partial<Selectable<AssetTable>>,
+    values: Partial<Selectable<ManagedAssetTable>>,
     trx: Transaction<Database> | Kysely<Database> = db
-): Promise<Selectable<AssetTable> | undefined> {
+): Promise<Selectable<ManagedAssetTable> | undefined> {
     let transaction = trx.selectFrom('asset')
     Object.entries(values).forEach(([key, val]) => {
       transaction = transaction.where(key as ReferenceExpression<Database, 'asset'>, '=', val)
@@ -38,11 +32,11 @@ export async function getAssetFromDb(
 export async function updateAssetDiff(
     author: string,
     adventureId: number,
-    { namesToRemove, namesToAdd }: {namesToRemove?: string[], namesToAdd?: string[]},
+    { assetsToAdd, assetsToRemove }: {assetsToRemove?: number[], assetsToAdd?: number[]},
     trx: Transaction<Database> | Kysely<Database> = db
 ) {
-    if (namesToAdd?.length) {
-        const assets = await Promise.all(namesToAdd.map(async (assetName) => getAssetFromDb({author, name: assetName}, trx)));
+    if (assetsToAdd?.length) {
+        const assets = await Promise.all(assetsToAdd.map(async (assetId) => getAssetFromDb({author, id: assetId}, trx)));
         const insertingRows = assets.reduce((acc, asset) => {
             if (asset === undefined) return acc;
             const row: Insertable<AdventureAssetTable> = {
@@ -55,24 +49,24 @@ export async function updateAssetDiff(
             await trx.insertInto('adventure_asset').values(insertingRows).onConflict(oc => oc.columns(['assetId', 'adventureId']).doNothing()).execute();
     }
 
-    if (namesToRemove?.length) {
+    if (assetsToRemove?.length) {
         const assets = (
-            await Promise.all(namesToRemove.map(async (assetName) => getAssetFromDb({author, name: assetName}, trx))))
-            .filter((asset): asset is Selectable<AssetTable> => asset !== undefined);
-        await trx.deleteFrom('adventure_asset').where(({and , or, cmpr}) => or(
+            await Promise.all(assetsToRemove.map(async (assetId) => getAssetFromDb({author, id: assetId}, trx))))
+            .filter((asset): asset is Selectable<ManagedAssetTable> => asset !== undefined);
+        await trx.deleteFrom('adventure_asset').where(({eb, and, or}) => or(
             assets.map(asset => and([
-                cmpr('assetId', '=', asset.id),
-                cmpr('adventureId', '=', adventureId)
+                eb('assetId', '=', asset.id),
+                eb('adventureId', '=', adventureId)
             ]))
         )).execute();
     }
 }
 
 export async function insertAssetDb(
-    asset: Insertable<AssetTable>,
+    asset: Insertable<ManagedAssetTable>,
     trx: Transaction<Database> | Kysely<Database> = db,
-): Promise<Selectable<AssetTable>> {
-    let v: Selectable<AssetTable> | undefined;
+): Promise<Selectable<ManagedAssetTable>> {
+    let v: Selectable<ManagedAssetTable> | undefined;
     try {
         v = await trx.insertInto('asset').values(asset).returningAll().executeTakeFirst();
     } catch(e) {
@@ -85,10 +79,10 @@ export async function insertAssetDb(
 }
 
 export async function updateAssetDb(
-    asset: Insertable<AssetTable> | Updateable<AssetTable>,
+    asset: Insertable<ManagedAssetTable> | Updateable<ManagedAssetTable>,
     trx: Transaction<Database> | Kysely<Database> = db,
     id: number,
-): Promise<Selectable<AssetTable>> {
+): Promise<Selectable<ManagedAssetTable>> {
     const v = await trx.updateTable('asset').set(asset)
         .where('id', '=', id)
         .returningAll()

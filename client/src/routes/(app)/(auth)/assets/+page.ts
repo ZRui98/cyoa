@@ -5,6 +5,7 @@ import { isApiError } from '@backend/utils/error';
 export async function load({ fetch }) {
   try {
     const assets = await getAssets(fetch);
+    console.log(assets);
     return { assets };
   } catch (e: unknown) {
     let err = e as Error;

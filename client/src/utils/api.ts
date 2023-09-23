@@ -1,7 +1,7 @@
 import type { Adventure, AdventureSummary } from '@backend/models/Adventure';
 import { ApiError } from '@backend/utils/error';
 import { env } from '$env/dynamic/public';
-import type { AssetResponse } from '@backend/models/Asset';
+import type { ManagedAssetResponse } from '@backend/models/Asset';
 import type { LoginState } from '../store/loginState';
 
 type FetchFunction = typeof fetch;
@@ -33,9 +33,9 @@ export async function saveAdventure(adventure: Adventure | undefined, fetchImpl?
   });
 }
 
-export async function getAssets(fetchImpl?: FetchFunction): Promise<AssetResponse[]> {
+export async function getAssets(fetchImpl?: FetchFunction): Promise<ManagedAssetResponse[]> {
   const url = `${env.PUBLIC_API_BASE_PATH}/asset`;
-  const response = fetchApi<AssetResponse[]>(url, fetchImpl);
+  const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
   return response;
 }
 
@@ -44,7 +44,7 @@ export async function updateAsset(
   newName?: string,
   file?: File,
   fetchImpl?: FetchFunction
-): Promise<AssetResponse | null> {
+): Promise<ManagedAssetResponse | null> {
   let url = `${env.PUBLIC_API_BASE_PATH}/asset`;
   if (id) {
     url = `${url}/${id}`;
@@ -53,15 +53,15 @@ export async function updateAsset(
   const name = newName ?? file?.name;
   formData.append('name', name!);
   formData.append('', file ?? new File([''], ''));
-  return fetchApi<AssetResponse | null>(url, fetchImpl, {
+  return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, {
     method: id ? 'PUT' : 'POST',
     body: formData,
   });
 }
 
-export async function deleteAsset(id: number, fetchImpl?: FetchFunction): Promise<AssetResponse | null> {
+export async function deleteAsset(id: number, fetchImpl?: FetchFunction): Promise<ManagedAssetResponse | null> {
   const url = `${env.PUBLIC_API_BASE_PATH}/asset/${id}`;
-  return fetchApi<AssetResponse | null>(url, fetchImpl, { method: 'DELETE' });
+  return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, { method: 'DELETE' });
 }
 
 export async function getUserStatus(fetchImpl?: FetchFunction): Promise<LoginState> {
