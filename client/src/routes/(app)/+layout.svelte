@@ -37,7 +37,7 @@
 </svelte:head>
 
 <div id="content" style={$layoutStyling}>
-  <Toaster position='top-center' duration={3000} closeButton richColors toastOptions={{style: sonnerStyle}}/>
+  <Toaster position="top-center" duration={3000} closeButton richColors toastOptions={{ style: sonnerStyle }} />
   <Header />
   <main>
     <slot />

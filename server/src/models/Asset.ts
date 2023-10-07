@@ -21,7 +21,7 @@ export interface ImageAsset extends FileAsset {
   height?: number
 }
 
-export interface ManagedExportableAsset extends FileAsset {
+export interface ManagedExportableAsset extends Asset {
   managedAssetName: string
 }
 
@@ -62,22 +62,16 @@ export interface AssetMetaData {
   name: string;
   description?: string;
   author: string;
+  fileType: FileType;
   fileName: string;
 }
 
-export interface AssetTable extends AssetMetaData {
+export interface ManagedAssetTable extends AssetMetaData {
   id: Generated<number>;
 }
 
-export interface AssetResponse extends Omit<AssetTable, 'id'> {
-  id: number,
-  path: string;
-}
-
-export interface AdventureAssetTable {
-  id: Generated<number>
-  adventureId: number
-  assetId: number
+export interface ManagedAssetResponse extends Omit<ManagedAssetTable, 'id'> {
+  path?: string
 }
 
 export const assetSchema: JSONSchemaType<Asset> = {
@@ -86,8 +80,14 @@ export const assetSchema: JSONSchemaType<Asset> = {
   "oneOf": [
     {
         properties: {
-          "path": { "type": "string" },
           "managedAssetName": {"type": "string"}
+        },
+        required: ["managedAssetName"],
+        additionalProperties: false
+    },
+    {
+        properties: {
+          "path": {"type": "string"}
         },
         required: ["path"],
         additionalProperties: false
@@ -100,5 +100,13 @@ export const assetSchema: JSONSchemaType<Asset> = {
   ]
 } as const;
 
+export const FileType = { AUDIO: 'AUDIO', IMG: 'IMG'} as const;
+export type FileType = typeof FileType[keyof typeof FileType];
+
 export const AssetType = { MANAGED: 'MANAGED', FILE: 'FILE', TEXT: 'TEXT'} as const;
 export type AssetType = typeof AssetType[keyof typeof AssetType];
+
+export interface AdventureAssetTable {
+  adventureId: number,
+  assetId: number
+}

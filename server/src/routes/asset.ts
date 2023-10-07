@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest } from "fastify"
 import { deleteAsset, saveAsset, updateAsset } from "../api/storage/asset";
-import { getAllAssetsByUser } from "../api/db/asset";
+import { getAllAssetsByUser, getAllAssetsByUserAndNames, getManagedAssetResponse } from "../api/db/asset";
 import { BusboyFileStream } from "@fastify/busboy";
 import { ApiError, isApiError } from "../util/error";
 import { isLoggedInAndAuthenticated } from "../api/auth/hooks";
@@ -32,12 +32,12 @@ const routes = (app: FastifyInstance, _opts, next) => {
         }
     });
 
-    app.put('/:id', {
+    app.put('/:name', {
         preHandler: isLoggedInAndAuthenticated,
-        handler: async function(req: FastifyRequest<{Params: {id: number}}>, res) {
-            const { id } = req.params;
+        handler: async function(req: FastifyRequest<{Params: {name: string}}>, res) {
+            const { name } = req.params;
             let fileData: {file: BusboyFileStream, filename: string} | undefined;
-            let name: string | undefined;
+            let newName: string | undefined;
             const data = await req.file(assetUploadConfig);
             app.log.info({data}, "data here");
             if (data) {
@@ -47,39 +47,58 @@ const routes = (app: FastifyInstance, _opts, next) => {
                         value?: string
                     };
                 };
-                name = fields.name?.value ?? data.filename;
+                newName = fields.name?.value ?? data.filename;
             }
             if (!name && !fileData) {
                 res.code(204);
                 return;
             }
-            app.log.info({name, id, fileData}, "uploaded file")
-            const value = await updateAsset({...fileData, name, id}, req.user!.name);
+            app.log.info({name: newName, fileData}, "uploaded file")
+            const value = await updateAsset({...fileData, name}, req.user!.name);
             res.code(value ? 201 : 200);
             res.send(value);
         },
-        schema: {params: {id: {type: 'number'}}}
+        schema: {params: {name: {type: 'string'}}}
     });
 
 
-    app.delete('/:id', {
+    app.delete('/:name', {
         preHandler: isLoggedInAndAuthenticated,
-        handler: async function(req: FastifyRequest<{Params: {id: number}}>, res) {
-            const { id } = req.params;
-            const response = await deleteAsset(id, req.user!.name);
+        handler: async function(req: FastifyRequest<{Params: {name: string}}>, res) {
+            const { name } = req.params;
+            const response = await deleteAsset(name, req.user!.name);
             res.code(201);
             res.send(response);
         },
-        schema: {params: {id: {type: 'number'}}}
+        schema: {params: {name: {type: 'string'}}}
     });
 
     app.get('/', {
         preHandler: isLoggedInAndAuthenticated,
-        handler: async function(req: FastifyRequest, res) {
-            const assets = await getAllAssetsByUser(req.user!.name);
-            res.send(assets)
+        handler: async function(req: FastifyRequest<{Querystring: {includePath: boolean}}>, res) {
+            const author = req.user!.name;
+            const { includePath } = req.query;
+            const assets = await getAllAssetsByUser(author);
+            const managedAssets = getManagedAssetResponse(author, assets, includePath);
+            res.send(managedAssets);
         }
     });
+
+    app.get('/assetUrl/:user', {
+        handler: async function(req: FastifyRequest<{Params: {user: string}, Querystring: {assetNames: string[]}}>, res) {
+            const { user } = req.params;
+            const { assetNames } = req.query;
+            if (!user) {
+                res.code(400);
+                res.send("Missing asset names in query parameter");
+                return;
+            }
+            const assets = await getAllAssetsByUserAndNames(user, assetNames);
+            const assetResponse = getManagedAssetResponse(user, assets, true)
+            res.send(assetResponse);
+        },
+        schema: {params: {user: {type: 'string'}}, querystring: {assetNames: {type: "array"}}}
+    })
 
     next();
 };

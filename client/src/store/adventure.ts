@@ -25,10 +25,10 @@ export const createAdventureStore = () => {
     removeNode: (nodeKey: string) => {
       const adventure = get(adventureStore);
       if (adventure?.nodes[nodeKey]) {
-        adventureStore.update(adventure => {
+        adventureStore.update((adventure) => {
           delete adventure?.nodes[nodeKey];
           return adventure;
-        })
+        });
       }
     },
     addEdge: (nodeKey: string, edge: Edge) => {
@@ -48,9 +48,10 @@ export const createAdventureStore = () => {
       adventureStore.update((adventure) => {
         if (!adventure) return;
         if (adventure.nodes[nodeKey]) {
-          const index = adventure.nodes[nodeKey].links.findIndex(val => val.next === edge.next && val.prompt === edge.prompt);
-          if (index >= 0)
-            adventure.nodes[nodeKey].links.splice(index, 1);
+          const index = adventure.nodes[nodeKey].links.findIndex(
+            (val) => val.next === edge.next && val.prompt === edge.prompt
+          );
+          if (index >= 0) adventure.nodes[nodeKey].links.splice(index, 1);
         }
         return adventure;
       });
@@ -112,34 +113,34 @@ export const adventureStore = createAdventureStore();
 export type AdventureStore = typeof adventureStore;
 
 export type GraphNode = {
-  name: string,
-  links: Pick<Edge, 'next'>[]
-}
+  name: string;
+  links: Pick<Edge, 'next'>[];
+};
 
 export type Graph = {
-  start: string,
-  nodes: { [key: string]: GraphNode }
+  start: string;
+  nodes: { [key: string]: GraphNode };
 };
 
 export const createGraphRenderStore = (adventureStore: AdventureStore) => {
   const val = writable<Graph | undefined>();
-  const { subscribe, set} = val;
+  const { subscribe, set } = val;
 
   function convertAdventureToGraph(adventure: Adventure | undefined): Graph | undefined {
     const nodes = adventure?.nodes;
     if (!nodes) return;
     const newNodes = Object.keys(nodes).reduce((acc: { [key: string]: GraphNode }, key: string) => {
-      const {name, links} = nodes[key];
+      const { name, links } = nodes[key];
       acc[key] = {
         name,
-        links: links.map(({next}) => ({next}))
-      }
+        links: links.map(({ next }) => ({ next })),
+      };
       return acc;
     }, {});
     return {
       start: adventure.start,
       nodes: newNodes,
-    }
+    };
   }
 
   adventureStore.subscribe((newAdventure) => {
@@ -150,30 +151,50 @@ export const createGraphRenderStore = (adventureStore: AdventureStore) => {
   });
   return {
     subscribe,
-    set
-  }
-}
+    set,
+  };
+};
 
 export const graphRenderStore = createGraphRenderStore(adventureStore);
 export type GraphRenderStore = typeof graphRenderStore;
 
 export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
-  const val = writable<string | undefined>();
-  const { subscribe, set } = val;
+  const val = writable<{ id: string } | undefined>();
+  let node: string | undefined;
+  const { subscribe } = val;
+
+  const valSet = (newVal: string | undefined) => {
+    if (newVal) {
+      if (newVal) {
+        node = JSON.stringify(adventureStore.getNodeById(newVal));
+      } else {
+        node = undefined;
+      }
+      if (node) {
+        const newHash = `#${newVal}`;
+        location.replace(newHash);
+        val.set({ id: newVal });
+      }
+    }
+  };
+
   adventureStore.subscribe((newAdventure) => {
-    if (newAdventure?.start !== get(val)) {
-      set(newAdventure?.start);
+    const storeVal = get(val);
+    if (newAdventure?.start !== storeVal?.id) {
+      valSet(newAdventure?.start);
+      return;
+    }
+    if (storeVal) {
+      // if node changed for current node, just do an empty refresh
+      if (node !== JSON.stringify(newAdventure?.nodes[storeVal.id])) {
+        valSet(storeVal.id);
+        return;
+      }
     }
   });
   return {
     subscribe,
-    set: (newVal: string | undefined) => {
-      if (newVal && adventureStore.getNodeById(newVal)) {
-        const newHash = `#${newVal}`;
-        location.replace(newHash);
-        set(newVal);
-      }
-    },
+    set: valSet,
   };
 };
 

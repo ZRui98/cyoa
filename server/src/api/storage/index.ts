@@ -1,5 +1,6 @@
-import { S3 } from "@aws-sdk/client-s3";
+import { GetObjectCommand, S3 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import stream from "stream";
 
 export const s3 = new S3({
@@ -12,15 +13,26 @@ export const s3 = new S3({
     forcePathStyle: true
 });
 
+export async function getPresignedUrlForFile(bucket: string, filePath: string): Promise<string> {
+    const command = new GetObjectCommand({
+        
+        Bucket: `${bucket}`, 
+        Key: filePath
+    });
+    const url = await getSignedUrl(s3, command, {expiresIn: 900 * 60});
+    return url;
+}
 
-export function uploadFromStream(filePath: string, user: string): {pass: stream.PassThrough, upload: Upload} {
-    var pass = new stream.PassThrough();
-    var params = {Bucket: user, Key: filePath, Body: pass};
+export function uploadFromStream(bucketName: string | undefined, filePath: string, mimeType: string = 'application/json'): {pass: stream.PassThrough, upload: Upload} {
+    if (!bucketName) {
+        throw new Error("Invalid bucket name");
+    }
+    let pass = new stream.PassThrough();
+    let params = {Bucket: bucketName, Key: filePath, Body: pass, ContentType: mimeType, ContentDisposition: 'inline'};
     const upload = new Upload({
         client: s3,
         leavePartsOnError: true, // optional manually handle dropped parts
         params,
     });
-  
     return { pass, upload };
 }

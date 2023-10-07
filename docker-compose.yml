@@ -31,9 +31,9 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host add minio http://r2:9000 admin password;
-      /usr/bin/mc mb minio/cyoa-storage;
-      /usr/bin/mc policy download minio/cyoa-storage;
-      /usr/bin/mc anonymous set readonly minio/cyoa-storage;
+      /usr/bin/mc mb minio/cyoa-assets;
+      /usr/bin/mc mb minio/cyoa-stories;
+      /usr/bin/mc policy set public minio/cyoa-assets;
       exit 0;
       "
   db:

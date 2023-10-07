@@ -30,7 +30,6 @@
         drawGraph(graph);
       }
     });
-
   });
 
   onDestroy(() => {
@@ -43,18 +42,14 @@
     if (!graph.nodes[graph.start]) return;
     try {
       const { nodes, edges } = getRenderableGraph(graph);
-      edges
-        .filter((e) => !e.isSimple)
-        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted)));
-      edges
-        .filter((e) => e.isSimple)
-        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted)));
+      edges.filter((e) => !e.isSimple).forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted)));
+      edges.filter((e) => e.isSimple).forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted)));
       for (const coord of nodes) {
         zoomContainer.addChild(new NodeGraphics(coord.i, graph.nodes[coord.i], coord.x, coord.y));
       }
     } catch (e) {
       console.log(e);
-      toast.error("Error rendering graph");
+      toast.error('Error rendering graph');
     }
   }
 </script>

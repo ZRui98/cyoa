@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { saveAdventure, updateAdventure } from "../api/storage/adventure";
 import { Adventure, AdventureMetaData } from "../models/Adventure";
-import { getFileURLFromId } from "../api/db/adventure";
+import { getPresignedAdventureFromId } from "../api/db/adventure";
 import { isLoggedInAndAuthenticated } from "../api/auth/hooks";
 import { getAdventureSummaries } from "../api/db/user";
 
@@ -11,9 +11,10 @@ const routes = (app: FastifyInstance, _opts, next) => {
         handler: async function (req: FastifyRequest<{Params: {user: string, adventurename: string}}>, res) { 
           const { user, adventurename } = req.params;
           try {
-            const url = await getFileURLFromId(user, adventurename);
+            const url = await getPresignedAdventureFromId(user, adventurename);
             res.code(200).send({url});
           } catch (e) {
+            console.log(e);
             res.code(500);
           }
         },
@@ -47,13 +48,13 @@ const routes = (app: FastifyInstance, _opts, next) => {
       }
     })
       
-    app.put('/:id', {
+    app.put('/:name', {
       preHandler: isLoggedInAndAuthenticated,
-      handler: async function (req: FastifyRequest<{Params: {id: number}, Body: Adventure | AdventureMetaData}>, res) {
+      handler: async function (req: FastifyRequest<{Params: {name: string}, Body: Adventure | AdventureMetaData}>, res) {
         const user = req.user!.name;
-        const { id } = req.params;
+        const { name } = req.params;
         const v = req.body;
-        await updateAdventure(user, v, id);
+        await updateAdventure(user, v, name);
         res.code(201);
       },
       schema: {
@@ -68,7 +69,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
             }
           ]
         },
-        params: {id: {type: 'number'}}
+        params: {name: {type: 'string'}}
       }
     });
       

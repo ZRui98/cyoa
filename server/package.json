@@ -24,8 +24,9 @@
     "@fastify/secure-session": "^6.1.0",
     "ajv": "^8.12.0",
     "fastify": "^4.15.0",
+    "file-type": "^18.5.0",
     "google-auth-library": "^8.8.0",
-    "kysely": "^0.24.2",
+    "kysely": "^0.26.3",
     "pg-pool": "^3.6.0",
     "prettier": "^3.0.0",
     "simple-runtypes": "^7.1.2"
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.347.0",
     "@aws-sdk/lib-storage": "^3.331.0",
+    "@aws-sdk/s3-request-presigner": "^3.418.0",
     "@fastify/busboy": "^1.2.1",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-json": "^6.0.0",

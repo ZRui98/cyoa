@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type AssetResponse, hasAudioFileExtension, hasImgFileExtension } from '@backend/models/Asset';
+  import { type ManagedAssetResponse, FileType } from '@backend/models/Asset';
   import { updateAsset, deleteAsset } from '../../../../utils/api';
   import Popup from '../../../../components/ui/Popup.svelte';
   import FileDrop from '../../../../components/ui/FileDrop.svelte';
@@ -12,13 +12,13 @@
   import { flip } from 'svelte/animate';
   import { toast } from 'svelte-sonner';
 
-  export let data: { assets: AssetResponse[] };
-  let updateAssetPromise: Promise<AssetResponse | null> | undefined;
+  export let data: { assets: ManagedAssetResponse[] };
+  let updateAssetPromise: Promise<ManagedAssetResponse | null> | undefined;
   let errorMsg: Writable<string | undefined> = writable();
-  let deleteAssetPromise: Promise<AssetResponse | null> | undefined;
-  let assets: Writable<AssetResponse[]> = writable(data.assets);
+  let deleteAssetPromise: Promise<ManagedAssetResponse | null> | undefined;
+  let assets: Writable<ManagedAssetResponse[]> = writable(data.assets);
   let newAssetFileName: Writable<string | undefined> = writable();
-  let originalAsset: Writable<AssetResponse | undefined> = writable();
+  let originalAsset: Writable<ManagedAssetResponse | undefined> = writable();
 
   $: loading = $assets === undefined || deleteAssetPromise !== undefined;
 
@@ -39,7 +39,7 @@
   }
 
   async function saveAsset() {
-    updateAssetPromise = updateAsset($originalAsset?.id, $newAssetFileName, file);
+    updateAssetPromise = updateAsset($originalAsset?.name, $newAssetFileName, file);
     $errorMsg = undefined;
   }
 
@@ -62,13 +62,13 @@
     $newAssetFileName = e.currentTarget.value;
   }
 
-  function onAssetUpdate(event: { detail: { data: AssetResponse | null } }) {
+  function onAssetUpdate(event: { detail: { data: ManagedAssetResponse | null } }) {
     show = false;
     const newAsset = event.detail.data;
     if (newAsset) {
       assets.update((current) => {
         if (!current) return current;
-        const i = current.findIndex((val) => val.id === newAsset.id);
+        const i = current.findIndex((val) => val.name === newAsset.name);
         if (i >= 0) {
           current[i] = newAsset;
           return current;
@@ -84,25 +84,28 @@
     updateAssetPromise = undefined;
   }
 
-  function handleAssetDelete(asset: AssetResponse) {
-    deleteAssetPromise = deleteAsset(asset.id);
+  function handleAssetDelete(asset: ManagedAssetResponse) {
+    deleteAssetPromise = deleteAsset(asset.name);
     deleteAssetPromise
       .then((val) => onAssetDelete(val))
       .catch(() => {
         deleteAssetPromise = undefined;
       });
-      toast.promise(deleteAssetPromise, {
-        error: `Failed to delete asset ${asset.name}`,
-        loading: `Deleting asset ${asset.name}...`,
-        success: `Deleted asset ${asset.name}`
-      });
+    toast.promise(deleteAssetPromise, {
+      duration: 1500,
+      error: `Failed to delete asset ${asset.name}`,
+      loading: `Deleting asset ${asset.name}...`,
+      success: `Deleted asset ${asset.name}`,
+      info: '',
+      warning: '',
+    });
   }
 
-  function onAssetDelete(data: AssetResponse | null) {
+  function onAssetDelete(data: ManagedAssetResponse | null) {
     if (data) {
       assets.update((current) => {
         if (!current) return current;
-        const i = current.findIndex((val) => val.id === data.id);
+        const i = current.findIndex((val) => val.name === data.name);
         current.splice(i, 1);
         return current;
       });
@@ -139,7 +142,7 @@
             />
             {#if $originalAsset}
               <div>
-                Current file: <a href="#">{$originalAsset?.fileName}</a>
+                Current file: <a href={$originalAsset.path}>{$originalAsset?.fileName}</a>
               </div>
             {/if}
             {#if file}
@@ -181,10 +184,12 @@
             </div>
             <div slot="toggle-content">
               <div>{asset.fileName}</div>
-              {#if hasAudioFileExtension(asset.path)}
-                <AudioPlayer src={asset.path} html5 />
-              {:else if hasImgFileExtension(asset.path)}
-                <img src={asset.path} alt={asset.path} />
+              {#if asset.path}
+                {#if asset.fileType === FileType.AUDIO}
+                  <AudioPlayer src={asset.path} html5 />
+                {:else if asset.fileType === FileType.IMG}
+                  <img src={asset.path} alt={asset.path} />
+                {/if}
               {/if}
             </div>
           </Accordion>
@@ -199,7 +204,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: auto;
   }
 
   #overlay {

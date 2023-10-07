@@ -1,8 +1,15 @@
 <script lang="ts">
   import { Plus, Save, Trash2 } from 'lucide-svelte';
-  import { getContext, onDestroy } from 'svelte';
+  import { getContext, onMount, onDestroy } from 'svelte';
   import type { Writable } from 'svelte/store';
-  import { isFileAsset, isManagedExportableAsset, isTextAsset, type Asset, AssetType, type AssetResponse } from '@backend/models/Asset';
+  import {
+    isFileAsset,
+    isManagedExportableAsset,
+    isTextAsset,
+    type Asset,
+    AssetType,
+    type ManagedAssetResponse,
+  } from '@backend/models/Asset';
   import JsonView from '../../../../components/ui/JsonView.svelte';
   import Accordion from '../../../../components/ui/Accordion.svelte';
   import Tab from '../../../../components/ui/Tab.svelte';
@@ -16,10 +23,16 @@
   import TextPreview from '../../../../components/ui/TextPreview.svelte';
   import { LOREM_IPSUM } from '../../../../components/pixi/constants';
   import { toast } from 'svelte-sonner';
-  import { getAssets, saveAdventure } from '../../../../utils/api';
+  import { getAssets, saveAdventure, updateAdventure } from '../../../../utils/api';
+
+  export let data: { adventureName: string };
 
   if (!$adventureStore) {
-    adventureStore.initializeAdventure();
+    if (data.adventureName && $loginState?.activated) {
+      adventureStore.loadAdventure($loginState.user!, data.adventureName);
+    } else {
+      adventureStore.initializeAdventure();
+    }
   }
 
   const layoutStyling = getContext<Writable<string>>('layoutStyling');
@@ -30,13 +43,20 @@
   }
 
   $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.FILE, AssetType.TEXT];
-  let managedAssets: AssetResponse[] | undefined = undefined;
-  $: {
+  let managedAssets: ManagedAssetResponse[] | undefined = undefined;
+
+  onMount(() => {
     if ($loginState?.activated) {
-      console.log($loginState);
-      getAssets().then(assets => {console.log(assets); managedAssets = assets}).catch(() => managedAssets = undefined)
+      if ($adventureStore) {
+        $adventureStore.author = $loginState.user ?? 'anonymous';
+      }
+      getAssets()
+        .then((assets) => {
+          managedAssets = assets;
+        })
+        .catch(() => (managedAssets = undefined));
     }
-  }
+  });
 
   function addNewNode() {
     if (!$adventureStore?.nodes) return;
@@ -64,12 +84,12 @@
         if (!managedAssets) {
           throw new Error('No assets were loaded');
         }
-        return {managedAssetName: managedAssets[0].name, path: managedAssets[0].path};
+        return { managedAssetName: managedAssets[0].name };
       case 'FILE':
         return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
         return {
-          content: LOREM_IPSUM
+          content: LOREM_IPSUM,
         };
     }
     return {};
@@ -92,8 +112,11 @@
 
   function addNewEdge(nodeKey: string) {
     const edges = getPossibleEdgesForNode(nodeKey);
-    const uniqueEdges = edges.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
-    if (uniqueEdges.length > 0) adventureStore.addEdge(nodeKey, { prompt: 'Sample Option Text', next: uniqueEdges[0].value! });
+    const uniqueEdges = edges.filter(
+      (edge) => !$adventureStore?.nodes[nodeKey].links.some((link) => edge.value === link.next)
+    );
+    if (uniqueEdges.length > 0)
+      adventureStore.addEdge(nodeKey, { prompt: 'Sample Option Text', next: uniqueEdges[0].value! });
   }
 
   function getPossibleEdgesForNode(nodeKey: string): { text: string; value?: string }[] {
@@ -105,8 +128,10 @@
         acc.push({ text: $adventureStore.nodes[curr].name, value: curr });
         return acc;
       }, []);
-    
-    const uniqueEdges = ans.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
+
+    const uniqueEdges = ans.filter(
+      (edge) => !$adventureStore?.nodes[nodeKey].links.some((link) => edge.value === link.next)
+    );
     return uniqueEdges;
   }
 
@@ -115,7 +140,20 @@
   // } as unknown as Content;
 
   function handleSave() {
-    const promise = saveAdventure($adventureStore);
+    const existingAdventure = new URLSearchParams(window.location.search).get('adventure');
+    let promise: Promise<void>;
+    if (existingAdventure) {
+      promise = updateAdventure(existingAdventure, $adventureStore);
+    } else {
+      promise = saveAdventure($adventureStore);
+    }
+    promise.then(() => {
+      if ($adventureStore?.name) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('adventure', $adventureStore.name);
+        window.history.pushState(null, '', url.toString());
+      }
+    });
     toast.promise(promise, {
       duration: 1500,
       loading: 'Loading...',
@@ -123,7 +161,7 @@
       info: '',
       warning: '',
       error: 'Failed to save adventure!',
-    })
+    });
   }
 
   onDestroy(() => {
@@ -148,7 +186,9 @@
           <Accordion>
             <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
-              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}><Trash2 /></button>
+              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}
+                ><Trash2 /></button
+              >
             </div>
             <div slot="toggle-content">
               <input bind:value={$adventureStore.nodes[nodeKey].name} class="static-padding" type="text" />
@@ -172,14 +212,18 @@
                           {#if managedAssets && managedAssets.length > 0}
                             <Dropdown
                               text={asset.managedAssetName}
-                              bind:value={asset}
-                              options={managedAssets.map(a => ({text: a.name, value: {managedAssetName: a.name, path: a.path}}))}
+                              value={asset}
+                              on:change={(e) => adventureStore.updateAsset(nodeKey, i, e.detail.value)}
+                              options={managedAssets.map((a) => ({
+                                text: a.name,
+                                value: { managedAssetName: a.name },
+                              }))}
                             />
                           {:else}
                             No Assets available. Add some <a href="/assets">here</a>
                           {/if}
                         {:else if isFileAsset(asset)}
-                          <input type="text" bind:value={asset.path} style="flex-grow:1;"/>
+                          <input type="text" bind:value={asset.path} style="flex-grow:1;" />
                         {/if}
                         <Dropdown
                           text={getAssetType(asset)}
@@ -188,7 +232,9 @@
                           style={'font-size:12px;min-width:90px;width:90px;align-self:center'}
                         />
                       </div>
-                      <button class="button" on:click|stopPropagation={() => adventureStore.removeAsset(nodeKey, i)}><Trash2 /></button>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeAsset(nodeKey, i)}
+                        ><Trash2 /></button
+                      >
                     </div>
                   {/each}
                 </div>
@@ -212,7 +258,9 @@
                           style={'font-size:12px;min-width:90px;;width:90px;align-self:center'}
                         />
                       </div>
-                      <button class="button" on:click|stopPropagation={() => adventureStore.removeEdge(nodeKey, link)}><Trash2 /></button>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeEdge(nodeKey, link)}
+                        ><Trash2 /></button
+                      >
                     </div>
                   {/each}
                 </div>
