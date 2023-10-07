@@ -6,10 +6,9 @@ import type { LoginState } from '../store/loginState';
 
 type FetchFunction = typeof fetch;
 export async function getAdventure(author: string, storyName: string): Promise<Adventure> {
-  console.log('resp1', `${env.PUBLIC_API_BASE_PATH}/adventure/${author}/${storyName}`);
-  const { url }: {url: string} = await fetch(
-      `${env.PUBLIC_API_BASE_PATH}/adventure/${author}/${storyName}`
-  ).then(response => response.json());
+  const { url }: { url: string } = await fetch(`${env.PUBLIC_API_BASE_PATH}/adventure/${author}/${storyName}`).then(
+    (response) => response.json()
+  );
   console.log(url);
   const response: Adventure = await fetchApi(url);
   return response;
@@ -30,11 +29,15 @@ export async function saveAdventure(adventure: Adventure | undefined, fetchImpl?
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(adventure)
+    body: JSON.stringify(adventure),
   });
 }
 
-export async function updateAdventure(adventureName: string, adventure: Adventure | undefined, fetchImpl?: FetchFunction): Promise<void> {
+export async function updateAdventure(
+  adventureName: string,
+  adventure: Adventure | undefined,
+  fetchImpl?: FetchFunction
+): Promise<void> {
   const url = `${env.PUBLIC_API_BASE_PATH}/adventure/${adventureName}`;
   if (!adventure) return;
   return await fetchApi<void>(url, fetchImpl, {
@@ -43,17 +46,21 @@ export async function updateAdventure(adventureName: string, adventure: Adventur
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(adventure)
+    body: JSON.stringify(adventure),
   });
 }
 
-export async function getAssets(fetchImpl?: FetchFunction): Promise<ManagedAssetResponse[]> {
-  const url = `${env.PUBLIC_API_BASE_PATH}/asset`;
+export async function getAssets(fetchImpl?: FetchFunction, includePath = false): Promise<ManagedAssetResponse[]> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/asset?includePath=${includePath}`;
   const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
   return response;
 }
 
-export async function getAssetsByName(author: string, assetNames: string[], fetchImpl?: FetchFunction): Promise<ManagedAssetResponse[]> {
+export async function getAssetsByName(
+  author: string,
+  assetNames: string[],
+  fetchImpl?: FetchFunction
+): Promise<ManagedAssetResponse[]> {
   const url = `${env.PUBLIC_API_BASE_PATH}/asset/assetUrl/${author}?assetNames=${assetNames.join(',')}`;
   const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
   return response;
@@ -106,7 +113,7 @@ export async function activateUser(name: string, fetchImpl?: FetchFunction): Pro
 async function fetchApi<T>(url: string, fetchImpl = fetch, options?: RequestInit): Promise<T> {
   const resp = await fetchImpl(url, { ...options, credentials: 'include' });
   const text = await resp.text();
-  const body = text === "" ? undefined : JSON.parse(text);
+  const body = text === '' ? undefined : JSON.parse(text);
   if (!resp.ok) {
     throw new ApiError(resp.status, body.message);
   }

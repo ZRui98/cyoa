@@ -2,7 +2,14 @@
   import { Plus, Save, Trash2 } from 'lucide-svelte';
   import { getContext, onMount, onDestroy } from 'svelte';
   import type { Writable } from 'svelte/store';
-  import { isFileAsset, isManagedExportableAsset, isTextAsset, type Asset, AssetType, type ManagedAssetResponse } from '@backend/models/Asset';
+  import {
+    isFileAsset,
+    isManagedExportableAsset,
+    isTextAsset,
+    type Asset,
+    AssetType,
+    type ManagedAssetResponse,
+  } from '@backend/models/Asset';
   import JsonView from '../../../../components/ui/JsonView.svelte';
   import Accordion from '../../../../components/ui/Accordion.svelte';
   import Tab from '../../../../components/ui/Tab.svelte';
@@ -43,9 +50,13 @@
       if ($adventureStore) {
         $adventureStore.author = $loginState.user ?? 'anonymous';
       }
-      getAssets().then(assets => {console.log("assets loading", assets); managedAssets = assets}).catch(() => managedAssets = undefined)
+      getAssets()
+        .then((assets) => {
+          managedAssets = assets;
+        })
+        .catch(() => (managedAssets = undefined));
     }
-  })
+  });
 
   function addNewNode() {
     if (!$adventureStore?.nodes) return;
@@ -73,12 +84,12 @@
         if (!managedAssets) {
           throw new Error('No assets were loaded');
         }
-        return {managedAssetName: managedAssets[0].name};
+        return { managedAssetName: managedAssets[0].name };
       case 'FILE':
         return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
         return {
-          content: LOREM_IPSUM
+          content: LOREM_IPSUM,
         };
     }
     return {};
@@ -101,8 +112,11 @@
 
   function addNewEdge(nodeKey: string) {
     const edges = getPossibleEdgesForNode(nodeKey);
-    const uniqueEdges = edges.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
-    if (uniqueEdges.length > 0) adventureStore.addEdge(nodeKey, { prompt: 'Sample Option Text', next: uniqueEdges[0].value! });
+    const uniqueEdges = edges.filter(
+      (edge) => !$adventureStore?.nodes[nodeKey].links.some((link) => edge.value === link.next)
+    );
+    if (uniqueEdges.length > 0)
+      adventureStore.addEdge(nodeKey, { prompt: 'Sample Option Text', next: uniqueEdges[0].value! });
   }
 
   function getPossibleEdgesForNode(nodeKey: string): { text: string; value?: string }[] {
@@ -114,8 +128,10 @@
         acc.push({ text: $adventureStore.nodes[curr].name, value: curr });
         return acc;
       }, []);
-    
-    const uniqueEdges = ans.filter(edge => !$adventureStore?.nodes[nodeKey].links.some(link => edge.value === link.next));
+
+    const uniqueEdges = ans.filter(
+      (edge) => !$adventureStore?.nodes[nodeKey].links.some((link) => edge.value === link.next)
+    );
     return uniqueEdges;
   }
 
@@ -125,7 +141,6 @@
 
   function handleSave() {
     const existingAdventure = new URLSearchParams(window.location.search).get('adventure');
-    console.log('existing adventure', existingAdventure, window.location);
     let promise: Promise<void>;
     if (existingAdventure) {
       promise = updateAdventure(existingAdventure, $adventureStore);
@@ -171,7 +186,9 @@
           <Accordion>
             <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
-              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}><Trash2 /></button>
+              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}
+                ><Trash2 /></button
+              >
             </div>
             <div slot="toggle-content">
               <input bind:value={$adventureStore.nodes[nodeKey].name} class="static-padding" type="text" />
@@ -197,13 +214,16 @@
                               text={asset.managedAssetName}
                               value={asset}
                               on:change={(e) => adventureStore.updateAsset(nodeKey, i, e.detail.value)}
-                              options={managedAssets.map(a => ({text: a.name, value: {managedAssetName: a.name}}))}
+                              options={managedAssets.map((a) => ({
+                                text: a.name,
+                                value: { managedAssetName: a.name },
+                              }))}
                             />
                           {:else}
                             No Assets available. Add some <a href="/assets">here</a>
                           {/if}
                         {:else if isFileAsset(asset)}
-                          <input type="text" bind:value={asset.path} style="flex-grow:1;"/>
+                          <input type="text" bind:value={asset.path} style="flex-grow:1;" />
                         {/if}
                         <Dropdown
                           text={getAssetType(asset)}
@@ -212,7 +232,9 @@
                           style={'font-size:12px;min-width:90px;width:90px;align-self:center'}
                         />
                       </div>
-                      <button class="button" on:click|stopPropagation={() => adventureStore.removeAsset(nodeKey, i)}><Trash2 /></button>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeAsset(nodeKey, i)}
+                        ><Trash2 /></button
+                      >
                     </div>
                   {/each}
                 </div>
@@ -236,7 +258,9 @@
                           style={'font-size:12px;min-width:90px;;width:90px;align-self:center'}
                         />
                       </div>
-                      <button class="button" on:click|stopPropagation={() => adventureStore.removeEdge(nodeKey, link)}><Trash2 /></button>
+                      <button class="button" on:click|stopPropagation={() => adventureStore.removeEdge(nodeKey, link)}
+                        ><Trash2 /></button
+                      >
                     </div>
                   {/each}
                 </div>

@@ -75,11 +75,12 @@ const routes = (app: FastifyInstance, _opts, next) => {
 
     app.get('/', {
         preHandler: isLoggedInAndAuthenticated,
-        handler: async function(req: FastifyRequest, res) {
+        handler: async function(req: FastifyRequest<{Querystring: {includePath: boolean}}>, res) {
             const author = req.user!.name;
+            const { includePath } = req.query;
             const assets = await getAllAssetsByUser(author);
-            // const assetResponse = getManagedAssetResponse(author, assets)
-            res.send(assets);
+            const managedAssets = getManagedAssetResponse(author, assets, includePath);
+            res.send(managedAssets);
         }
     });
 
@@ -93,7 +94,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
                 return;
             }
             const assets = await getAllAssetsByUserAndNames(user, assetNames);
-            const assetResponse = getManagedAssetResponse(user, assets)
+            const assetResponse = getManagedAssetResponse(user, assets, true)
             res.send(assetResponse);
         },
         schema: {params: {user: {type: 'string'}}, querystring: {assetNames: {type: "array"}}}

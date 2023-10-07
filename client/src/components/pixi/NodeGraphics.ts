@@ -27,7 +27,7 @@ export class NodeGraphics extends SmoothGraphics {
       })
     );
     this.draw();
-    this.unsub = currentActiveNode.subscribe((activeNode: {id: string} | undefined) => {
+    this.unsub = currentActiveNode.subscribe((activeNode: { id: string } | undefined) => {
       const newIsActive = activeNode?.id === this.id;
       if (newIsActive !== this.isActive) {
         this.isActive = activeNode?.id === this.id;

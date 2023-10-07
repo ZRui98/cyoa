@@ -1,6 +1,13 @@
 <script lang="ts">
   import type { Edge } from '@backend/models/Node';
-  import { isAudioExportableAsset, isTextAsset, type Asset, isImgExportableAsset, isManagedExportableAsset, type ManagedExportableAsset } from '@backend/models/Asset';
+  import {
+    isAudioExportableAsset,
+    isTextAsset,
+    type Asset,
+    isImgExportableAsset,
+    isManagedExportableAsset,
+    type ManagedExportableAsset,
+  } from '@backend/models/Asset';
   import { adventureStore, currentActiveNode } from '../../store/adventure';
   import AudioPlayer from './AudioPlayer.svelte';
   import { getAssetsByName } from '../../utils/api';
@@ -35,17 +42,17 @@
 
 <div>
   {#await nodeAssets then assets}
-  {#each assets as asset}
-    <div class="resource">
-      {#if isTextAsset(asset)}
-        <pre>{asset.content}</pre>
-      {:else if isAudioExportableAsset(asset)}
-        <AudioPlayer src={asset.path} autoplay html5 />
-      {:else if isImgExportableAsset(asset)}
-        <img src={asset.path} alt={asset.path} />
-      {/if}
-    </div>
-  {/each}
+    {#each assets as asset}
+      <div class="resource">
+        {#if isTextAsset(asset)}
+          <pre>{asset.content}</pre>
+        {:else if isAudioExportableAsset(asset)}
+          <AudioPlayer src={asset.path} autoplay html5 />
+        {:else if isImgExportableAsset(asset)}
+          <img src={asset.path} alt={asset.path} />
+        {/if}
+      </div>
+    {/each}
   {/await}
 </div>
 <div id="choices">

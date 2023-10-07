@@ -6,7 +6,7 @@
   import GraphOverview from '../../../../../../components/ui/GraphOverview.svelte';
   import Sidebar from '../../../../../../components/ui/Sidebar.svelte';
   import { adventureStore, currentActiveNode } from '../../../../../../store/adventure';
-  export let data: {author: string, adventure: string};
+  export let data: { author: string; adventure: string };
 
   let open = false;
   let promise: Promise<any>;

@@ -54,11 +54,7 @@ export class ArrowGraphics extends SmoothGraphics {
     // this.addChild();
     this.point.beginFill(this.color);
 
-    this.point.drawPolygon(
-      new Point(-7, -6),
-      new Point(-7, 6),
-      new Point(5, 0)
-    );
+    this.point.drawPolygon(new Point(-7, -6), new Point(-7, 6), new Point(5, 0));
     this.point.setTransform(lastPoint[0], lastPoint[1], 1, 1, angle, undefined, undefined, 0, 0);
     this.point.endFill();
   }

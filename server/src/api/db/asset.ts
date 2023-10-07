@@ -32,9 +32,16 @@ export async function getAllAssetsByUserAndNames(
 
 export function getManagedAssetResponse(
     user: string,
-    assets: Selectable<ManagedAssetTable>[]
+    assets: Selectable<ManagedAssetTable>[],
+    includePath: boolean = false
 ): ManagedAssetResponse[] {
-    const response = assets.map(asset => ({...asset, path: `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getAssetFilePath(user, asset.fileName)}`}));
+    let response = assets;
+    if (includePath) {
+        response = assets.map(asset => ({
+            ...asset,
+            path: `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getAssetFilePath(user, asset.fileName)}`
+        }));
+    }
     return response;
 }
 

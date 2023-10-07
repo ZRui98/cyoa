@@ -91,11 +91,14 @@
       .catch(() => {
         deleteAssetPromise = undefined;
       });
-      toast.promise(deleteAssetPromise, {
-        error: `Failed to delete asset ${asset.name}`,
-        loading: `Deleting asset ${asset.name}...`,
-        success: `Deleted asset ${asset.name}`
-      });
+    toast.promise(deleteAssetPromise, {
+      duration: 1500,
+      error: `Failed to delete asset ${asset.name}`,
+      loading: `Deleting asset ${asset.name}...`,
+      success: `Deleted asset ${asset.name}`,
+      info: '',
+      warning: '',
+    });
   }
 
   function onAssetDelete(data: ManagedAssetResponse | null) {
@@ -182,11 +185,11 @@
             <div slot="toggle-content">
               <div>{asset.fileName}</div>
               {#if asset.path}
-              {#if asset.fileType === FileType.AUDIO}
-                <AudioPlayer src={asset.path} html5 />
-              {:else if asset.fileType === FileType.IMG}
-                <img src={asset.path} alt={asset.path} />
-              {/if}
+                {#if asset.fileType === FileType.AUDIO}
+                  <AudioPlayer src={asset.path} html5 />
+                {:else if asset.fileType === FileType.IMG}
+                  <img src={asset.path} alt={asset.path} />
+                {/if}
               {/if}
             </div>
           </Accordion>

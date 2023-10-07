@@ -52,7 +52,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const response = getWidthAndHeight({start: '1', nodes: simpleGraph});
+    const response = getWidthAndHeight({ start: '1', nodes: simpleGraph });
     expect(response.layers).toEqual([['1'], ['2', '3'], ['4', '5', '6', '7']]);
   });
 
@@ -99,7 +99,7 @@ describe('createGraph', () => {
       },
     };
 
-    const response = getWidthAndHeight({start: '1', nodes: duplicateGraph});
+    const response = getWidthAndHeight({ start: '1', nodes: duplicateGraph });
     expect(response).toEqual([['1'], ['2', '3'], ['4', '5', '6']]);
   });
 
@@ -143,7 +143,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const response = getWidthAndHeight({start: '1', nodes: duplicateLowGraph});
+    const response = getWidthAndHeight({ start: '1', nodes: duplicateLowGraph });
     expect(response.layers).toEqual([['1'], ['2', '3'], ['4', '5', '6', '7']]);
   });
 
@@ -194,7 +194,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const response = getWidthAndHeight({start: '1', nodes: duplicateLowGraph});
+    const response = getWidthAndHeight({ start: '1', nodes: duplicateLowGraph });
     expect(response.layers).toEqual([['1'], ['2', '3'], ['4', '5', '6', '7']]);
   });
 
@@ -243,7 +243,7 @@ describe('createGraph', () => {
         links: [],
       },
     };
-    const { layers, edgeLayers } = getWidthAndHeight({start: '1', nodes: duplicateLowGraph});
+    const { layers, edgeLayers } = getWidthAndHeight({ start: '1', nodes: duplicateLowGraph });
     expect(layers).toEqual([['1'], ['2', '3'], ['4'], ['5', '6'], ['7']]);
     expect(edgeLayers).toEqual([['1'], ['2', '3'], ['4'], ['5', '6'], ['7']]);
   });
