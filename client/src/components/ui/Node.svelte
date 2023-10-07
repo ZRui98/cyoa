@@ -1,19 +1,31 @@
 <script lang="ts">
   import type { Edge } from '@backend/models/Node';
-  import { isAudioExportableAsset, isTextAsset, type Asset, isImgExportableAsset } from '@backend/models/Asset';
+  import { isAudioExportableAsset, isTextAsset, type Asset, isImgExportableAsset, isManagedExportableAsset, type ManagedExportableAsset } from '@backend/models/Asset';
   import { adventureStore, currentActiveNode } from '../../store/adventure';
   import AudioPlayer from './AudioPlayer.svelte';
-  let nodeResources: Asset[] = [];
+  import { getAssetsByName } from '../../utils/api';
+  let nodeAssets: Promise<Asset[]> = Promise.resolve([]);
   let options: Edge[] = [];
+
+  async function getNodeAssets(assets: Asset[]): Promise<Asset[]> {
+    const nonManagedAssets: Asset[] = assets.filter((asset) => !isManagedExportableAsset(asset));
+    const managedAssets: ManagedExportableAsset[] = assets.filter(isManagedExportableAsset);
+    if (managedAssets.length == 0) {
+      return nonManagedAssets;
+    }
+    const managedAssetNames = managedAssets.map((asset) => asset.managedAssetName);
+    const resolvedManagedAssets = await getAssetsByName($adventureStore!.author, managedAssetNames);
+    return [...nonManagedAssets, ...resolvedManagedAssets];
+  }
   $: {
-    if ($currentActiveNode && $adventureStore) {
-      nodeResources = [];
+    if ($currentActiveNode) {
+      nodeAssets = Promise.resolve([]);
       options = [];
-      const node = adventureStore.getNodeById($currentActiveNode);
+      const node = adventureStore.getNodeById($currentActiveNode?.id);
       if (node) {
         const { links, assets } = node;
         if (assets) {
-          nodeResources = assets;
+          nodeAssets = getNodeAssets(assets);
         }
         options = links || [];
       }
@@ -22,17 +34,19 @@
 </script>
 
 <div>
-  {#each nodeResources as resource}
+  {#await nodeAssets then assets}
+  {#each assets as asset}
     <div class="resource">
-      {#if isTextAsset(resource)}
-        <pre>{resource.content}</pre>
-      {:else if isAudioExportableAsset(resource)}
-        <AudioPlayer src={resource.path} autoplay html5 />
-      {:else if isImgExportableAsset(resource)}
-        <img src={resource.path} alt={resource.path} />
+      {#if isTextAsset(asset)}
+        <pre>{asset.content}</pre>
+      {:else if isAudioExportableAsset(asset)}
+        <AudioPlayer src={asset.path} autoplay html5 />
+      {:else if isImgExportableAsset(asset)}
+        <img src={asset.path} alt={asset.path} />
       {/if}
     </div>
   {/each}
+  {/await}
 </div>
 <div id="choices">
   <div class="options">

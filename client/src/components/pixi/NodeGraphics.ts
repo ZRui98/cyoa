@@ -27,10 +27,10 @@ export class NodeGraphics extends SmoothGraphics {
       })
     );
     this.draw();
-    this.unsub = currentActiveNode.subscribe((activeId: string | undefined) => {
-      const newIsActive = activeId === this.id;
+    this.unsub = currentActiveNode.subscribe((activeNode: {id: string} | undefined) => {
+      const newIsActive = activeNode?.id === this.id;
       if (newIsActive !== this.isActive) {
-        this.isActive = activeId === this.id;
+        this.isActive = activeNode?.id === this.id;
         this.draw();
       }
     });

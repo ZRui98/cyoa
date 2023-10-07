@@ -6,10 +6,11 @@ import type { LoginState } from '../store/loginState';
 
 type FetchFunction = typeof fetch;
 export async function getAdventure(author: string, storyName: string): Promise<Adventure> {
-  // const url: string = await fetch(
-  //     `${import.meta.env.BASE_URL}/adventure/${author}/${storyName}`
-  // ).then(response => response.json());
-  const url = `${env.PUBLIC_STORAGE_PATH}/user1/adventures/sample-story.json`;
+  console.log('resp1', `${env.PUBLIC_API_BASE_PATH}/adventure/${author}/${storyName}`);
+  const { url }: {url: string} = await fetch(
+      `${env.PUBLIC_API_BASE_PATH}/adventure/${author}/${storyName}`
+  ).then(response => response.json());
+  console.log(url);
   const response: Adventure = await fetchApi(url);
   return response;
 }
@@ -33,34 +34,53 @@ export async function saveAdventure(adventure: Adventure | undefined, fetchImpl?
   });
 }
 
+export async function updateAdventure(adventureName: string, adventure: Adventure | undefined, fetchImpl?: FetchFunction): Promise<void> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/adventure/${adventureName}`;
+  if (!adventure) return;
+  return await fetchApi<void>(url, fetchImpl, {
+    method: 'PUT',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(adventure)
+  });
+}
+
 export async function getAssets(fetchImpl?: FetchFunction): Promise<ManagedAssetResponse[]> {
   const url = `${env.PUBLIC_API_BASE_PATH}/asset`;
   const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
   return response;
 }
 
+export async function getAssetsByName(author: string, assetNames: string[], fetchImpl?: FetchFunction): Promise<ManagedAssetResponse[]> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/asset/assetUrl/${author}?assetNames=${assetNames.join(',')}`;
+  const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
+  return response;
+}
+
 export async function updateAsset(
-  id?: number,
+  name?: string,
   newName?: string,
   file?: File,
   fetchImpl?: FetchFunction
 ): Promise<ManagedAssetResponse | null> {
   let url = `${env.PUBLIC_API_BASE_PATH}/asset`;
-  if (id) {
-    url = `${url}/${id}`;
+  if (name) {
+    url = `${url}/${name}`;
   }
   const formData = new FormData();
-  const name = newName ?? file?.name;
-  formData.append('name', name!);
+  const newFileName = newName ?? file?.name;
+  formData.append('name', newFileName!);
   formData.append('', file ?? new File([''], ''));
   return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, {
-    method: id ? 'PUT' : 'POST',
+    method: name ? 'PUT' : 'POST',
     body: formData,
   });
 }
 
-export async function deleteAsset(id: number, fetchImpl?: FetchFunction): Promise<ManagedAssetResponse | null> {
-  const url = `${env.PUBLIC_API_BASE_PATH}/asset/${id}`;
+export async function deleteAsset(name: string, fetchImpl?: FetchFunction): Promise<ManagedAssetResponse | null> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/asset/${name}`;
   return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, { method: 'DELETE' });
 }
 

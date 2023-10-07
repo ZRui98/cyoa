@@ -39,7 +39,7 @@
   }
 
   async function saveAsset() {
-    updateAssetPromise = updateAsset($originalAsset?.id, $newAssetFileName, file);
+    updateAssetPromise = updateAsset($originalAsset?.name, $newAssetFileName, file);
     $errorMsg = undefined;
   }
 
@@ -68,7 +68,7 @@
     if (newAsset) {
       assets.update((current) => {
         if (!current) return current;
-        const i = current.findIndex((val) => val.id === newAsset.id);
+        const i = current.findIndex((val) => val.name === newAsset.name);
         if (i >= 0) {
           current[i] = newAsset;
           return current;
@@ -85,7 +85,7 @@
   }
 
   function handleAssetDelete(asset: ManagedAssetResponse) {
-    deleteAssetPromise = deleteAsset(asset.id);
+    deleteAssetPromise = deleteAsset(asset.name);
     deleteAssetPromise
       .then((val) => onAssetDelete(val))
       .catch(() => {
@@ -102,7 +102,7 @@
     if (data) {
       assets.update((current) => {
         if (!current) return current;
-        const i = current.findIndex((val) => val.id === data.id);
+        const i = current.findIndex((val) => val.name === data.name);
         current.splice(i, 1);
         return current;
       });
@@ -139,7 +139,7 @@
             />
             {#if $originalAsset}
               <div>
-                Current file: <a href="#">{$originalAsset?.fileName}</a>
+                Current file: <a href={$originalAsset.path}>{$originalAsset?.fileName}</a>
               </div>
             {/if}
             {#if file}
@@ -201,7 +201,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: auto;
   }
 
   #overlay {

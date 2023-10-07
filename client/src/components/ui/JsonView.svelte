@@ -1,11 +1,10 @@
 <script lang="ts">
   export let json: any;
-  let collapsed = false;
   let symbol = ['{', '}'];
   if (Array.isArray(json)) symbol = ['[', ']'];
 
   function isCollapsible(key: string): boolean {
-    if (typeof json[key] === 'number' || typeof json[key] === 'string') return false;
+    if (json[key] == undefined || json[key] == null || typeof json[key] === 'number' || typeof json[key] === 'string') return false;
     return true;
   }
 </script>

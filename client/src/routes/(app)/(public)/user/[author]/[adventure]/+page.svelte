@@ -6,7 +6,7 @@
   import GraphOverview from '../../../../../../components/ui/GraphOverview.svelte';
   import Sidebar from '../../../../../../components/ui/Sidebar.svelte';
   import { adventureStore, currentActiveNode } from '../../../../../../store/adventure';
-  export let data: {user: string, adventure: string};
+  export let data: {author: string, adventure: string};
 
   let open = false;
   let promise: Promise<any>;
@@ -26,7 +26,7 @@
   }
 
   onMount(async () => {
-    promise = adventureStore.loadAdventure(data.user, data.adventure);
+    promise = adventureStore.loadAdventure(data.author, data.adventure);
     await promise;
     const node: string = window.location.hash.substring(1);
     if (getNodeById(node)) {

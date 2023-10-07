@@ -13,24 +13,22 @@ export const s3 = new S3({
     forcePathStyle: true
 });
 
-export async function getPresignedUrlForFiles(user: string, files: string[]): Promise<{[key: string]: string}> {
-    const urls = {};
-    await Promise.all(files.map(async (file) => {
-        if (urls[file]) return;
-        const command = new GetObjectCommand({
-            
-            Bucket: user, 
-            Key: file
-        });
-        const url = await getSignedUrl(s3, command, {expiresIn: 900 * 60});
-        urls[file] = url;
-    }));
-    return urls;
+export async function getPresignedUrlForFile(bucket: string, filePath: string): Promise<string> {
+    const command = new GetObjectCommand({
+        
+        Bucket: `${bucket}`, 
+        Key: filePath
+    });
+    const url = await getSignedUrl(s3, command, {expiresIn: 900 * 60});
+    return url;
 }
 
-export function uploadFromStream(filePath: string, user: string, mimeType: string = 'application/json'): {pass: stream.PassThrough, upload: Upload} {
+export function uploadFromStream(bucketName: string | undefined, filePath: string, mimeType: string = 'application/json'): {pass: stream.PassThrough, upload: Upload} {
+    if (!bucketName) {
+        throw new Error("Invalid bucket name");
+    }
     let pass = new stream.PassThrough();
-    let params = {Bucket: user, Key: filePath, Body: pass, ContentType: mimeType, ContentDisposition: 'inline'};
+    let params = {Bucket: bucketName, Key: filePath, Body: pass, ContentType: mimeType, ContentDisposition: 'inline'};
     const upload = new Upload({
         client: s3,
         leavePartsOnError: true, // optional manually handle dropped parts

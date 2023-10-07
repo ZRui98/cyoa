@@ -14,7 +14,7 @@
     <div class="title">
       <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight /></span></a>
       {#if canEdit}
-      <a class="button-round" href={`/editor?author=${author}&name=${name}`}><span>Edit <ArrowRight /></span></a>
+      <a class="button-round" href={`/editor?adventure_name=${name}`}><span>Edit <ArrowRight /></span></a>
       {/if}
       {name}
     </div>

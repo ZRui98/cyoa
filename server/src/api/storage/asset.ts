@@ -4,12 +4,11 @@ import { MimeType, fileTypeStream} from 'file-type';
 import { deleteAssetDb, getAssetFromDb, insertAssetDb, updateAssetDb } from "../db/asset";
 import { FileType, ManagedAssetResponse, ManagedAssetTable } from "../../models/Asset";
 import { ApiError } from "../../util/error";
-import { getPresignedUrlForFiles, s3, uploadFromStream } from ".";
-import db from "../db";
+import { s3, uploadFromStream } from ".";
 import { pipeline } from "stream/promises";
 
-export function getAssetFilePath(fileName: string) {
-    return `assets/${fileName}`;
+export function getAssetFilePath(user: string, fileName: string) {
+    return `${user}/${fileName}`;
 }
 
 function getFileType(mimeType: MimeType | undefined): FileType | undefined {
@@ -36,45 +35,44 @@ export async function saveAsset({file, filename, name}: {file: BusboyFileStream,
         author,
     };
     const newAsset = await insertAssetDb(row, undefined);
-    const filePath = getAssetFilePath(filename);
-    const {pass, upload} = uploadFromStream(filePath, author, stream.fileType?.mime);
+    const filePath = getAssetFilePath(author, filename);
+    const {pass, upload} = uploadFromStream(process.env.ASSET_BUCKET_NAME, filePath, stream.fileType?.mime);
     pipeline(
         stream,
         pass
     );
     await upload.done();
-    const paths = await getPresignedUrlForFiles(author, [getAssetFilePath(newAsset.fileName)]);
     return {
         ...newAsset,
-        path: paths[newAsset.fileName]
+        path: filePath
     }
 }
   
-export async function updateAsset({file, filename, name, id}: {file?: BusboyFileStream, filename?: string, name?: string, id: number}, author: string): Promise<ManagedAssetResponse | null> {
-    const asset = await getAssetFromDb({id});
+export async function updateAsset({file, filename, name}: {file?: BusboyFileStream, filename?: string, name?: string}, author: string): Promise<ManagedAssetResponse | null> {
+    const asset = await getAssetFromDb({name, author});
     if (!asset) throw new ApiError(404, "asset not found");
     let assetResponse: ManagedAssetResponse = asset;
     const updatedAsset: Updateable<ManagedAssetTable> = {};
     if (file && filename) {
         const stream = await fileTypeStream(file);
         const fileType = getFileType(stream.fileType?.mime);
+        if (!fileType) throw new ApiError(400, "Unsupported file type");
         updatedAsset.fileType = fileType;
-        const filePath = getAssetFilePath(filename);
-        const { pass, upload } = uploadFromStream(filePath, author);
+        const filePath = getAssetFilePath(author, filename);
+        const { pass, upload } = uploadFromStream(process.env.ASSET_BUCKET_NAME, filePath);
         pipeline(
             stream,
             pass
         );
         await upload.done();
-        const paths = await getPresignedUrlForFiles(author, [filePath]);
-        assetResponse.path = paths[filePath];
+        assetResponse.path = filePath;
     }
     const newFileName = filename ?? asset.fileName;
     const newName = name ?? asset.name;
     try {
         if (!!newFileName) updatedAsset.fileName = newFileName;
         if (!!newName) updatedAsset.name = newName;
-        const v = await updateAssetDb(updatedAsset, undefined, id);
+        const v = await updateAssetDb(updatedAsset, undefined, asset.id);
         assetResponse = v;
     } catch(e) {
         if ((e as {message: string}).message.startsWith('duplicate key value')) {
@@ -85,11 +83,11 @@ export async function updateAsset({file, filename, name, id}: {file?: BusboyFile
     return assetResponse;
 }
 
-export async function deleteAsset(id: number, author: string): Promise<ManagedAssetResponse | null> {
-    const asset = await getAssetFromDb({id});
+export async function deleteAsset(name: string, author: string): Promise<ManagedAssetResponse | null> {
+    const asset = await getAssetFromDb({name, author});
     
     if (!asset) throw new ApiError(404, 'asset not found');
-    await deleteAssetDb(id);
-    await s3.deleteObject({Bucket: author, Key: getAssetFilePath(asset.fileName)});
+    await deleteAssetDb(asset.id);
+    await s3.deleteObject({Bucket: process.env.ASSET_BUCKET_NAME, Key: getAssetFilePath(author, asset.fileName)});
     return asset;
 }

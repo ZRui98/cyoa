@@ -18,7 +18,8 @@ const app = fastify({
   logger: true,
   ajv: {
     customOptions: {
-      removeAdditional: false
+      removeAdditional: false,
+      coerceTypes: 'array'
     }
   }
 });

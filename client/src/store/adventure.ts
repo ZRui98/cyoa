@@ -158,22 +158,44 @@ export const graphRenderStore = createGraphRenderStore(adventureStore);
 export type GraphRenderStore = typeof graphRenderStore;
 
 export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
-  const val = writable<string | undefined>();
-  const { subscribe, set } = val;
+  const val = writable<{id:string} | undefined>();
+  let node: string | undefined;
+  const { subscribe } = val;
+
+  subscribe(() => console.log("inner update happened"));
+
+  const valSet = (newVal: string | undefined) => {
+    if (newVal) {
+      if (newVal) {
+        node = JSON.stringify(adventureStore.getNodeById(newVal));
+      } else {
+        node = undefined;
+      }
+      if (node) {
+        const newHash = `#${newVal}`;
+        location.replace(newHash);
+        val.set({id: newVal});
+      }
+    }
+  };
+
   adventureStore.subscribe((newAdventure) => {
-    if (newAdventure?.start !== get(val)) {
-      set(newAdventure?.start);
+    const storeVal = get(val);
+    if (newAdventure?.start !== storeVal?.id) {
+      valSet(newAdventure?.start);
+      return;
+    }
+    if (storeVal) {
+      // if node changed for current node, just do an empty refresh
+      if (node !== JSON.stringify(newAdventure?.nodes[storeVal.id])) {
+        valSet(storeVal.id);
+        return;
+      }
     }
   });
   return {
     subscribe,
-    set: (newVal: string | undefined) => {
-      if (newVal && adventureStore.getNodeById(newVal)) {
-        const newHash = `#${newVal}`;
-        location.replace(newHash);
-        set(newVal);
-      }
-    },
+    set: valSet,
   };
 };
 

@@ -1,7 +1,8 @@
 import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from "kysely";
 import db, { Database } from ".";
-import { getFileURLFromAdventure } from "../storage/adventure";
+import { getAdventureFilePath } from "../storage/adventure";
 import { AdventureTable } from "../../models/Adventure";
+import { getPresignedUrlForFile } from "../storage";
 
 export async function getPresignedAdventureFromId(user: string, file: string, trx: Transaction<Database> | Kysely<Database> = db): Promise<string | undefined> {
     const {fileName, author} = await trx.selectFrom('adventure')
@@ -9,8 +10,7 @@ export async function getPresignedAdventureFromId(user: string, file: string, tr
       .where('author', '=', user)
       .select(['fileName', 'author'])
       .executeTakeFirstOrThrow(() => new Error("could not find adventure"));
-    const url =  getFileURLFromAdventure(author, fileName).href;
-    const signedUrl = url;
+    const signedUrl = await getPresignedUrlForFile(process.env.STORY_BUCKET_NAME ?? 'cyoa-stories', getAdventureFilePath(author, fileName));
     return signedUrl;
 }
 
