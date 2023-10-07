@@ -60,7 +60,12 @@
 
   function addNewNode() {
     if (!$adventureStore?.nodes) return;
-    const keys = Object.keys($adventureStore?.nodes).sort();
+    const keys = Object.keys($adventureStore?.nodes).sort((a, b) => {
+      return a.localeCompare(b, undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      });
+    });
     let id = '0';
     if (keys.length > 0) {
       const latestKey = keys[keys.length - 1];
