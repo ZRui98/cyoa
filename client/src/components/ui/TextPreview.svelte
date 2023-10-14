@@ -17,6 +17,7 @@
       }
     }
     editing = false;
+    e.preventDefault();
   };
 </script>
 

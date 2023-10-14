@@ -37,7 +37,7 @@
     return `${numMin}:${numSec}`;
   });
 
-  let interval: NodeJS.Timer;
+  let interval: NodeJS.Timeout;
 
   function step() {
     if (!howl) return;

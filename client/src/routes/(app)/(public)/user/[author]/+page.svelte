@@ -30,7 +30,7 @@
       author={name}
       description={adventure.description}
       count={adventure.playCount}
-      canEdit
+      canEdit={canEdit}
     />
   {/each}
 </div>

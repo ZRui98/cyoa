@@ -7,22 +7,15 @@
   import Sidebar from '../../../../../../components/ui/Sidebar.svelte';
   import { adventureStore, currentActiveNode } from '../../../../../../store/adventure';
   export let data: { author: string; adventure: string };
-
-  let open = false;
   let promise: Promise<any>;
   const { getNodeById } = adventureStore;
 
   $: adventureName = $adventureStore?.name ?? '';
 
-  const layoutStyling = getContext<Writable<string>>('layoutStyling');
   const titleSuffix: Writable<string> = getContext('titleSuffix');
 
   $: {
     $titleSuffix = adventureName;
-  }
-  const STATIC_STYLE = 'transition: 0.3s ease-in-out;';
-  $: {
-    layoutStyling.set(open ? `margin: 0 5%;margin-right: 55%;${STATIC_STYLE}` : STATIC_STYLE);
   }
 
   onMount(async () => {
@@ -35,7 +28,6 @@
   });
 
   onDestroy(() => {
-    layoutStyling.set('');
     adventureStore.clearAdventure();
   });
 </script>
@@ -51,7 +43,7 @@
     <Node />
   {/await}
 </div>
-<Sidebar bind:open>
+<Sidebar open={false}>
   <GraphOverview />
 </Sidebar>
 
@@ -63,9 +55,6 @@
     transition: 0.3s ease-in-out;
     justify-content: center;
     height: 100%;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
   }
 
   span {

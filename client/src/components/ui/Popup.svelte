@@ -27,7 +27,9 @@
   on:keydown|self={(e) => e.code === 'Escape' ?? dialog.close()}
 >
   <div>
-    <slot />
+    <div>
+      <slot />
+    </div>
   </div>
 </dialog>
 
@@ -44,8 +46,13 @@
     backdrop-filter: blur(3px);
   }
   dialog > div {
-    margin: 1em;
+    width: 100%;
+    height: 100%;
+    display: flex;
+  }
+  dialog > div > div {
     width: calc(100% - 2em);
     height: calc(100% - 2em);
+    margin: 1em;
   }
 </style>

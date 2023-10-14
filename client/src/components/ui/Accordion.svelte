@@ -2,6 +2,7 @@
   import { ChevronRight } from 'lucide-svelte';
   import { slide } from 'svelte/transition';
   export let open = false;
+  export let focused = false;
   export let contentStyle = '';
   export let buttonStyle = '';
   export let chevronSize = 24;
@@ -10,7 +11,7 @@
     `;
 </script>
 
-<div class="container static-padding" {...$$restProps}>
+<div class={`container static-padding ${focused ? 'focused' : ''}`} {...$$restProps}>
   <div
     class="card static-padding"
     id="accordion-button"
@@ -35,6 +36,10 @@
 </div>
 
 <style>
+  .focused {
+    outline: 2px solid hsl(var(--main-pine));
+  }
+
   #accordion-button {
     width: 100%;
     display: flex;

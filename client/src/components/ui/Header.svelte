@@ -2,7 +2,7 @@
   import { Moon, User } from 'lucide-svelte';
   import { Lightbulb } from 'lucide-svelte';
   import loginState from '../../store/loginState';
-  import { theme } from '../../store/theme';
+  import { theme } from '../../store/settings';
   import { onDestroy, onMount } from 'svelte';
   import { derived, type Unsubscriber } from 'svelte/store';
 
@@ -10,9 +10,9 @@
   let unsub: Unsubscriber | undefined;
   onMount(() => {
     unsub = theme.subscribe((theme) => {
-      if (theme === 'dark') {
+      if (theme.darkMode) {
         window.document.querySelector('html')?.setAttribute('dark-mode', '');
-      } else if (theme === 'light') {
+      } else {
         window.document.querySelector('html')?.removeAttribute('dark-mode');
       }
     });
@@ -26,7 +26,6 @@
 <header>
   <div>
     <a href="/" class="button static-padding">Home</a>
-    <a href="/" class="button static-padding">About</a>
     <a href="/editor" class="button static-padding">Editor</a>
     {#if $isLoggedIn}
       <a href="/assets" class="button static-padding">Assets</a>
@@ -36,12 +35,12 @@
     <button
       class="button"
       on:click={() => {
-        $theme = $theme === 'dark' ? 'light' : 'dark';
+        $theme.darkMode = !$theme.darkMode;
       }}
     >
-      {#if $theme === 'dark'}
+      {#if $theme.darkMode}
         <Lightbulb size={21} />
-      {:else if $theme === 'light'}
+      {:else}
         <Moon size={21} />
       {/if}
     </button>

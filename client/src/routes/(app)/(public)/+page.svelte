@@ -1,3 +1,14 @@
-<h1>Choose your own adventure.</h1>
-<h2>Play for fun.</h2>
+<h1>Create your own adventure.</h1>
+<h2>Play for fun. </h2>
+<pre class="zork">
+You are standing in an open field west of a white house, with a boarded front door.    
+There is a small mailbox here.
+</pre>
 <h2>Build for fun.</h2>
+
+
+<style>
+    .zork {
+        color: hsl(var(--main-gold))
+    }
+</style>

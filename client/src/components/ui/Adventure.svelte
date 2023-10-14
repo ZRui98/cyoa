@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowRight } from 'lucide-svelte';
+  import { ArrowRight, Edit, Trash2 } from 'lucide-svelte';
   export let name: string;
   export let author: string;
   export let description: string | undefined;
@@ -10,30 +10,41 @@
 </script>
 
 <div class="card">
-  <div>
     <div class="title">
-      <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight /></span></a>
+      <div>
+        <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight /></span></a>
+        {name}
+      </div>
       {#if canEdit}
-        <a class="button-round" href={`/editor?adventure_name=${name}`}><span>Edit <ArrowRight /></span></a>
+      <div>
+        <a class="button" href={`/editor?adventure_name=${name}`}><span><Edit /></span></a>
+        <button class="button"><span><Trash2 /></span></button>
+      </div>
       {/if}
-      {name}
     </div>
     <div>
       <span>{@html formattedDescription}</span>
     </div>
     <span class="count">Play count: {count}</span>
-  </div>
 </div>
 
 <style>
   .card {
-    flex-direction: row;
+    flex-direction: column;
     display: flex;
     justify-content: space-between;
     gap: 10%;
     border: 1px solid hsl(var(--main-highlight-high));
   }
+
   .title {
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  .title > div {
     font-size: 32px;
     padding-bottom: 18px;
     font-weight: bold;

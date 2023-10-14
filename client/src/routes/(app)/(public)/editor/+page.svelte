@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { Plus, Save, Trash2 } from 'lucide-svelte';
-  import { getContext, onMount, onDestroy } from 'svelte';
-  import type { Writable } from 'svelte/store';
+  import { Plus, Save, SlidersHorizontal, Trash2 } from 'lucide-svelte';
+  import { onMount, onDestroy } from 'svelte';
+  import { toast } from 'svelte-sonner';
+
   import {
     isFileAsset,
     isManagedExportableAsset,
@@ -15,17 +16,20 @@
   import Tab from '../../../../components/ui/Tab.svelte';
   import Tabs from '../../../../components/ui/Tabs.svelte';
   import GraphOverview from '../../../../components/ui/GraphOverview.svelte';
-  import { adventureStore } from '../../../../store/adventure';
+  import { adventureStore, currentActiveNode } from '../../../../store/adventure';
   import Node from '../../../../components/ui/Node.svelte';
   import loginState from '../../../../store/loginState';
   import Sidebar from '../../../../components/ui/Sidebar.svelte';
   import Dropdown from '../../../../components/ui/Dropdown.svelte';
   import TextPreview from '../../../../components/ui/TextPreview.svelte';
   import { LOREM_IPSUM } from '../../../../components/pixi/constants';
-  import { toast } from 'svelte-sonner';
   import { getAssets, saveAdventure, updateAdventure } from '../../../../utils/api';
+  import EditorSettings from '../../../../components/ui/menu/EditorSettings.svelte';
+  import { settings } from '../../../../store/settings';
 
   export let data: { adventureName: string };
+
+  const openNodes: {[key: string]: boolean} = {};
 
   if (!$adventureStore) {
     if (data.adventureName && $loginState?.activated) {
@@ -35,15 +39,24 @@
     }
   }
 
-  const layoutStyling = getContext<Writable<string>>('layoutStyling');
-  const STATIC_STYLE = 'transition: 0.3s ease-in-out;';
-  let open = true;
-  $: {
-    layoutStyling.set(open ? `margin: 0 5%;margin-right: 55%;${STATIC_STYLE}` : STATIC_STYLE);
-  }
+  currentActiveNode.subscribe((val) => {
+    if ($settings.editor.autoFocus) {
+      const el = document?.getElementById(`node-${val?.id}`);
+      el?.scrollIntoView({behavior: 'smooth'});
+    }
+
+    if ($settings.editor.autoCollapse) {
+      for (const key in Object.keys(openNodes)) {
+        openNodes[key] = key === val?.id;
+      }
+    } else if (val) {
+      openNodes[val.id] = true;
+    }
+  })
 
   $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.FILE, AssetType.TEXT];
   let managedAssets: ManagedAssetResponse[] | undefined = undefined;
+  let settingsVisible = false;
 
   onMount(() => {
     if ($loginState?.activated) {
@@ -75,12 +88,15 @@
         id = `${x + 1}`;
       }
     }
-
+    openNodes[id] = false;
     $adventureStore.nodes[id] = {
       name: 'new node',
       links: [],
       assets: [],
     };
+    if (!$adventureStore?.start) {
+      $adventureStore.start = id;
+    }
   }
 
   function createNewAsset(type: AssetType): Asset {
@@ -145,7 +161,7 @@
   // } as unknown as Content;
 
   function handleSave() {
-    const existingAdventure = new URLSearchParams(window.location.search).get('adventure');
+    const existingAdventure = new URLSearchParams(window.location.search).get('adventure_name');
     let promise: Promise<void>;
     if (existingAdventure) {
       promise = updateAdventure(existingAdventure, $adventureStore);
@@ -170,7 +186,6 @@
   }
 
   onDestroy(() => {
-    layoutStyling.set('');
     adventureStore.clearAdventure();
   });
 </script>
@@ -182,16 +197,20 @@
       <input bind:value={$adventureStore.name} class="static-padding" type="text" />
       <button class="button" on:click={handleSave}><Save /></button>
     </div>
-    <Tabs style="flex: 1 1 auto;">
+    <Tabs style="flex: 1">
       <Tab index="0" title="Nodes">
-        <button class="button-round" on:click={addNewNode}>
-          <Plus />
-        </button>
+        <EditorSettings bind:settingsVisible />
+        <div id="nodes-options">
+          <button class="button-round" on:click={addNewNode}>
+            <Plus />
+          </button>
+          <button on:click={() => settingsVisible = !settingsVisible} class="button"><SlidersHorizontal /></button>
+        </div>
         {#each Object.keys($adventureStore.nodes) as nodeKey}
-          <Accordion>
+          <Accordion id={`node-${nodeKey}`} bind:open={openNodes[nodeKey]} focused={$currentActiveNode?.id === nodeKey}>
             <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
-              <button class="button" on:click|stopPropagation={() => adventureStore.removeNode(nodeKey)}
+              <button class="button" on:click|stopPropagation={() => {adventureStore.removeNode(nodeKey); delete openNodes[nodeKey];}}
                 ><Trash2 /></button
               >
             </div>
@@ -277,22 +296,19 @@
       <Tab index="1" title="JSON">
         <JsonView json={$adventureStore} />
       </Tab>
-      <Tab index="2" title="Preview">
+      <Tab index="2" title="Preview" style="flex:1;display:flex">
         <Node />
       </Tab>
     </Tabs>
-
-    <div id="preview">
-      <div />
-      <Sidebar bind:open>
-        <GraphOverview />
-      </Sidebar>
-    </div>
     <!-- <div>
 
       <JSONEditor bind:content mainMenuBar={true} readOnly onError={() => {}}/>
     </div> -->
   </div>
+
+    <Sidebar open={true}>
+      <GraphOverview />
+    </Sidebar>
 {/if}
 
 <style>
@@ -308,9 +324,9 @@
     --jse-edit-outline: 2px solid #656565;
     --jse-selection-background-color: hsl(var(--main-highlight-low));
     --jse-background-color: hsl(var(--main-bg));
-    height: 100%;
     display: flex;
-    flex-flow: column;
+    flex-direction: column;
+    flex: 1;
   }
 
   .content {
@@ -325,18 +341,10 @@
     padding: 0;
   }
 
-  #preview {
-    width: 100%;
+  #nodes-options {
     display: flex;
-    flex-flow: row;
-    height: 100%;
-  }
-
-  #preview > div {
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    height: 100%;
+    align-items: center;
+    gap: 20px;
   }
 
   #title {
