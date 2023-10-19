@@ -1,51 +1,213 @@
 import type { Node } from '@backend/models/Node';
 import { Queue } from '@datastructures-js/queue';
 import {
-  Direction,
   MIN_DIST_BETWEEN_NODES_X,
   MIN_DIST_BETWEEN_NODES_Y,
   NODE_HEIGHT,
   NODE_WIDTH,
 } from '../components/pixi/constants';
-import type { Graph } from '../store/adventure';
+import type { Graph, GraphNode } from '../store/adventure';
 
-export function createGraph() {
-  return;
-}
-
-// https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
-export function hasCycle(graph: Graph): boolean {
-  const { nodes } = graph;
-  const L: string[] = [];
-  const keys = Object.keys(nodes);
-  const indegrees: { [key: string]: number } = keys.reduce((acc: { [key: string]: number }, curr) => {
-    acc[curr] = 0;
-    return acc;
-  }, {});
-
-  for (const key of keys) {
-    const node = nodes[key];
-    if (!node.links) continue;
-    for (const v of node.links) {
-      if (!v.next) continue;
-      indegrees[v.next] = (indegrees[v.next] ?? 0) + 1;
+export function getDegreesAndInverse(graph: {[key: string] : GraphNode}): {[key: string]: {in: number, out: number, inverse: string[]}} {
+  const degrees: {[key: string]: {in: number, out: number, inverse: string[]}} = {};
+  for (const key of Object.keys(graph)) {
+    if (!degrees[key]) {
+      degrees[key] = {in: 0, out: 0, inverse: []};
+    }
+    degrees[key].out = graph[key].links.length;
+    for (const inKey of graph[key].links.map(link => link.next)) {
+      if (!degrees[inKey]) {
+        degrees[inKey] = {in: 0, out: 0, inverse: []};
+      }
+      degrees[inKey].in = degrees[inKey].in + 1;
+      degrees[inKey].inverse.push(key);
     }
   }
-  const S: Queue<string> = new Queue(Object.keys(nodes).filter((key: string) => indegrees[key] === 0));
-  while (!S.isEmpty()) {
-    const n = S.pop();
-    L.push(n);
-    for (const v of nodes[n].links) {
-      const m = v.next;
-      indegrees[m]--;
-      if (indegrees[m] <= 0) {
-        S.push(m);
+  return degrees;
+}
+
+// Using Greedy FAS Algorithm
+function getFeedbackArcSet(graph: {[key: string] : GraphNode}) {
+  const G: {[key: string]: GraphNode} = JSON.parse(JSON.stringify(graph));
+  const degrees = getDegreesAndInverse(graph);
+  let s1: string[] = [], s2: string[] = [];
+  while (Object.keys(G).length > 0) {
+    let sink: string | undefined;
+    do {
+      sink = Object.keys(degrees).find(key => degrees[key].out === 0);
+      if (!sink) continue;
+      s2 = [sink, ...s2];
+      deleteNodeFromDegreeList(degrees, G, sink);
+    } while(sink);
+    let source: string | undefined;
+    do {
+      source = Object.keys(degrees).find(key => degrees[key].out === 0);
+      if (!source) continue;
+      s1 = [...s1, source];
+      deleteNodeFromDegreeList(degrees, G, source);
+    } while(source);
+    let max: string | undefined;
+    for (const dKey of Object.keys(degrees)) {
+      const d = degrees[dKey].out - degrees[dKey].in;
+      if (!max) {
+        max = dKey;
+      } else {
+        const maxVal = degrees[max].out - degrees[max].in;
+        if (d > maxVal) {
+          max = dKey;
+        }
+      }
+    }
+    if (max) {
+      deleteNodeFromDegreeList(degrees, G, max);
+      s1 = [...s1, max];
+    }
+  }
+  const seq = [...s1, ...s2];
+  const fasGraph: {[key: string]: string[]} = {};
+  for (let i = 0; i < seq.length; i++) {
+    if (!fasGraph[seq[i]]) fasGraph[seq[i]] = [];
+    for (let j = i + 1; j < seq.length; j++) {
+      if (graph[seq[j]].links.findIndex(e => e.next == seq[i]) >= 0) {
+        if (!fasGraph[seq[j]]) {
+          fasGraph[seq[j]] = [];
+        }
+        fasGraph[seq[j]].push(seq[i]);
       }
     }
   }
+  return fasGraph;
+}
 
-  const edgesRemaining: number = Object.values(indegrees).reduce((curr, acc: number) => acc + curr, 0);
-  return edgesRemaining !== 0;
+function deleteNodeFromDegreeList(degrees: {[key: string]: {in: number, out: number, inverse: string[]}}, G: {[key: string]: GraphNode}, target: string) {
+  degrees[target].inverse.forEach(invKey => {
+    if (degrees[invKey]) {
+      degrees[invKey].out = degrees[invKey].out - 1;
+    }
+  });
+  G[target].links.forEach(({next}) => {
+    if (degrees[next]) {
+      degrees[next].in = degrees[next].in - 1;
+    }
+  });
+  delete degrees[target];
+  delete G[target];
+}
+
+function longestPathLayering(graph: {[key: string]: GraphNode}, start?: string) {
+  const U: Set<string> = new Set();
+  let Z: Set<string> = new Set();
+  const layers: string[][] = [[]];
+  let currentLayer = 1;
+  if (start) {
+    Z.add(start);
+    U.add(start);
+    currentLayer += 1;
+    console.log(layers[0]);
+    layers[0].push(start);
+    layers.push([]);
+  }
+
+  const V = Object.keys(graph);
+  const inv = getDegreesAndInverse(graph);
+  while (U.size < V.length) {
+    // V\U
+    const VdU = V.filter(v => !U.has(v));
+    // find a v in V\U with N_+^G C Z
+    const selected = VdU.find(v => {
+      
+      const successors = inv[v].inverse//graph[v].links.map(l => l.next);
+      return successors.every(s => Z.has(s));
+    })
+    if (selected) {
+      layers[currentLayer - 1].push(selected);
+      U.add(selected);
+    } else {
+      Z = new Set([...Z, ...U]);
+      currentLayer += 1;
+      layers.push([]);
+    }
+  }
+  return layers;
+}
+
+function promoteVertex(v: string, layering: {[key: string]: number}, G: {[key: string]: {in: number, out: number, links: string[], inverse: string[]}}): number {
+  let dummydiff = 0;
+  for (const u of G[v].inverse) {
+    if (layering[u] === layering[v] + 1) {
+      dummydiff += promoteVertex(u, layering, G);
+    }
+  }
+  layering[v] += 1;
+  dummydiff = dummydiff - G[v].in + G[v].out;
+  return dummydiff;
+}
+
+function promotionHeuristic(graph: {[key: string] : GraphNode}, layers: string[][]) {
+  let layering: {[key: string]: number} = layers.reduce((acc: {[key: string]: number}, layer, i) => {
+    layer.forEach(v => {acc[v] = i + 1});
+    return acc;
+  }, {});
+  let layeringBackUp: {[key: string]: number} = JSON.parse(JSON.stringify(layering));
+  let degreesAndInverse = getDegreesAndInverse(graph);
+  let G = Object.keys(graph).reduce((
+      acc:{[key: string]: {in: number, out: number, links: string[], inverse: string[]}}, 
+      key
+    ) => {
+      acc[key] = {...degreesAndInverse[key], links: graph[key].links.map(l => l.next)}
+      return acc;
+  }, {});
+  console.log(G);
+  let promotions: number;
+  do {
+    promotions = 0;
+    for (const v of Object.keys(G)) {
+      if (G[v].in > 0) {
+        if (promoteVertex(v, layering, G) < 0) {
+          console.log('v', v, layering, G);
+          promotions += 1;
+          layeringBackUp = JSON.parse(JSON.stringify(layering));
+        } else {
+          layering = layeringBackUp;
+        }
+      }
+    }
+  } while (promotions != 0);
+  return layering;
+}
+
+function addDummyNodes(G: {[key: string]: GraphNode}, layers: string[][]) {
+  Object.keys(G).reduce((acc: string[][], u) => {
+    const newEdges = G[u].links.map(v => [u,v.next]);
+    return [...acc, ...newEdges];
+  }, [])
+}
+
+export function createLayeredGraph(graph: Graph) {
+  // Generate FS using Greedy FAS Algorithm
+  const G: {[key: string] : GraphNode} = JSON.parse(JSON.stringify(graph.nodes));
+  const fas = getFeedbackArcSet(G);
+  // Reverse edges in FS to turn graph w/ cycle to DAG
+  console.log(fas);
+  for (const key in Object.keys(fas)) {
+    if (fas[key].length <= 0) continue;
+    for (const dest of fas[key]) {
+      const idx = G[key].links.findIndex(e => e.next === dest);
+      if (idx < 0) {
+        throw Error(`something went wrong with generating the fas ${dest} ${idx} ${G[key].links}`);
+      }
+      G[key].links.splice(idx, 1);
+      const alreadyExists = G[dest].links.findIndex(e => e.next === key) !== -1;
+      if (alreadyExists) continue;
+      G[dest].links.push({next: key});
+      // debugger;
+    }
+  }
+  // Find Layering for DAG
+  const layers = longestPathLayering(G).reverse();
+  console.log(layers)
+  // const layering = promotionHeuristic(G, layers);
+  // console.log('layering', layering);
 }
 
 function getCurvePoints(
@@ -119,22 +281,22 @@ export function processLayersToCoords(
   layers: Set<string>[],
   edgeLayers: string[][][]
 ): {
-  nodes: { x: number; y: number; i: string }[];
-  edges: { points: number[][]; isSimple: boolean; isDotted: boolean }[];
+  nodes: { x: number; y: number; id: string, i: number }[];
+  edges: { points: number[][]; isSimple: boolean; isDotted: boolean, from: string, to: string }[];
 } {
   if (layers[0].size !== 1) {
     throw new Error('unexpected start layer');
   }
   let posY = 80 - NODE_HEIGHT / 2;
-  let nodes: { x: number; y: number; i: string }[] = [];
-  const edges: { points: number[][]; isSimple: boolean; isDotted: boolean; doubleSided: boolean }[] = [];
+  let nodes: { x: number; y: number; id: string, i: number }[] = [];
+  const edges: { points: number[][]; isSimple: boolean; isDotted: boolean; from: string, to: string}[] = [];
   for (let i = 0; i < layers.length; i++) {
     const layer = [];
     let posX =
       -(((layers[i].size - 1) / 2) * NODE_WIDTH + (Math.max(layers[i].size - 1, 0) / 2) * MIN_DIST_BETWEEN_NODES_X) -
       NODE_WIDTH / 2;
     for (const node of layers[i]) {
-      layer.push({ x: posX, y: posY, i: node });
+      layer.push({ x: posX, y: posY, id: node, i });
       posX += NODE_WIDTH + MIN_DIST_BETWEEN_NODES_X;
     }
     nodes = [...nodes, ...layer];
@@ -143,39 +305,60 @@ export function processLayersToCoords(
   for (let i = 0; i < edgeLayers.length; i++) {
     for (const edge of edgeLayers[i]) {
       if (!layers[i].has(edge[0])) throw new Error('Unexpected issue in creating edges');
-      const startNode = nodes.find((node) => node.i === edge[0]);
-      const endNode = nodes.find((node) => node.i === edge[1]);
-      let isCrossAdjacentEdge = false;
+      const startNode = nodes.find((node) => node.id === edge[0]);
+      const endNode = nodes.find((node) => node.id === edge[1]);
+      let isHorizontalAdjacentEdge = false;
       let horizontalEdgeDiff: number | undefined;
       if (layers[i]?.has(edge[1])) {
         const startNodePos = [...layers[i]].findIndex((id) => id === edge[0]);
         const endNodePos = [...layers[i]].findIndex((id) => id === edge[1]);
         horizontalEdgeDiff = Math.abs(endNodePos - startNodePos);
         if (horizontalEdgeDiff === 1) {
-          isCrossAdjacentEdge = true;
+          isHorizontalAdjacentEdge = true;
         }
       }
-      const isSimpleEdge = layers[i + 1]?.has(edge[1]);
+      const isTightEdge = layers[i - 1]?.has(edge[1]) || layers[i + 1]?.has(edge[1]) || isHorizontalAdjacentEdge;
       if (!startNode || !endNode) continue;
       let startX: number;
       let startY: number;
       let endX: number;
       let endY: number;
       let points: number[][];
-      if (!isSimpleEdge || isCrossAdjacentEdge) {
-        if (horizontalEdgeDiff && horizontalEdgeDiff > 1) {
+      if (!isTightEdge || isHorizontalAdjacentEdge) {
+        if (horizontalEdgeDiff && horizontalEdgeDiff > 1) { // horizontal edge
           startX = startNode.x + NODE_WIDTH / 2;
           startY = startNode.y + NODE_HEIGHT + 10;
           endX = endNode.x + NODE_WIDTH / 2;
           endY = endNode.y + NODE_HEIGHT + 10;
-          const midX = (startX + startY) / 2;
-          const midY = horizontalEdgeDiff * 40 + startNode.y + NODE_HEIGHT + 10;
+          const midX = (startX + endX) / 2;
+          const midY = horizontalEdgeDiff * 40 + startNode.y + NODE_HEIGHT;
           points = [
             [startX, startY],
             [midX, midY],
             [endX, endY],
           ];
-        } else {
+        } else if (!isTightEdge && startNode.x === endNode.x){ // vertial edge
+          let midX: number;
+            if (startNode.y > endNode.y) {
+              startX = startNode.x + NODE_WIDTH + 10;
+              startY = startNode.y + NODE_HEIGHT / 2;
+              endX = endNode.x + NODE_WIDTH + 10;
+              endY = endNode.y + NODE_HEIGHT / 2;
+              midX = Math.abs(endNode.i - startNode.i) * 40 + startNode.x + NODE_WIDTH;
+            } else {
+              startX = startNode.x - 10;
+              startY = startNode.y + NODE_HEIGHT / 2;
+              endX = endNode.x - 10;
+              endY = endNode.y + NODE_HEIGHT / 2;
+              midX =  startNode.x - Math.abs(endNode.i - startNode.i) * 40 - NODE_WIDTH;
+            }
+            const midY = (startY + endY) / 2;
+            points = [
+              [startX, startY],
+              [midX, midY],
+              [endX, endY]
+            ];
+        } else {// best fit edge
           const { start, end, cp } = getCurvePoints(startNode, endNode);
           startX = start.x;
           startY = start.y;
@@ -183,12 +366,21 @@ export function processLayersToCoords(
           endY = end.y;
           points = [[startX, startY], ...cp.map(({ x, y }) => [x, y]), [endX, endY]];
         }
-      } else {
-        startX = startNode.x + NODE_WIDTH / 2;
-        startY = startNode.y + NODE_HEIGHT + 10;
-        endX = endNode.x + NODE_WIDTH / 2;
-        endY = endNode.y - 10;
-        const midY = (endY + startY) / 2;
+      } else {// hardcoded s edge
+        let midY: number;
+        if (layers[i - 1]?.has(edge[1])) {
+          startX = startNode.x + NODE_WIDTH / 2;
+          startY = startNode.y - 10;
+          endX = endNode.x + NODE_WIDTH / 2;
+          endY = endNode.y + NODE_HEIGHT + 10;
+          midY = (endY + startY) / 2;
+        } else {
+          startX = startNode.x + NODE_WIDTH / 2;
+          startY = startNode.y + NODE_HEIGHT + 10;
+          endX = endNode.x + NODE_WIDTH / 2;
+          endY = endNode.y - 10;
+          midY = (endY + startY) / 2;
+        }
         points = [
           [startX, startY],
           [startX, midY],
@@ -198,9 +390,10 @@ export function processLayersToCoords(
       }
       edges.push({
         points,
-        isSimple: isSimpleEdge,
-        doubleSided: false,
-        isDotted: !(isSimpleEdge || isCrossAdjacentEdge),
+        from: edge[0],
+        to: edge[0],
+        isSimple: isTightEdge,
+        isDotted: !isTightEdge
       });
     }
   }

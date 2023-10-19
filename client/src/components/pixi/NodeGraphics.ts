@@ -42,6 +42,7 @@ export class NodeGraphics extends SmoothGraphics {
   }
 
   draw() {
+    this.clear();
     const color = this.isActive ? 0xeb6f92 : 0xe0def4;
     if (this.isActive) {
       this.beginFill(color, 1.0, true);

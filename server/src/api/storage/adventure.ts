@@ -28,7 +28,7 @@ export async function saveAdventure(user: string, adventure: Adventure) {
         const { id } = inserted;
         const uniqueAdventureAssetNames = new Set<string>(Object.values(adventure.nodes).reduce((acc: string[], node: Node) => {
             if (!node.assets) return acc;
-            return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+            return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
         }, []));
         
         await updateAdventureAssetDiff(user, id, {assetsToAdd: [...uniqueAdventureAssetNames]}, trx);
@@ -70,13 +70,13 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
         await db.transaction().execute(async (trx) => {
             const uniqueAdventureAssetNames = new Set<string>(Object.values(adventure.nodes).reduce((acc: string[], node: Node) => {
                 if (!node.assets) return acc;
-                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
             }, []));
             let deletedAssets: string[] = [];
                 // adventure already exists. Maintain association table of adventures 
             const oldUniqueAdventureAssetNames = new Set<string>(Object.values(oldAdventure!.nodes).reduce((acc: string[], node: Node) => {
                 if (!node.assets) return acc;
-                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
             }, []));
             deletedAssets = [...oldUniqueAdventureAssetNames].filter(asset => !uniqueAdventureAssetNames.has(asset));
         

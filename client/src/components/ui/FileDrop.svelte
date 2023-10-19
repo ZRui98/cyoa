@@ -23,6 +23,9 @@
 
 <div
   id="filedrop"
+  role="button"
+  aria-roledescription="open file browser"
+  tabindex={1}
   on:drop={handleDrop}
   on:dragover={(e) => e.preventDefault()}
   on:click={(e) => {

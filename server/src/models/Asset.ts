@@ -22,7 +22,7 @@ export interface ImageAsset extends FileAsset {
 }
 
 export interface ManagedExportableAsset extends Asset {
-  managedAssetName: string
+  managedAssetId: string
 }
 
 export interface ManagedAudioExportableAsset extends AudioAsset, ManagedExportableAsset {
@@ -36,7 +36,7 @@ export const isFileAsset = (x: Asset): x is FileAsset =>
   (x as FileAsset).path !== undefined
 
 export const isManagedExportableAsset = (x: Asset): x is ManagedExportableAsset => 
-  (x as ManagedExportableAsset).managedAssetName !== undefined
+  (x as ManagedExportableAsset).managedAssetId !== undefined
 
 export const isAudioExportableAsset = (x: Asset): x is AudioAsset => {
   if (isFileAsset(x)) {
@@ -71,7 +71,8 @@ export interface ManagedAssetTable extends AssetMetaData {
 }
 
 export interface ManagedAssetResponse extends Omit<ManagedAssetTable, 'id'> {
-  path?: string
+  id: string;
+  path?: string;
 }
 
 export const assetSchema: JSONSchemaType<Asset> = {
@@ -80,9 +81,9 @@ export const assetSchema: JSONSchemaType<Asset> = {
   "oneOf": [
     {
         properties: {
-          "managedAssetName": {"type": "string"}
+          "managedAssetId": {"type": "string"}
         },
-        required: ["managedAssetName"],
+        required: ["managedAssetId"],
         additionalProperties: false
     },
     {

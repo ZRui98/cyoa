@@ -20,8 +20,8 @@
     if (managedAssets.length == 0) {
       return nonManagedAssets;
     }
-    const managedAssetNames = managedAssets.map((asset) => asset.managedAssetName);
-    const resolvedManagedAssets = await getAssetsByName($adventureStore!.author, managedAssetNames);
+    const managedAssetIds = managedAssets.map((asset) => asset.managedAssetId);
+    const resolvedManagedAssets = await getAssetsByName($adventureStore!.author, managedAssetIds);
     return [...nonManagedAssets, ...resolvedManagedAssets];
   }
   $: {
@@ -32,7 +32,7 @@
       if (node) {
         const { links, assets } = node;
         if (assets) {
-          nodeAssets = getNodeAssets(assets);
+          nodeAssets = getNodeAssets(assets).then(v => {console.log(v);return v;});
         }
         options = links || [];
       }
@@ -129,5 +129,9 @@
 
   button.option:hover::before {
     visibility: visible;
+  }
+
+  img {
+    max-width: 100%;
   }
 </style>

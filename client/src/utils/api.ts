@@ -58,30 +58,30 @@ export async function getAssets(fetchImpl?: FetchFunction, includePath = false):
 
 export async function getAssetsByName(
   author: string,
-  assetNames: string[],
+  assetIds: string[],
   fetchImpl?: FetchFunction
 ): Promise<ManagedAssetResponse[]> {
-  const url = `${env.PUBLIC_API_BASE_PATH}/asset/assetUrl/${author}?assetNames=${assetNames.join(',')}`;
+  const url = `${env.PUBLIC_API_BASE_PATH}/asset/assetUrl/${author}?assetIds=${assetIds.join(',')}`;
   const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
   return response;
 }
 
 export async function updateAsset(
-  name?: string,
+  sqid?: string,
   newName?: string,
   file?: File,
   fetchImpl?: FetchFunction
 ): Promise<ManagedAssetResponse | null> {
   let url = `${env.PUBLIC_API_BASE_PATH}/asset`;
-  if (name) {
-    url = `${url}/${name}`;
+  if (sqid) {
+    url = `${url}/${sqid}`;
   }
   const formData = new FormData();
   const newFileName = newName ?? file?.name;
   formData.append('name', newFileName!);
   formData.append('', file ?? new File([''], ''));
   return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, {
-    method: name ? 'PUT' : 'POST',
+    method: sqid ? 'PUT' : 'POST',
     body: formData,
   });
 }

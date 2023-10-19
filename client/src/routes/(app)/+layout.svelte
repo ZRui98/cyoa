@@ -29,6 +29,7 @@
     --warning-bg: hsl(60, 85%, 96%);
     --warning-border: hsl(var(--main-highlight-high));
     --warning-text: hsl(var(--main-gold));
+    z-index: 9999;
   `;
 </script>
 

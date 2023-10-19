@@ -183,6 +183,7 @@ export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
     if (sameAdventure && newAdventure.nodes[currentVal.id]) {
       newNode = currentVal.id;
     }
+    if (newNode === currentVal?.id) return;
     valSet(newNode, newAdventure.author, newAdventure.name);
   });
   return {

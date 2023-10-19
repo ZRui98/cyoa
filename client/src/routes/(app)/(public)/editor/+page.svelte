@@ -90,7 +90,7 @@
     }
     openNodes[id] = false;
     $adventureStore.nodes[id] = {
-      name: 'new node',
+      name: id,
       links: [],
       assets: [],
     };
@@ -105,7 +105,7 @@
         if (!managedAssets) {
           throw new Error('No assets were loaded');
         }
-        return { managedAssetName: managedAssets[0].name };
+        return { managedAssetId: managedAssets[0].id };
       case 'FILE':
         return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
@@ -234,13 +234,15 @@
                           <TextPreview bind:value={asset.content} style="flex-grow:1;" />
                         {:else if isManagedExportableAsset(asset)}
                           {#if managedAssets && managedAssets.length > 0}
+                            {@const managedAssetId = asset.managedAssetId}
+                            {@const fileName = managedAssets.find(a => a.id === managedAssetId)?.name ?? ''}
                             <Dropdown
-                              text={asset.managedAssetName}
+                              text={fileName}
                               value={asset}
                               on:change={(e) => adventureStore.updateAsset(nodeKey, i, e.detail.value)}
                               options={managedAssets.map((a) => ({
                                 text: a.name,
-                                value: { managedAssetName: a.name },
+                                value: { managedAssetId: a.id },
                               }))}
                             />
                           {:else}
