@@ -36,17 +36,6 @@ services:
       /usr/bin/mc policy set public minio/cyoa-assets;
       exit 0;
       "
-  db:
-    container_name: db
-    restart: always
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: cyoa
-    networks:
-      - cyoa 
 
 networks:
     cyoa:

@@ -78,7 +78,7 @@ export const verify: VerifyFunction = async (profile, done) => {
                 email: profile.email,
                 accountType: AccountType.Google,
                 accountTypeId: profile.sub,
-                activated: false
+                activated: 0
             };
             user = await insertUserDb(insertableUser);
         }
