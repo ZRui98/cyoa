@@ -23,12 +23,12 @@
 <div>
   <button class="toggle-button" style={open ? 'color: hsl(var(--main-subtle))' : ''} on:click={() => (open = !open)}>
     {#if open}
-      <X />
+      <X display="block" />
     {:else}
-      <Component />
+      <Component display="block" />
     {/if}
   </button>
-  <button id="settings" class="toggle-button" style={open ? 'color: hsl(var(--main-subtle))' : ''} on:click={() => settingsVisible = !settingsVisible}><Settings /></button>
+  <button id="settings" class="toggle-button" style={open ? 'color: hsl(var(--main-subtle))' : ''} on:click={() => settingsVisible = !settingsVisible}><Settings display="block" /></button>
   <aside class:open>
     <slot />
   </aside>

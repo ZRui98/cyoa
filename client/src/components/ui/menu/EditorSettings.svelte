@@ -4,17 +4,18 @@
   import Toggle from "../Toggle.svelte";
 
   export let settingsVisible: boolean;
-  export let showEditorSettings: boolean = true;
+  export let showEditorSettings: boolean = false;
 </script>
 
-<Popup bind:show={settingsVisible}>
+<Popup bind:show={settingsVisible} style="width: 32em;">
     <div class="wrapper">
-        <h3>Settings</h3>
-        <Toggle label="Typewriter effect" bind:toggled={$settings.reader.typeAnimation}/>
-        {#if showEditorSettings}
-        <h3>Editor Settings</h3>
-        <Toggle label="Focus on current node" bind:toggled={$settings.editor.autoFocus}/>
-        <Toggle label="Auto-collapse all but current node" bind:toggled={$settings.editor.autoCollapse}/>
+        {#if !showEditorSettings}
+            <h3>Settings</h3>
+            <Toggle label="Typewriter effect" bind:toggled={$settings.reader.typeAnimation}/>
+        {:else}
+            <h3>Editor Settings</h3>
+            <Toggle label="Focus on current node" bind:toggled={$settings.editor.autoFocus}/>
+            <Toggle label="Auto-collapse all but current node" bind:toggled={$settings.editor.autoCollapse}/>
         {/if}
     </div>
 </Popup>

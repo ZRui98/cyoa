@@ -22,6 +22,7 @@
     }
     const managedAssetIds = managedAssets.map((asset) => asset.managedAssetId);
     const resolvedManagedAssets = await getAssetsByName($adventureStore!.author, managedAssetIds);
+    console.log('assets loaded', nonManagedAssets, managedAssetIds, assets);
     return [...nonManagedAssets, ...resolvedManagedAssets];
   }
   $: {
@@ -31,6 +32,7 @@
       const node = adventureStore.getNodeById($currentActiveNode?.id);
       if (node) {
         const { links, assets } = node;
+        console.log('loading node assets', assets);
         if (assets) {
           nodeAssets = getNodeAssets(assets).then(v => {console.log(v);return v;});
         }

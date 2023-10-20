@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Plus, Save, SlidersHorizontal, Trash2 } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
+  import { writable, type Writable } from 'svelte/store';
   import { toast } from 'svelte-sonner';
 
   import {
@@ -10,6 +11,7 @@
     type Asset,
     AssetType,
     type ManagedAssetResponse,
+    type ManagedExportableAsset,
   } from '@backend/models/Asset';
   import JsonView from '../../../../components/ui/JsonView.svelte';
   import Accordion from '../../../../components/ui/Accordion.svelte';
@@ -26,6 +28,7 @@
   import { getAssets, saveAdventure, updateAdventure } from '../../../../utils/api';
   import EditorSettings from '../../../../components/ui/menu/EditorSettings.svelte';
   import { settings } from '../../../../store/settings';
+  import AssetUpdatePopup from '../../../../components/ui/menu/AssetUpdatePopup.svelte';
 
   export let data: { adventureName: string };
 
@@ -55,8 +58,10 @@
   })
 
   $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.FILE, AssetType.TEXT];
-  let managedAssets: ManagedAssetResponse[] | undefined = undefined;
+  let managedAssets: Writable<ManagedAssetResponse[] | undefined> = writable(undefined);
   let settingsVisible = false;
+  let showManagedAssetPopup = false;
+  let newManagedAsset: {nodeKey: string, idx: number};
 
   onMount(() => {
     if ($loginState?.activated) {
@@ -65,9 +70,9 @@
       }
       getAssets()
         .then((assets) => {
-          managedAssets = assets;
+          $managedAssets = assets;
         })
-        .catch(() => (managedAssets = undefined));
+        .catch(() => ($managedAssets = undefined));
     }
   });
 
@@ -102,10 +107,10 @@
   function createNewAsset(type: AssetType): Asset {
     switch (type) {
       case 'MANAGED':
-        if (!managedAssets) {
-          throw new Error('No assets were loaded');
+        if ($managedAssets && $managedAssets.length > 0) {
+          return { managedAssetId: $managedAssets[0].id };
         }
-        return { managedAssetId: managedAssets[0].id };
+        return { managedAssetId: '' };
       case 'FILE':
         return { path: 'https://example.com/audio.mp3' };
       case 'TEXT':
@@ -114,6 +119,22 @@
         };
     }
     return {};
+  }
+
+  function createNewManagedAsset(nodeKey: string, idx: number) {
+    showManagedAssetPopup = true;
+    newManagedAsset = {nodeKey, idx};
+  }
+
+  function onManagedAssetSave(e: CustomEvent<{oldAsset: ManagedAssetResponse | null, asset: ManagedAssetResponse}>) {
+    const newAsset = createNewAsset(AssetType.MANAGED) as ManagedExportableAsset;
+    newAsset.managedAssetId = e.detail.asset.id;
+    adventureStore.updateAsset(newManagedAsset.nodeKey, newManagedAsset.idx, newAsset);
+    managedAssets.update(assets => {
+      if (!assets) assets = [];
+      assets.push(e.detail.asset);
+      return assets;
+    });
   }
 
   function getAssetType(asset: Asset): AssetType {
@@ -195,23 +216,24 @@
     <div id="title">
       <span>Title: </span>
       <input bind:value={$adventureStore.name} class="static-padding" type="text" />
-      <button class="button" on:click={handleSave}><Save /></button>
+      <button class="button" on:click={handleSave}><Save display="block" /></button>
     </div>
+    <AssetUpdatePopup bind:show={showManagedAssetPopup} on:update={onManagedAssetSave}/>
     <Tabs style="flex: 1">
       <Tab index="0" title="Nodes">
-        <EditorSettings bind:settingsVisible />
+        <EditorSettings bind:settingsVisible showEditorSettings />
         <div id="nodes-options">
           <button class="button-round" on:click={addNewNode}>
-            <Plus />
+            <Plus display="block" />
           </button>
-          <button on:click={() => settingsVisible = !settingsVisible} class="button"><SlidersHorizontal /></button>
+          <button on:click={() => settingsVisible = !settingsVisible} class="button"><SlidersHorizontal display="block" /></button>
         </div>
         {#each Object.keys($adventureStore.nodes) as nodeKey}
           <Accordion id={`node-${nodeKey}`} bind:open={openNodes[nodeKey]} focused={$currentActiveNode?.id === nodeKey}>
             <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
               <button class="button" on:click|stopPropagation={() => {adventureStore.removeNode(nodeKey); delete openNodes[nodeKey];}}
-                ><Trash2 /></button
+                ><Trash2 display="block" /></button
               >
             </div>
             <div slot="toggle-content">
@@ -233,21 +255,22 @@
                         {#if isTextAsset(asset)}
                           <TextPreview bind:value={asset.content} style="flex-grow:1;" />
                         {:else if isManagedExportableAsset(asset)}
-                          {#if managedAssets && managedAssets.length > 0}
+                          {#if $managedAssets && $managedAssets.length > 0}
                             {@const managedAssetId = asset.managedAssetId}
-                            {@const fileName = managedAssets.find(a => a.id === managedAssetId)?.name ?? ''}
+                            {@const fileName = $managedAssets.find(a => a.id === managedAssetId)?.name ?? ''}
                             <Dropdown
                               text={fileName}
                               value={asset}
                               on:change={(e) => adventureStore.updateAsset(nodeKey, i, e.detail.value)}
-                              options={managedAssets.map((a) => ({
+                              options={$managedAssets.map((a) => ({
                                 text: a.name,
                                 value: { managedAssetId: a.id },
                               }))}
                             />
                           {:else}
-                            No Assets available. Add some <a href="/assets">here</a>
+                            <div>No <a href="/assets">assets</a> available.</div>
                           {/if}
+                          <button class="button" on:click={() => createNewManagedAsset(nodeKey, i)}><Plus /></button>
                         {:else if isFileAsset(asset)}
                           <input type="text" bind:value={asset.path} style="flex-grow:1;" />
                         {/if}

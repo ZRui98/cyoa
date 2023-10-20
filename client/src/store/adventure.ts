@@ -159,15 +159,28 @@ export const graphRenderStore = createGraphRenderStore(adventureStore);
 export type GraphRenderStore = typeof graphRenderStore;
 
 export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
-  const store = writable<{ id: string, author: string, adventureName: string } | undefined>();
+  const store = writable<{ id: string, author: string, adventureName: string, content: string } | undefined>();
   const { subscribe } = store;
 
-  const valSet = (id: string | undefined, author: string | undefined = undefined, adventureName: string | undefined = undefined) => {
+  const valSet = (
+    id: string | undefined,
+    author: string | undefined = undefined,
+    adventureName: string | undefined = undefined
+  ) => {
     if (id) {
       const newHash = `#${id}`;
       location.replace(newHash);
       const currentVal = get(store);
-      const newVal = {id, author: author ?? currentVal!.author, adventureName: adventureName ?? currentVal!.adventureName};
+      const content: GraphNode | undefined = get(adventureStore)?.nodes[id];
+      const contentStr = JSON.stringify(content)
+      if (id === currentVal?.id && currentVal.content === contentStr) return;
+      const newVal = {
+        id,
+        author: author ?? currentVal!.
+        author,
+        adventureName: adventureName ?? currentVal!.adventureName,
+        content: contentStr,
+      };
       store.set(newVal);
     }
   };
@@ -183,7 +196,6 @@ export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
     if (sameAdventure && newAdventure.nodes[currentVal.id]) {
       newNode = currentVal.id;
     }
-    if (newNode === currentVal?.id) return;
     valSet(newNode, newAdventure.author, newAdventure.name);
   });
   return {

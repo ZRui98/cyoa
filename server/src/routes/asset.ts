@@ -94,7 +94,8 @@ const routes = (app: FastifyInstance, _opts, next) => {
                 return;
             }
             const assets = await getAllAssetsByUserAndNames(user, assetIds);
-            const assetResponse = getManagedAssetResponses(user, assets, true)
+            const assetResponse = getManagedAssetResponses(user, assets, true);
+            console.log(assetResponse);
             res.send(assetResponse);
         },
         schema: {params: {user: {type: 'string'}}, querystring: {assetIds: {type: "array"}}}

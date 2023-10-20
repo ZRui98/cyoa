@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext, onMount } from 'svelte';
-  import type { Writable } from 'svelte/store';
+  import { type Writable, writable } from 'svelte/store';
 
   import Adventure from '../../../../../components/ui/Adventure.svelte';
   import type { AdventureSummary } from '@backend/models/Adventure';
@@ -11,7 +11,15 @@
   export let data: { adventures: AdventureSummary[]; user: string };
   let name = data.user;
   $: canEdit = $loginState?.user === data.user;
-  let adventures = data.adventures;
+  let adventures = writable(data.adventures);
+
+  function handleAdventureDelete(e: CustomEvent<{name: string}>) {
+    const adventureIdx = $adventures.findIndex(a => a.name === e.detail.name);
+    adventures.update(advs => {
+      advs.splice(adventureIdx, 1);
+      return advs;
+    });
+  }
 
   onMount(() => {
     $titleStore = name;
@@ -24,13 +32,14 @@
 </div>
 <h2>adventures</h2>
 <div id="container">
-  {#each adventures as adventure}
+  {#each $adventures as adventure}
     <Adventure
       name={adventure.name}
       author={name}
       description={adventure.description}
       count={adventure.playCount}
       canEdit={canEdit}
+      on:delete={handleAdventureDelete}
     />
   {/each}
 </div>

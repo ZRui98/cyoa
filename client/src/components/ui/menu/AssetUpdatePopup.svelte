@@ -9,7 +9,7 @@
     import { toast } from 'svelte-sonner';
 
     export let show: boolean;
-    export let asset: ManagedAssetResponse | null;
+    export let asset: ManagedAssetResponse | null = null;
     
     let file: File | undefined = undefined;
     let newAssetName: Writable<string | undefined> = writable('');
@@ -80,15 +80,15 @@
         <div id="selected-file">
             <span>New file: {file.name}</span>
             <button style="color: hsl(var(--main-love)); align-items: center;" on:click|stopPropagation={clearFile}
-            ><Delete /></button
+            ><Delete display="block" /></button
             >
         </div>
     {:else}
         <FileDrop onFileChange={uploadFile} />
     {/if}
     <div id="popup-buttons" class="row">
-        <button class="button-round" on:click={closePopup}><X /></button>
-        <button disabled={!dirty} class="button-round" on:click={saveAsset}><Save /></button>
+        <button class="button-round" on:click={closePopup}><X display="block" /></button>
+        <button disabled={!dirty} class="button-round" on:click={saveAsset}><Save display="block" /></button>
         </div>
     </div>
 </Popup>

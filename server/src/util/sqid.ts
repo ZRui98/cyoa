@@ -1,6 +1,9 @@
 import Sqids from "sqids";
 
-const sqids = new Sqids({alphabet: process.env.SQID_SECRET_ALPHABET})
+const sqids = new Sqids({
+    alphabet: process.env.SQID_SECRET_ALPHABET,
+    minLength: 5,
+});
 
 export function generateSqid(data: number): string {
     return sqids.encode([data]);

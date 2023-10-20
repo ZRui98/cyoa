@@ -61,7 +61,8 @@ export async function getAssetsByName(
   assetIds: string[],
   fetchImpl?: FetchFunction
 ): Promise<ManagedAssetResponse[]> {
-  const url = `${env.PUBLIC_API_BASE_PATH}/asset/assetUrl/${author}?assetIds=${assetIds.join(',')}`;
+  const url = `${env.PUBLIC_API_BASE_PATH}/asset/assetUrl/${author}?assetIds=${assetIds.join('&assetIds=')}`;
+  console.log(url);
   const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl);
   return response;
 }
@@ -86,9 +87,14 @@ export async function updateAsset(
   });
 }
 
-export async function deleteAsset(name: string, fetchImpl?: FetchFunction): Promise<ManagedAssetResponse | null> {
-  const url = `${env.PUBLIC_API_BASE_PATH}/asset/${name}`;
+export async function deleteAsset(id: string, fetchImpl?: FetchFunction): Promise<ManagedAssetResponse | null> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/asset/${id}`;
   return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, { method: 'DELETE' });
+}
+
+export async function deleteAdventure(name: string, fetchImpl?: FetchFunction) {
+  const url = `${env.PUBLIC_API_BASE_PATH}/adventure/${name}`;
+  return fetchApi(url, fetchImpl, {method: 'DELETE'});
 }
 
 export async function getUserStatus(fetchImpl?: FetchFunction): Promise<LoginState> {

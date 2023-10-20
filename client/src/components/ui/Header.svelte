@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { Moon, User } from 'lucide-svelte';
-  import { Lightbulb } from 'lucide-svelte';
+  import { Moon, User, Lightbulb } from 'lucide-svelte';
   import loginState from '../../store/loginState';
   import { theme } from '../../store/settings';
   import { onDestroy, onMount } from 'svelte';
@@ -39,13 +38,13 @@
       }}
     >
       {#if $theme.darkMode}
-        <Lightbulb size={21} />
+        <Lightbulb display="block" size={21} />
       {:else}
-        <Moon size={21} />
+        <Moon display="block" size={21} />
       {/if}
     </button>
     {#if $isLoggedIn}
-      <a class="left-panel button" href={`/user/${$loginState?.user}`}><User size={21} /></a>
+      <a class="left-panel button" href={`/user/${$loginState?.user}`}><User display="block" size={21} /></a>
     {:else}
       <a href="/login" class="button static-padding">Log in</a>
     {/if}
@@ -64,6 +63,10 @@
   a {
     height: auto;
     font-size: 20px;
+  }
+
+  .left-panel {
+    display: flex;
   }
 
   .left-panel,

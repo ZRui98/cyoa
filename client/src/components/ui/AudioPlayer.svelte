@@ -95,9 +95,9 @@
 <div class="audio-player">
   <button class="play-button" disabled={!howl} on:click={togglePlay}>
     {#if $playing}
-      <Pause />
+      <Pause display="block"/>
     {:else}
-      <Play />
+      <Play display="block"/>
     {/if}
   </button>
   <input bind:this={bar} type="range" max={maxTime} value={$progress} on:input={seek} on:change={() => howl?.play()} />

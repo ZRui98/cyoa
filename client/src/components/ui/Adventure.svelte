@@ -1,5 +1,8 @@
 <script lang="ts">
   import { ArrowRight, Edit, Trash2 } from 'lucide-svelte';
+  import { deleteAdventure } from '../../utils/api';
+  import { createEventDispatcher } from 'svelte';
+  import { toast } from 'svelte-sonner';
   export let name: string;
   export let author: string;
   export let description: string | undefined;
@@ -7,18 +10,32 @@
   export let canEdit = false;
   const linkRegex = /(\[([^\]]+)])\(([^)]+)\)/g;
   let formattedDescription = description?.replace(linkRegex, '<a href="$3"> $2 </a>') ?? '';
+  const dispatch = createEventDispatcher();
+
+  function handleDeleteAdventure() {
+    const promise = deleteAdventure(name).then(v => {
+      dispatch('delete', {name});
+    });
+    toast.promise(promise, {
+            success: 'Successfully deleted adventure',
+            error: 'Failed to delete adventure',
+            loading: 'Deleting adventure...',
+            info: '',
+            warning: ''
+        });
+  }
 </script>
 
 <div class="card">
     <div class="title">
       <div>
-        <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight /></span></a>
+        <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight display="block"/></span></a>
         {name}
       </div>
       {#if canEdit}
       <div>
-        <a class="button" href={`/editor?adventure_name=${name}`}><span><Edit /></span></a>
-        <button class="button"><span><Trash2 /></span></button>
+        <a class="button" href={`/editor?adventure_name=${name}`}><span><Edit display="block"/></span></a>
+        <button class="button" on:click={handleDeleteAdventure}><span><Trash2 display="block"/></span></button>
       </div>
       {/if}
     </div>

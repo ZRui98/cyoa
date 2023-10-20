@@ -3,7 +3,7 @@
 </script>
 
 <div>
-  <Loader2 size={70} style={'animation: rotation 2s infinite linear;'} />
+  <Loader2  display="block"size={70} style={'animation: rotation 2s infinite linear;'} />
 </div>
 
 <style>

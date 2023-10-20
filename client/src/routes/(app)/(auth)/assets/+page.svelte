@@ -15,7 +15,7 @@
   let assets: Writable<ManagedAssetResponse[]> = writable(data.assets);
 
   let showAssetPopup = false;
-  let editingAsset: ManagedAssetResponse | null;
+  let editingAsset: ManagedAssetResponse | undefined;
 
   $: loading = $assets === undefined || deleteAssetPromise !== undefined;
 
@@ -47,7 +47,7 @@
   }
 
   function handleCreateAsset() {
-    editingAsset = null;
+    editingAsset = undefined;
     showAssetPopup = true;
   }
 
@@ -61,6 +61,8 @@
     const idx = $assets.findIndex(asset => asset.name === event.detail.oldAsset?.name);
     if (idx < 0) {
       $assets = [...$assets, event.detail.asset];
+    } else {
+      $assets[idx] = event.detail.asset;
     }
   }
 </script>
@@ -75,23 +77,23 @@
     <div id="title" class="row">
       <span>assets</span>
       <button on:click={handleCreateAsset} class="button-round">
-        <Plus />
+        <Plus display="block" />
       </button>
     </div>
 
     {#if $assets !== undefined}
       <AssetUpdatePopup asset={editingAsset} bind:show={showAssetPopup} on:update={onAssetSave}/>
       {#each $assets as asset (asset)}
-        <div animate:flip>
+        <div>
           <Accordion>
             <div class="content" slot="toggle-button">
               <span>{asset.name}</span>
               <div>
                 <button
                   class="button"
-                  on:click|stopPropagation={() => handleEditAsset(asset)}><Edit /></button
+                  on:click|stopPropagation={() => handleEditAsset(asset)}><Edit display="block" /></button
                 >
-                <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}><Trash2 /></button>
+                <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}><Trash2 display="block" /></button>
               </div>
             </div>
             <div slot="toggle-content">
