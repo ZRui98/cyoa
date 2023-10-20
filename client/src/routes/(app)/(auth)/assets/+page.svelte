@@ -1,96 +1,41 @@
 <script lang="ts">
   import { type ManagedAssetResponse, FileType } from '@backend/models/Asset';
-  import { updateAsset, deleteAsset } from '../../../../utils/api';
-  import Popup from '../../../../components/ui/Popup.svelte';
-  import FileDrop from '../../../../components/ui/FileDrop.svelte';
+  import { deleteAsset } from '../../../../utils/api';
   import Accordion from '../../../../components/ui/Accordion.svelte';
-  import { Delete, Edit, Plus, Save, Trash2, X } from 'lucide-svelte';
+  import { Edit, Plus, Trash2 } from 'lucide-svelte';
   import { writable, type Writable } from 'svelte/store';
   import Spinner from '../../../../components/ui/Spinner.svelte';
   import AudioPlayer from '../../../../components/ui/AudioPlayer.svelte';
-  import Asyncable from '../../../../components/ui/Asyncable.svelte';
   import { flip } from 'svelte/animate';
   import { toast } from 'svelte-sonner';
+  import AssetUpdatePopup from '../../../../components/ui/menu/AssetUpdatePopup.svelte';
 
   export let data: { assets: ManagedAssetResponse[] };
-  let updateAssetPromise: Promise<ManagedAssetResponse | null> | undefined;
-  let errorMsg: Writable<string | undefined> = writable();
   let deleteAssetPromise: Promise<ManagedAssetResponse | null> | undefined;
   let assets: Writable<ManagedAssetResponse[]> = writable(data.assets);
-  let newAssetFileName: Writable<string | undefined> = writable();
-  let originalAsset: Writable<ManagedAssetResponse | undefined> = writable();
+
+  let showAssetPopup = false;
+  let editingAsset: ManagedAssetResponse | undefined;
 
   $: loading = $assets === undefined || deleteAssetPromise !== undefined;
-
-  let file: File | undefined;
-  let show: boolean;
-
-  $: dirty =
-    ($newAssetFileName && !$originalAsset) || ($originalAsset && $originalAsset.name !== $newAssetFileName) || !!file;
-
-  // when get Assets is active, cancel the update asset action otherwise it will cause an infinite loop
-
-  function uploadFile(files: File[]) {
-    file = files[0];
-  }
-
-  function clearFile() {
-    file = undefined;
-  }
-
-  async function saveAsset() {
-    updateAssetPromise = updateAsset($originalAsset?.name, $newAssetFileName, file);
-    $errorMsg = undefined;
-  }
-
-  function onClose() {
-    file = undefined;
-    newAssetFileName.set(undefined);
-    originalAsset.set(undefined);
-  }
-
-  async function closePopup() {
-    show = false;
-  }
-
-  function handleNewAsset() {
-    $newAssetFileName = '';
-    show = true;
-  }
-
-  function onAssetNameChange(e: Event & { currentTarget: HTMLInputElement }) {
-    $newAssetFileName = e.currentTarget.value;
-  }
-
-  function onAssetUpdate(event: { detail: { data: ManagedAssetResponse | null } }) {
-    show = false;
-    const newAsset = event.detail.data;
-    if (newAsset) {
-      assets.update((current) => {
-        if (!current) return current;
-        const i = current.findIndex((val) => val.name === newAsset.name);
-        if (i >= 0) {
-          current[i] = newAsset;
-          return current;
-        }
-        return [...current, newAsset];
-      });
-    }
-    updateAssetPromise = undefined;
-  }
-
-  function onAssetUpdateError(e: CustomEvent<{ error: Error }>) {
-    $errorMsg = e.detail.error.message;
-    updateAssetPromise = undefined;
-  }
 
   function handleAssetDelete(asset: ManagedAssetResponse) {
     deleteAssetPromise = deleteAsset(asset.name);
     deleteAssetPromise
-      .then((val) => onAssetDelete(val))
+      .then((data) => {
+        if (data) {
+          assets.update((current) => {
+            if (!current) return current;
+            const i = current.findIndex((val) => val.name === data.name);
+            current.splice(i, 1);
+            return current;
+          });
+        }
+        deleteAssetPromise = undefined;
+      })
       .catch(() => {
         deleteAssetPromise = undefined;
-      });
+    });
     toast.promise(deleteAssetPromise, {
       duration: 1500,
       error: `Failed to delete asset ${asset.name}`,
@@ -101,16 +46,24 @@
     });
   }
 
-  function onAssetDelete(data: ManagedAssetResponse | null) {
-    if (data) {
-      assets.update((current) => {
-        if (!current) return current;
-        const i = current.findIndex((val) => val.name === data.name);
-        current.splice(i, 1);
-        return current;
-      });
+  function handleCreateAsset() {
+    editingAsset = undefined;
+    showAssetPopup = true;
+  }
+
+  function handleEditAsset(asset: ManagedAssetResponse) {
+    console.log('editing', asset)
+    editingAsset = asset;
+    showAssetPopup = true;
+  }
+
+  function onAssetSave(event: CustomEvent<{ oldAsset: ManagedAssetResponse | null, asset: ManagedAssetResponse }>) {
+    const idx = $assets.findIndex(asset => asset.name === event.detail.oldAsset?.name);
+    if (idx < 0) {
+      $assets = [...$assets, event.detail.asset];
+    } else {
+      $assets[idx] = event.detail.asset;
     }
-    deleteAssetPromise = undefined;
   }
 </script>
 
@@ -123,63 +76,24 @@
   <div class="container">
     <div id="title" class="row">
       <span>assets</span>
-      <button on:click={handleNewAsset} class="button-round">
-        <Plus />
+      <button on:click={handleCreateAsset} class="button-round">
+        <Plus display="block" />
       </button>
     </div>
 
     {#if $assets !== undefined}
-      <Popup {onClose} style={`width:32em;`} bind:show>
-        <Asyncable on:load={onAssetUpdate} on:error={onAssetUpdateError} promise={updateAssetPromise}>
-          <div id="popup-wrapper">
-            <input
-              placeholder={file?.name ?? ''}
-              class="popup-input static-padding"
-              type="text"
-              style="font-size: 20px;"
-              value={$newAssetFileName}
-              on:input={onAssetNameChange}
-            />
-            {#if $originalAsset}
-              <div>
-                Current file: <a href={$originalAsset.path}>{$originalAsset?.fileName}</a>
-              </div>
-            {/if}
-            {#if file}
-              <div id="selected-file">
-                <span>New file: {file.name}</span>
-                <button style="color: hsl(var(--main-love)); align-items: center;" on:click|stopPropagation={clearFile}
-                  ><Delete /></button
-                >
-              </div>
-            {:else}
-              <FileDrop onFileChange={uploadFile} />
-            {/if}
-            <div id="popup-buttons" class="row">
-              <button class="button-round" on:click={closePopup}><X /></button>
-              <button disabled={!dirty} class="button-round" on:click={saveAsset}><Save /></button>
-              {#if $errorMsg}
-                <div class="error">{$errorMsg}</div>
-              {/if}
-            </div>
-          </div>
-        </Asyncable>
-      </Popup>
+      <AssetUpdatePopup asset={editingAsset} bind:show={showAssetPopup} on:update={onAssetSave}/>
       {#each $assets as asset (asset)}
-        <div animate:flip>
+        <div>
           <Accordion>
             <div class="content" slot="toggle-button">
               <span>{asset.name}</span>
               <div>
                 <button
                   class="button"
-                  on:click|stopPropagation={() => {
-                    show = true;
-                    originalAsset.set(asset);
-                    newAssetFileName.set(asset.name);
-                  }}><Edit /></button
+                  on:click|stopPropagation={() => handleEditAsset(asset)}><Edit display="block" /></button
                 >
-                <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}><Trash2 /></button>
+                <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}><Trash2 display="block" /></button>
               </div>
             </div>
             <div slot="toggle-content">
@@ -236,10 +150,6 @@
     align-items: center;
   }
 
-  .error {
-    color: hsl(var(--main-love));
-  }
-
   .button-round {
     padding: 0;
     margin: 2px;
@@ -247,24 +157,7 @@
     height: 44px;
   }
 
-  #selected-file {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  #popup-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  #popup-buttons {
-    gap: 0 10px;
-    align-items: center;
-  }
-
-  .popup-input {
-    width: 100%;
-    text-align: center;
+  img {
+    max-width: 100%;
   }
 </style>

@@ -54,8 +54,8 @@
   }
 
   .tab.selected {
-    background-color: hsl(var(--main-overlay));
-    outline: 1px solid hsl(var(--main-pine));
+    background-color: hsl(var(--main-surface));
+    outline: 2px solid hsl(var(--main-pine));
   }
 
   .tab {

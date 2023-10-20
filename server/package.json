@@ -29,7 +29,8 @@
     "kysely": "^0.26.3",
     "pg-pool": "^3.6.0",
     "prettier": "^3.0.0",
-    "simple-runtypes": "^7.1.2"
+    "simple-runtypes": "^7.1.2",
+    "sqids": "^0.3.0"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.347.0",
@@ -46,7 +47,7 @@
     "@typescript-eslint/parser": "^5.51.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.34.0",
-    "nodemon": "^2.0.19",
+    "nodemon": "^3.0.1",
     "pino-pretty": "^9.2.0",
     "rollup": "^3.15.0",
     "rollup-plugin-node-polyfills": "^0.2.1",

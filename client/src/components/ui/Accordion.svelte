@@ -2,15 +2,16 @@
   import { ChevronRight } from 'lucide-svelte';
   import { slide } from 'svelte/transition';
   export let open = false;
+  export let focused = false;
   export let contentStyle = '';
   export let buttonStyle = '';
   export let chevronSize = 24;
   $: chevronstyle = `
-        ${open ? 'transform: rotate(0.25turn);' : ''}transition: transform 0.1s ease-in;;
+        ${open ? 'transform: rotate(0.25turn);' : ''}transition: transform 0.1s ease-in;
     `;
 </script>
 
-<div class="container static-padding" {...$$restProps}>
+<div class={`container static-padding ${focused ? 'focused' : ''}`} {...$$restProps}>
   <div
     class="card static-padding"
     id="accordion-button"
@@ -22,19 +23,23 @@
     on:click={() => (open = !open)}
     on:keydown|self={(e) => e.code === 'Enter' ?? (open = !open)}
   >
-    <ChevronRight size={chevronSize} style={chevronstyle} aria-expanded={open} />
+    <ChevronRight display="block" size={chevronSize} style={chevronstyle} aria-expanded={open} />
     <slot name="toggle-button">
       <div>Expand</div>
     </slot>
   </div>
   {#if open}
-    <div id="accordion-content" class="static-padding" style={contentStyle} transition:slide|local={{ duration: 300 }}>
+    <div id="accordion-content" class="static-padding" style={contentStyle} transition:slide|local={{ duration: 200 }}>
       <slot name="toggle-content" />
     </div>
   {/if}
 </div>
 
 <style>
+  .focused {
+    outline: 2px solid hsl(var(--main-pine));
+  }
+
   #accordion-button {
     width: 100%;
     display: flex;

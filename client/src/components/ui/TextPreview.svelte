@@ -17,18 +17,19 @@
       }
     }
     editing = false;
+    e.preventDefault();
   };
 </script>
 
 <Popup bind:show={editing} style={`position:relative;width:50%;height:70%;`}>
   <form on:submit={formSubmit}>
     <textarea name="content" id="editor" {value} />
-    <button type="submit" id="save" class="button"><Save /></button>
+    <button type="submit" id="save" class="button"><Save display="block" /></button>
   </form>
 </Popup>
 <div id="preview" {style}>
   <pre>{value.slice(0, limit)}</pre>
-  <button id="edit-button" class="button" on:click={() => (editing = !editing)}><Edit /></button>
+  <button id="edit-button" class="button" on:click={() => (editing = !editing)}><Edit display="block" /></button>
 </div>
 
 <style>

@@ -6,6 +6,7 @@
 
   export let index: string;
   export let title: string;
+  export let style: string = '';
   let selectedIndex = getContext<Writable<string>>(TABS);
   let titles = getContext<TitleContext>(TITLES);
   titles.registerTab(index, title);
@@ -13,7 +14,7 @@
   $: visible = $selectedIndex === index;
 </script>
 
-<div style={visible ? '' : 'display: none;'}>
+<div style={visible ? `${style}` : `${style};display: none;`}>
   <slot />
 </div>
 <!-- </div> -->

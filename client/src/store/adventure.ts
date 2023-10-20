@@ -1,6 +1,6 @@
 import type { Adventure } from '@backend/models/Adventure';
 import type { Edge, Node } from '@backend/models/Node';
-import { derived, get, writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { getAdventure } from '../utils/api';
 import type { Asset } from '@backend/models/Asset';
 
@@ -102,7 +102,7 @@ export const createAdventureStore = () => {
         name: 'new-adventure',
         author,
         nodes: {},
-        start: '0',
+        start: '',
       });
     },
   };
@@ -159,38 +159,44 @@ export const graphRenderStore = createGraphRenderStore(adventureStore);
 export type GraphRenderStore = typeof graphRenderStore;
 
 export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
-  const val = writable<{ id: string } | undefined>();
-  let node: string | undefined;
-  const { subscribe } = val;
+  const store = writable<{ id: string, author: string, adventureName: string, content: string } | undefined>();
+  const { subscribe } = store;
 
-  const valSet = (newVal: string | undefined) => {
-    if (newVal) {
-      if (newVal) {
-        node = JSON.stringify(adventureStore.getNodeById(newVal));
-      } else {
-        node = undefined;
-      }
-      if (node) {
-        const newHash = `#${newVal}`;
-        location.replace(newHash);
-        val.set({ id: newVal });
-      }
+  const valSet = (
+    id: string | undefined,
+    author: string | undefined = undefined,
+    adventureName: string | undefined = undefined
+  ) => {
+    if (id) {
+      const newHash = `#${id}`;
+      location.replace(newHash);
+      const currentVal = get(store);
+      const content: GraphNode | undefined = get(adventureStore)?.nodes[id];
+      const contentStr = JSON.stringify(content)
+      if (id === currentVal?.id && currentVal.content === contentStr) return;
+      const newVal = {
+        id,
+        author: author ?? currentVal!.
+        author,
+        adventureName: adventureName ?? currentVal!.adventureName,
+        content: contentStr,
+      };
+      store.set(newVal);
     }
   };
 
   adventureStore.subscribe((newAdventure) => {
-    const storeVal = get(val);
-    if (newAdventure?.start !== storeVal?.id) {
-      valSet(newAdventure?.start);
+    if (newAdventure === undefined) {
+      store.set(undefined);
       return;
     }
-    if (storeVal) {
-      // if node changed for current node, just do an empty refresh
-      if (node !== JSON.stringify(newAdventure?.nodes[storeVal.id])) {
-        valSet(storeVal.id);
-        return;
-      }
+    const currentVal = get(store);
+    const sameAdventure = newAdventure.name === currentVal?.adventureName && currentVal?.author === newAdventure.author;
+    let newNode = newAdventure.start;
+    if (sameAdventure && newAdventure.nodes[currentVal.id]) {
+      newNode = currentVal.id;
     }
+    valSet(newNode, newAdventure.author, newAdventure.name);
   });
   return {
     subscribe,

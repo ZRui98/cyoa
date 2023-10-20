@@ -3,6 +3,7 @@ import db, { Database } from ".";
 import { AdventureAssetTable, ManagedAssetResponse, ManagedAssetTable } from "../../models/Asset";
 import { ApiError } from "../../util/error";
 import { getAssetFilePath } from "../storage/asset";
+import { decodeSqid, generateSqid } from "../../util/sqid";
 
 export async function getAllAssetsByUser(
     user: string,
@@ -18,29 +19,37 @@ export async function getAllAssetsByUser(
 
 export async function getAllAssetsByUserAndNames(
     user: string,
-    names: string[] = [],
+    sqids: string[] = [],
     trx: Transaction<Database> | Kysely<Database> = db
 ): Promise<Selectable<ManagedAssetTable>[]> {
+    const ids = sqids.map(sqid => decodeSqid(sqid));
     const assets = await trx.selectFrom('asset')
         .where('author', '=', user)
-        .where('name', 'in', names)
+        .where('id', 'in', ids)
         .orderBy('id')
         .selectAll()
         .execute();
     return assets;
 }
 
-export function getManagedAssetResponse(
+export function getManagedAssetResponses(
     user: string,
     assets: Selectable<ManagedAssetTable>[],
     includePath: boolean = false
 ): ManagedAssetResponse[] {
-    let response = assets;
+    let response = assets.map(asset => getManagedAssetResponse(user, asset, includePath));
+    return response;
+}
+
+export function getManagedAssetResponse(user: string, asset: Selectable<ManagedAssetTable>, includePath: boolean = false) {
+
+    const {id, ...assetData} = asset;
+    let response: ManagedAssetResponse = {
+        ...assetData,
+        id: generateSqid(asset.id),
+    };
     if (includePath) {
-        response = assets.map(asset => ({
-            ...asset,
-            path: `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getAssetFilePath(user, asset.fileName)}`
-        }));
+        response.path = `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getAssetFilePath(user, asset.fileName)}`
     }
     return response;
 }

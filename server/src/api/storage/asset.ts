@@ -1,11 +1,12 @@
 import { BusboyFileStream } from "@fastify/busboy";
 import { Insertable, Updateable } from "kysely";
 import { MimeType, fileTypeStream} from 'file-type';
-import { deleteAssetDb, getAssetFromDb, insertAssetDb, updateAssetDb } from "../db/asset";
+import { deleteAssetDb, getAssetFromDb, getManagedAssetResponse, insertAssetDb, updateAssetDb } from "../db/asset";
 import { FileType, ManagedAssetResponse, ManagedAssetTable } from "../../models/Asset";
 import { ApiError } from "../../util/error";
 import { s3, uploadFromStream } from ".";
 import { pipeline } from "stream/promises";
+import { decodeSqid } from "../../util/sqid";
 
 export function getAssetFilePath(user: string, fileName: string) {
     return `${user}/${fileName}`;
@@ -42,16 +43,12 @@ export async function saveAsset({file, filename, name}: {file: BusboyFileStream,
         pass
     );
     await upload.done();
-    return {
-        ...newAsset,
-        path: filePath
-    }
+    return getManagedAssetResponse(author, newAsset, true);
 }
   
-export async function updateAsset({file, filename, name}: {file?: BusboyFileStream, filename?: string, name?: string}, author: string): Promise<ManagedAssetResponse | null> {
-    const asset = await getAssetFromDb({name, author});
+export async function updateAsset({file, filename, name}: {file?: BusboyFileStream, filename?: string, name?: string}, author: string, sqid: string): Promise<ManagedAssetResponse | null> {
+    const asset = await getAssetFromDb({id: decodeSqid(sqid), author});
     if (!asset) throw new ApiError(404, "asset not found");
-    let assetResponse: ManagedAssetResponse = asset;
     const updatedAsset: Updateable<ManagedAssetTable> = {};
     if (file && filename) {
         const stream = await fileTypeStream(file);
@@ -65,15 +62,15 @@ export async function updateAsset({file, filename, name}: {file?: BusboyFileStre
             pass
         );
         await upload.done();
-        assetResponse.path = filePath;
     }
     const newFileName = filename ?? asset.fileName;
     const newName = name ?? asset.name;
+    let assetResponse: ManagedAssetResponse = getManagedAssetResponse(author, asset);
     try {
         if (!!newFileName) updatedAsset.fileName = newFileName;
         if (!!newName) updatedAsset.name = newName;
         const v = await updateAssetDb(updatedAsset, undefined, asset.id);
-        assetResponse = v;
+        assetResponse = getManagedAssetResponse(author, v, true);
     } catch(e) {
         if ((e as {message: string}).message.startsWith('duplicate key value')) {
             throw new ApiError(409, "Asset with same name or filename already exists!");
@@ -89,5 +86,5 @@ export async function deleteAsset(name: string, author: string): Promise<Managed
     if (!asset) throw new ApiError(404, 'asset not found');
     await deleteAssetDb(asset.id);
     await s3.deleteObject({Bucket: process.env.ASSET_BUCKET_NAME, Key: getAssetFilePath(author, asset.fileName)});
-    return asset;
+    return getManagedAssetResponse(author, asset);
 }

@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { ArrowRight } from 'lucide-svelte';
+  import { ArrowRight, Edit, Trash2 } from 'lucide-svelte';
+  import { deleteAdventure } from '../../utils/api';
+  import { createEventDispatcher } from 'svelte';
+  import { toast } from 'svelte-sonner';
   export let name: string;
   export let author: string;
   export let description: string | undefined;
@@ -7,33 +10,58 @@
   export let canEdit = false;
   const linkRegex = /(\[([^\]]+)])\(([^)]+)\)/g;
   let formattedDescription = description?.replace(linkRegex, '<a href="$3"> $2 </a>') ?? '';
+  const dispatch = createEventDispatcher();
+
+  function handleDeleteAdventure() {
+    const promise = deleteAdventure(name).then(v => {
+      dispatch('delete', {name});
+    });
+    toast.promise(promise, {
+            success: 'Successfully deleted adventure',
+            error: 'Failed to delete adventure',
+            loading: 'Deleting adventure...',
+            info: '',
+            warning: ''
+        });
+  }
 </script>
 
 <div class="card">
-  <div>
     <div class="title">
-      <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight /></span></a>
+      <div>
+        <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight display="block"/></span></a>
+        {name}
+      </div>
       {#if canEdit}
-        <a class="button-round" href={`/editor?adventure_name=${name}`}><span>Edit <ArrowRight /></span></a>
+      <div>
+        <a class="button" href={`/editor?adventure_name=${name}`}><span><Edit display="block"/></span></a>
+        <button class="button" on:click={handleDeleteAdventure}><span><Trash2 display="block"/></span></button>
+      </div>
       {/if}
-      {name}
     </div>
     <div>
       <span>{@html formattedDescription}</span>
     </div>
     <span class="count">Play count: {count}</span>
-  </div>
 </div>
 
 <style>
   .card {
-    flex-direction: row;
+    flex-direction: column;
     display: flex;
     justify-content: space-between;
     gap: 10%;
     border: 1px solid hsl(var(--main-highlight-high));
   }
+
   .title {
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  .title > div {
     font-size: 32px;
     padding-bottom: 18px;
     font-weight: bold;

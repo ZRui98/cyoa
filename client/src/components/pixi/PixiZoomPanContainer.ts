@@ -17,6 +17,7 @@ export class PixiZoomPanContainer extends Container {
     this.wrapper = wrapper;
 
     // this.wrapper.on("wheel", this.onZoom.bind(this));
+    this.sortableChildren = true;
     this.wrapper.addEventListener('wheel', this.onZoom.bind(this));
     this.wrapper.addEventListener('mousedown', this.onDragStart.bind(this));
     this.wrapper.addEventListener('mouseup', this.onDragEnd.bind(this));

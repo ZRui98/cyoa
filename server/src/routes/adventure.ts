@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
-import { saveAdventure, updateAdventure } from "../api/storage/adventure";
+import { deleteAdventure, saveAdventure, updateAdventure } from "../api/storage/adventure";
 import { Adventure, AdventureMetaData } from "../models/Adventure";
 import { getPresignedAdventureFromId } from "../api/db/adventure";
 import { isLoggedInAndAuthenticated } from "../api/auth/hooks";
@@ -86,6 +86,20 @@ const routes = (app: FastifyInstance, _opts, next) => {
         body: {$ref: 'adventure#'}
       }
     });
+
+    app.delete('/:name', {
+      preHandler: isLoggedInAndAuthenticated,
+      handler: async function (req: FastifyRequest<{ Params: {name: string}}>, res) {
+        const user = req.user!.name;
+        const name = req.params.name;
+        await deleteAdventure(user, name);
+        console.log('done!');
+        res.code(201);
+      },
+      schema: {
+        params: {name: {type: 'string'}}
+      }
+    })
 
     next();
 }

@@ -43,3 +43,10 @@ export async function upsertAdventure(
   }
   return response[0];
 }
+
+export async function deleteAdventureDb(
+  id: number,
+  trx: Transaction<Database> | Kysely<Database> = db,
+) {
+  await trx.deleteFrom('adventure').where('id', '=', id).execute();
+}

@@ -20,8 +20,9 @@
     if (managedAssets.length == 0) {
       return nonManagedAssets;
     }
-    const managedAssetNames = managedAssets.map((asset) => asset.managedAssetName);
-    const resolvedManagedAssets = await getAssetsByName($adventureStore!.author, managedAssetNames);
+    const managedAssetIds = managedAssets.map((asset) => asset.managedAssetId);
+    const resolvedManagedAssets = await getAssetsByName($adventureStore!.author, managedAssetIds);
+    console.log('assets loaded', nonManagedAssets, managedAssetIds, assets);
     return [...nonManagedAssets, ...resolvedManagedAssets];
   }
   $: {
@@ -31,55 +32,75 @@
       const node = adventureStore.getNodeById($currentActiveNode?.id);
       if (node) {
         const { links, assets } = node;
+        console.log('loading node assets', assets);
         if (assets) {
-          nodeAssets = getNodeAssets(assets);
+          nodeAssets = getNodeAssets(assets).then(v => {console.log(v);return v;});
         }
         options = links || [];
       }
     }
   }
 </script>
-
-<div>
-  {#await nodeAssets then assets}
-    {#each assets as asset}
-      <div class="resource">
-        {#if isTextAsset(asset)}
-          <pre>{asset.content}</pre>
-        {:else if isAudioExportableAsset(asset)}
-          <AudioPlayer src={asset.path} autoplay html5 />
-        {:else if isImgExportableAsset(asset)}
-          <img src={asset.path} alt={asset.path} />
-        {/if}
+<div id="adventure-node">
+  <div class="node-content">
+    {#await nodeAssets then assets}
+        {#each assets as asset}
+          <div class="resource">
+            {#if isTextAsset(asset)}
+              <pre>{asset.content}</pre>
+            {:else if isAudioExportableAsset(asset)}
+              <AudioPlayer src={asset.path} autoplay html5 />
+            {:else if isImgExportableAsset(asset)}
+              <img src={asset.path} alt={asset.path} />
+            {/if}
+          </div>
+        {/each}
+    {/await}
+    </div>
+    <div id="choices">
+      <div class="options">
+        {#each options as option}
+          <button
+            on:click={() => {
+              currentActiveNode.set(option.next);
+            }}
+            class="option"
+          >
+            {option.prompt}
+          </button>
+        {/each}
       </div>
-    {/each}
-  {/await}
-</div>
-<div id="choices">
-  <div class="options">
-    {#each options as option}
-      <button
-        on:click={() => {
-          currentActiveNode.set(option.next);
-        }}
-        class="option"
-      >
-        {option.prompt}
-      </button>
-    {/each}
-  </div>
+    </div>
 </div>
 
 <style>
+
+  #adventure-node {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+  }
+
   #choices {
     display: block;
     margin-bottom: 30px;
+  }
+
+  .node-content {
+    padding: 10px 25px;
+  }
+
+  #choices {
+    border-top: 2px solid hsl(var(--main-highlight-high));
+    padding-top: 25px;
   }
 
   .options {
     align-items: center;
     flex-direction: column;
     display: flex;
+    gap: 3px;
   }
 
   .resource {
@@ -110,5 +131,9 @@
 
   button.option:hover::before {
     visibility: visible;
+  }
+
+  img {
+    max-width: 100%;
   }
 </style>

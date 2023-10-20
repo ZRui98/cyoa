@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyRequest } from "fastify"
 import { deleteAsset, saveAsset, updateAsset } from "../api/storage/asset";
-import { getAllAssetsByUser, getAllAssetsByUserAndNames, getManagedAssetResponse } from "../api/db/asset";
+import { getAllAssetsByUser, getAllAssetsByUserAndNames, getManagedAssetResponse, getManagedAssetResponses } from "../api/db/asset";
 import { BusboyFileStream } from "@fastify/busboy";
-import { ApiError, isApiError } from "../util/error";
+import { ApiError } from "../util/error";
 import { isLoggedInAndAuthenticated } from "../api/auth/hooks";
 
 const FILE_SIZE_150_MB = 150000000;
@@ -32,10 +32,10 @@ const routes = (app: FastifyInstance, _opts, next) => {
         }
     });
 
-    app.put('/:name', {
+    app.put('/:sqid', {
         preHandler: isLoggedInAndAuthenticated,
-        handler: async function(req: FastifyRequest<{Params: {name: string}}>, res) {
-            const { name } = req.params;
+        handler: async function(req: FastifyRequest<{Params: {sqid: string}}>, res) {
+            const { sqid } = req.params;
             let fileData: {file: BusboyFileStream, filename: string} | undefined;
             let newName: string | undefined;
             const data = await req.file(assetUploadConfig);
@@ -49,16 +49,16 @@ const routes = (app: FastifyInstance, _opts, next) => {
                 };
                 newName = fields.name?.value ?? data.filename;
             }
-            if (!name && !fileData) {
+            if (!sqid && !fileData) {
                 res.code(204);
                 return;
             }
             app.log.info({name: newName, fileData}, "uploaded file")
-            const value = await updateAsset({...fileData, name}, req.user!.name);
+            const value = await updateAsset({...fileData, name: newName}, req.user!.name, sqid);
             res.code(value ? 201 : 200);
             res.send(value);
         },
-        schema: {params: {name: {type: 'string'}}}
+        schema: {params: {sqid: {type: 'string'}}}
     });
 
 
@@ -79,25 +79,26 @@ const routes = (app: FastifyInstance, _opts, next) => {
             const author = req.user!.name;
             const { includePath } = req.query;
             const assets = await getAllAssetsByUser(author);
-            const managedAssets = getManagedAssetResponse(author, assets, includePath);
+            const managedAssets = getManagedAssetResponses(author, assets, includePath);
             res.send(managedAssets);
         }
     });
 
     app.get('/assetUrl/:user', {
-        handler: async function(req: FastifyRequest<{Params: {user: string}, Querystring: {assetNames: string[]}}>, res) {
+        handler: async function(req: FastifyRequest<{Params: {user: string}, Querystring: {assetIds: string[]}}>, res) {
             const { user } = req.params;
-            const { assetNames } = req.query;
+            const { assetIds } = req.query;
             if (!user) {
                 res.code(400);
                 res.send("Missing asset names in query parameter");
                 return;
             }
-            const assets = await getAllAssetsByUserAndNames(user, assetNames);
-            const assetResponse = getManagedAssetResponse(user, assets, true)
+            const assets = await getAllAssetsByUserAndNames(user, assetIds);
+            const assetResponse = getManagedAssetResponses(user, assets, true);
+            console.log(assetResponse);
             res.send(assetResponse);
         },
-        schema: {params: {user: {type: 'string'}}, querystring: {assetNames: {type: "array"}}}
+        schema: {params: {user: {type: 'string'}}, querystring: {assetIds: {type: "array"}}}
     })
 
     next();

@@ -1,7 +1,7 @@
 import { Insertable } from "kysely";
 import { s3 } from ".";
 import db from "../db";
-import { getAdventureFromDb, upsertAdventure } from "../db/adventure";
+import { getAdventureFromDb, upsertAdventure, deleteAdventureDb } from "../db/adventure";
 import { updateAdventureAssetDiff } from "../db/asset";
 import { Adventure, AdventureTable, AdventureMetaData, isAdventure } from "../../models/Adventure";
 import { isManagedExportableAsset } from "../../models/Asset";
@@ -9,8 +9,24 @@ import { Node } from "../../models/Node";
 import { ApiError } from "../../util/error";
 
 export function getAdventureFilePath(user: string, fileName: string) {
-    return `${user}/${fileName}.json`;
-  }
+    return `${user}/${fileName}.json`;  
+}
+
+async function getAdventureAndJSON(user: string, adventureName: string) {
+    const existingAdventure = await getAdventureFromDb({author: user, name: adventureName});
+    if (!existingAdventure) throw new ApiError(404, "adventure not found");
+    const filePath = getAdventureFilePath(user, existingAdventure.fileName);
+    let oldAdventure: Adventure | undefined;
+    let body = await (await s3.getObject({
+        Bucket: process.env.STORY_BUCKET_NAME,
+        Key: filePath
+    })).Body?.transformToString();
+    if (body) {
+        oldAdventure = JSON.parse(body) as Adventure;
+    }
+    return { adventureContent: oldAdventure, existingAdventure };
+}
+
 export async function saveAdventure(user: string, adventure: Adventure) {
     const row: Insertable<AdventureTable> = {
         author: user,
@@ -28,7 +44,7 @@ export async function saveAdventure(user: string, adventure: Adventure) {
         const { id } = inserted;
         const uniqueAdventureAssetNames = new Set<string>(Object.values(adventure.nodes).reduce((acc: string[], node: Node) => {
             if (!node.assets) return acc;
-            return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+            return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
         }, []));
         
         await updateAdventureAssetDiff(user, id, {assetsToAdd: [...uniqueAdventureAssetNames]}, trx);
@@ -45,6 +61,12 @@ export async function saveAdventure(user: string, adventure: Adventure) {
 }
   
 export async function updateAdventure(user: string, adventure: Adventure | AdventureMetaData, name: string) {
+    const {adventureContent, existingAdventure} = await getAdventureAndJSON(user, name);
+    const filePath = getAdventureFilePath(user, existingAdventure.fileName);
+
+    if (!adventureContent) throw new ApiError(404, "unable to find story file");
+    // update adventure and add proper relationships
+
     const row: Insertable<AdventureTable> = {
         author: user,
         name: adventure.name,
@@ -52,31 +74,17 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
         fileName: adventure.name.replace(/\s+/g, '-'),
         playCount: 0
     };
-    const existingAdventure = await getAdventureFromDb({author: user, name});
-    if (!existingAdventure) throw new ApiError(404, "adventure not found");
-    const filePath = getAdventureFilePath(user, existingAdventure.fileName);
-    let oldAdventure: Adventure | undefined;
-    let body = await (await s3.getObject({
-        Bucket: process.env.STORY_BUCKET_NAME,
-        Key: filePath
-    })).Body?.transformToString();
-    if (body) {
-        oldAdventure = JSON.parse(body) as Adventure;
-    }
-
-    if (!oldAdventure) throw new ApiError(404, "unable to find story file");
-    // update adventure and add proper relationships
     if (isAdventure(adventure)) {
         await db.transaction().execute(async (trx) => {
             const uniqueAdventureAssetNames = new Set<string>(Object.values(adventure.nodes).reduce((acc: string[], node: Node) => {
                 if (!node.assets) return acc;
-                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
             }, []));
             let deletedAssets: string[] = [];
-                // adventure already exists. Maintain association table of adventures 
-            const oldUniqueAdventureAssetNames = new Set<string>(Object.values(oldAdventure!.nodes).reduce((acc: string[], node: Node) => {
+                // adventure already exists. Maintain association table of adventures
+            const oldUniqueAdventureAssetNames = new Set<string>(Object.values(adventureContent!.nodes).reduce((acc: string[], node: Node) => {
                 if (!node.assets) return acc;
-                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetName)]
+                return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
             }, []));
             deletedAssets = [...oldUniqueAdventureAssetNames].filter(asset => !uniqueAdventureAssetNames.has(asset));
         
@@ -92,7 +100,7 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
             Body: JSON.stringify(adventure),
             ContentType: 'application/json'
         });
-        if (oldAdventure.name !== row.name) {
+        if (adventureContent.name !== row.name) {
             await s3.deleteObject({
                 Bucket: process.env.STORY_BUCKET_NAME,
                 Key: filePath
@@ -101,24 +109,42 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
     } else {
         const inserted = await upsertAdventure(row, undefined, existingAdventure.id);
         if (!inserted) throw new ApiError(500, "failed to insert");
-        if (oldAdventure.name !== row.name || oldAdventure.description !== row.description) {
-            const nameChanged = oldAdventure.name !== row.name;
-            oldAdventure.name = row.name;
-            oldAdventure.description = row.description;
+        if (adventureContent.name !== row.name || adventureContent.description !== row.description) {
+            const nameChanged = adventureContent.name !== row.name;
+            adventureContent.name = row.name;
+            adventureContent.description = row.description;
             await s3.putObject({
                 Bucket: process.env.STORY_BUCKET_NAME,
                 Key: getAdventureFilePath(user, row.fileName),
-                Body: JSON.stringify(oldAdventure),
+                Body: JSON.stringify(adventureContent),
                 ContentType: 'application/json'
             });
             if (nameChanged) {
                 await s3.deleteObject({
-                    Bucket: `${row.author}`,
-                    Key: filePath
+                    Bucket: process.env.STORY_BUCKET_NAME,
+                    Key: getAdventureFilePath(user, row.fileName),
                 });
             }
         }
     }
+}
+
+export async function deleteAdventure(user: string, name: string) {
+    const { adventureContent, existingAdventure } = await getAdventureAndJSON(user, name);
+    const filePath = getAdventureFilePath(user, existingAdventure.fileName);
+    const oldUniqueAdventureAssetIds = new Set<string>(Object.values(adventureContent!.nodes).reduce((acc: string[], node: Node) => {
+        if (!node.assets) return acc;
+        return [...acc, ...node.assets.filter(isManagedExportableAsset).map(asset => asset.managedAssetId)]
+    }, []));
+
+    await db.transaction().execute(async () => {
+        await updateAdventureAssetDiff(user, existingAdventure.id, { assetsToRemove: [...oldUniqueAdventureAssetIds]});
+        await deleteAdventureDb(existingAdventure.id);
+    });
+    await s3.deleteObject({
+        Bucket: process.env.STORY_BUCKET_NAME,
+        Key: filePath,
+    });
 }
   
 export async function validateAdventure(adventure: Adventure) {
