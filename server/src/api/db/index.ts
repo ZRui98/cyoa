@@ -1,25 +1,19 @@
-import { Kysely, PostgresDialect } from "kysely";
-import Pool from "pg-pool";
+import { Kysely, SqliteDialect } from "kysely";
+import Database from "better-sqlite3";
 import { AdventureTable } from "../../models/Adventure";
 import { AdventureAssetTable, ManagedAssetTable } from "../../models/Asset";
 import { UserTable } from "../../models/User";
 
-export interface Database {
+export interface DatabaseSchema {
   adventure: AdventureTable
   asset: ManagedAssetTable
   adventure_asset: AdventureAssetTable
   user: UserTable
 }
-
-const db = new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new Pool({
-        host: `${process.env.DB_HOST}`,
-        database: `${process.env.DB_NAME}`,
-        user: `${process.env.DB_USER}`,
-        password: `${process.env.DB_PASSWORD}`,
-      })
-    }),
+const db = new Kysely<DatabaseSchema>({
+  dialect: new SqliteDialect({
+    database: new Database('cyoa.db')
+  }),
 });
 
 export default db;

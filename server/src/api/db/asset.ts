@@ -1,5 +1,5 @@
 import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction, Updateable } from "kysely";
-import db, { Database } from ".";
+import db, { DatabaseSchema } from ".";
 import { AdventureAssetTable, ManagedAssetResponse, ManagedAssetTable } from "../../models/Asset";
 import { ApiError } from "../../util/error";
 import { getAssetFilePath } from "../storage/asset";
@@ -7,7 +7,7 @@ import { decodeSqid, generateSqid } from "../../util/sqid";
 
 export async function getAllAssetsByUser(
     user: string,
-    trx: Transaction<Database> | Kysely<Database> = db,
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db,
 ): Promise<Selectable<ManagedAssetTable>[]> {
     const assets = await trx.selectFrom('asset')
         .where('author', '=', user)
@@ -20,7 +20,7 @@ export async function getAllAssetsByUser(
 export async function getAllAssetsByUserAndNames(
     user: string,
     sqids: string[] = [],
-    trx: Transaction<Database> | Kysely<Database> = db
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db
 ): Promise<Selectable<ManagedAssetTable>[]> {
     const ids = sqids.map(sqid => decodeSqid(sqid));
     const assets = await trx.selectFrom('asset')
@@ -56,11 +56,11 @@ export function getManagedAssetResponse(user: string, asset: Selectable<ManagedA
 
 export async function getAssetFromDb(
     values: Partial<Selectable<ManagedAssetTable>>,
-    trx: Transaction<Database> | Kysely<Database> = db
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db
 ): Promise<Selectable<ManagedAssetTable> | undefined> {
     let transaction = trx.selectFrom('asset')
     Object.entries(values).forEach(([key, val]) => {
-      transaction = transaction.where(key as ReferenceExpression<Database, 'asset'>, '=', val)
+      transaction = transaction.where(key as ReferenceExpression<DatabaseSchema, 'asset'>, '=', val)
     })
     return await transaction.selectAll()
       .executeTakeFirst()
@@ -70,7 +70,7 @@ export async function updateAdventureAssetDiff(
     author: string,
     adventureId: number,
     { assetsToAdd, assetsToRemove }: {assetsToRemove?: string[], assetsToAdd?: string[]},
-    trx: Transaction<Database> | Kysely<Database> = db
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db
 ) {
     if (assetsToAdd?.length) {
         const assets = await getAllAssetsByUserAndNames(author, assetsToAdd, trx);
@@ -98,7 +98,7 @@ export async function updateAdventureAssetDiff(
 
 export async function insertAssetDb(
     asset: Insertable<ManagedAssetTable>,
-    trx: Transaction<Database> | Kysely<Database> = db,
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db,
 ): Promise<Selectable<ManagedAssetTable>> {
     let v: Selectable<ManagedAssetTable> | undefined;
     try {
@@ -114,7 +114,7 @@ export async function insertAssetDb(
 
 export async function updateAssetDb(
     asset: Insertable<ManagedAssetTable> | Updateable<ManagedAssetTable>,
-    trx: Transaction<Database> | Kysely<Database> = db,
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db,
     id: number,
 ): Promise<Selectable<ManagedAssetTable>> {
     const v = await trx.updateTable('asset').set(asset)
@@ -127,7 +127,7 @@ export async function updateAssetDb(
 
 export async function deleteAssetDb(
     id: number,
-    trx: Transaction<Database> | Kysely<Database> = db,
+    trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db,
 ) {
     const response = await trx.deleteFrom('asset').where('id', '=', id).executeTakeFirst();
     return response[0];

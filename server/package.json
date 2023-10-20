@@ -23,11 +23,11 @@
     "@fastify/passport": "^2.3.0",
     "@fastify/secure-session": "^6.1.0",
     "ajv": "^8.12.0",
+    "better-sqlite3": "^9.0.0",
     "fastify": "^4.15.0",
     "file-type": "^18.5.0",
     "google-auth-library": "^8.8.0",
     "kysely": "^0.26.3",
-    "pg-pool": "^3.6.0",
     "prettier": "^3.0.0",
     "simple-runtypes": "^7.1.2",
     "sqids": "^0.3.0"

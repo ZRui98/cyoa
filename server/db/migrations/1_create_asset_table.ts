@@ -1,4 +1,4 @@
-import { Kysely } from 'kysely'
+import { Kysely } from 'kysely';
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -6,6 +6,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('name', 'varchar', (col) => col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
+    .addColumn('fileType', 'varchar')
     .addColumn('fileName', 'varchar', (col) =>col.notNull())
     .addColumn('description', 'varchar')
     .execute();
@@ -24,6 +25,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('assetId', 'bigint', (col) => col)
     .addColumn('adventureId', 'bigint', (col) => col)
+    .addForeignKeyConstraint('asset_id_foreign', ['assetId'], 'asset', ['id'])
+    .addForeignKeyConstraint('adventure_id_foreign', ['adventureId'], 'adventure', ['id'])
     .execute();
   await db.schema.createIndex('adventure_asset_unique')
     .on('adventure_asset')

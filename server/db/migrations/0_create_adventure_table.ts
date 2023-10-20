@@ -1,4 +1,4 @@
-import { Kysely } from 'kysely'
+import { Kysely } from 'kysely';
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -8,6 +8,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('fileName', 'varchar', (col) =>col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
     .addColumn('playCount', 'integer', (col) => col.defaultTo(0).notNull())
+    .addColumn('description', 'varchar')
     .execute();
   await db.schema.createIndex('adventure_author_filename_unique')
     .on('adventure')

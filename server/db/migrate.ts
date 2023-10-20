@@ -1,19 +1,14 @@
-import { FileMigrationProvider, Kysely, Migrator, PostgresDialect } from "kysely";
+import { FileMigrationProvider, Kysely, Migrator, SqliteDialect } from "kysely";
+import Database from "better-sqlite3";
 import { promises as fs } from "fs";
 import path from "path";
-import { Database } from "../src/api/db";
-import Pool from "pg-pool";
+import { DatabaseSchema } from "../src/api/db";
 
 const __dirname = process.cwd();
 async function migrate() {
-  const db = new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new Pool({
-        host: `${process.env.DB_HOST}`,
-        database: `${process.env.DB_NAME}`,
-        user: `${process.env.DB_USER}`,
-        password: `${process.env.DB_PASSWORD}`,
-      })
+  const db = new Kysely<DatabaseSchema>({
+    dialect: new SqliteDialect({
+      database: new Database('cyoa.db')
     }),
   });
   const migrator = new Migrator({

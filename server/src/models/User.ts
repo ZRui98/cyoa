@@ -15,7 +15,7 @@ export interface UserData extends UserProfileData {
     email: string,
     accountType: AccountType,
     accountTypeId: string,
-    activated: boolean
+    activated: number
 }
 
 export interface UserTable extends UserData {
