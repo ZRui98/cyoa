@@ -15,10 +15,10 @@
   });
 
   function submitUsername() {
-    submit = activateUser(username).then((activated) => {
-      if (activated) {
+    submit = activateUser(username).then((resp) => {
+      if (resp.activated) {
         loginState.update((state) => {
-          return { ...state, activated: true };
+          return { ...state, user: resp.name, activated: true };
         });
       }
       goto('/');

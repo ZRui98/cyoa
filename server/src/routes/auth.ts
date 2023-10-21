@@ -18,7 +18,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
         const newState = await activateUser(req.body, req.user!.name);
         req.session.set("passport", newState);
         res.code(200);
-        res.send(newState.activated);
+        res.send(newState);
       },
     //   schema: {
     //     body: {
