@@ -1,33 +1,33 @@
-import {JSONSchemaType} from "ajv"
-import { Asset, assetSchema } from "./Asset"
+import { JSONSchemaType } from 'ajv';
+import { Asset, assetSchema } from './Asset';
 
 export interface Node {
-  name: string,
-  assets: Asset[],
-  links: Edge[]
+  name: string;
+  assets: Asset[];
+  links: Edge[];
 }
 
 export interface Edge {
-  prompt: string,
-  next: string
+  prompt: string;
+  next: string;
 }
 
 export const edgeSchema: JSONSchemaType<Edge> = {
-  $id: "edge",
-  type: "object",
+  $id: 'edge',
+  type: 'object',
   properties: {
-    prompt: { type: "string" },
-    next: { type: "string" }
+    prompt: { type: 'string' },
+    next: { type: 'string' },
   },
-  required: ["prompt", "next"],
-  additionalProperties: false
+  required: ['prompt', 'next'],
+  additionalProperties: false,
 } as const;
 
 export const nodeSchema: JSONSchemaType<Node> = {
-  $id: "node",
-  type: "object",
+  $id: 'node',
+  type: 'object',
   properties: {
-    name: {type: 'string'},
+    name: { type: 'string' },
     links: {
       type: 'array',
       items: edgeSchema,
@@ -35,8 +35,8 @@ export const nodeSchema: JSONSchemaType<Node> = {
     assets: {
       type: 'array',
       items: assetSchema,
-    }
+    },
   },
-  required: ["name", "assets", "links"],
-  additionalProperties: false
+  required: ['name', 'assets', 'links'],
+  additionalProperties: false,
 } as const;

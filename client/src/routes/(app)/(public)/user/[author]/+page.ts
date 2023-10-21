@@ -4,7 +4,7 @@ import { getAdventureSummaries, getUser } from '../../../../../utils/api';
 export async function load({ params, fetch }) {
   try {
     await getUser(params.author, fetch);
-  } catch(e) {
+  } catch (e) {
     throw redirect(308, '/404');
   }
   const adventures = await getAdventureSummaries(params.author, fetch);

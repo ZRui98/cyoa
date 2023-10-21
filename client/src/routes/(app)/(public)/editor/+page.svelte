@@ -32,7 +32,7 @@
 
   export let data: { adventureName: string };
 
-  const openNodes: {[key: string]: boolean} = {};
+  const openNodes: { [key: string]: boolean } = {};
 
   if (!$adventureStore) {
     if (data.adventureName && $loginState?.activated) {
@@ -45,7 +45,7 @@
   currentActiveNode.subscribe((val) => {
     if ($settings.editor.autoFocus) {
       const el = document?.getElementById(`node-${val?.id}`);
-      el?.scrollIntoView({behavior: 'smooth'});
+      el?.scrollIntoView({ behavior: 'smooth' });
     }
 
     if ($settings.editor.autoCollapse) {
@@ -55,13 +55,13 @@
     } else if (val) {
       openNodes[val.id] = true;
     }
-  })
+  });
 
   $: assetTypes = $loginState?.activated ? Object.keys(AssetType) : [AssetType.FILE, AssetType.TEXT];
   let managedAssets: Writable<ManagedAssetResponse[] | undefined> = writable(undefined);
   let settingsVisible = false;
   let showManagedAssetPopup = false;
-  let newManagedAsset: {nodeKey: string, idx: number};
+  let newManagedAsset: { nodeKey: string; idx: number };
 
   onMount(() => {
     if ($loginState?.activated) {
@@ -81,7 +81,7 @@
     const keys = Object.keys($adventureStore?.nodes).sort((a, b) => {
       return a.localeCompare(b, undefined, {
         numeric: true,
-        sensitivity: 'base'
+        sensitivity: 'base',
       });
     });
     let id = '0';
@@ -123,14 +123,14 @@
 
   function createNewManagedAsset(nodeKey: string, idx: number) {
     showManagedAssetPopup = true;
-    newManagedAsset = {nodeKey, idx};
+    newManagedAsset = { nodeKey, idx };
   }
 
-  function onManagedAssetSave(e: CustomEvent<{oldAsset: ManagedAssetResponse | null, asset: ManagedAssetResponse}>) {
+  function onManagedAssetSave(e: CustomEvent<{ oldAsset: ManagedAssetResponse | null; asset: ManagedAssetResponse }>) {
     const newAsset = createNewAsset(AssetType.MANAGED) as ManagedExportableAsset;
     newAsset.managedAssetId = e.detail.asset.id;
     adventureStore.updateAsset(newManagedAsset.nodeKey, newManagedAsset.idx, newAsset);
-    managedAssets.update(assets => {
+    managedAssets.update((assets) => {
       if (!assets) assets = [];
       assets.push(e.detail.asset);
       return assets;
@@ -218,7 +218,7 @@
       <input bind:value={$adventureStore.name} class="static-padding" type="text" />
       <button class="button" on:click={handleSave}><Save display="block" /></button>
     </div>
-    <AssetUpdatePopup bind:show={showManagedAssetPopup} on:update={onManagedAssetSave}/>
+    <AssetUpdatePopup bind:show={showManagedAssetPopup} on:update={onManagedAssetSave} />
     <Tabs style="flex: 1">
       <Tab index="0" title="Nodes">
         <EditorSettings bind:settingsVisible showEditorSettings />
@@ -226,14 +226,20 @@
           <button class="button-round" on:click={addNewNode}>
             <Plus display="block" />
           </button>
-          <button on:click={() => settingsVisible = !settingsVisible} class="button"><SlidersHorizontal display="block" /></button>
+          <button on:click={() => (settingsVisible = !settingsVisible)} class="button"
+            ><SlidersHorizontal display="block" /></button
+          >
         </div>
         {#each Object.keys($adventureStore.nodes) as nodeKey}
           <Accordion id={`node-${nodeKey}`} bind:open={openNodes[nodeKey]} focused={$currentActiveNode?.id === nodeKey}>
             <div class="node" slot="toggle-button">
               {$adventureStore.nodes[nodeKey].name}
-              <button class="button" on:click|stopPropagation={() => {adventureStore.removeNode(nodeKey); delete openNodes[nodeKey];}}
-                ><Trash2 display="block" /></button
+              <button
+                class="button"
+                on:click|stopPropagation={() => {
+                  adventureStore.removeNode(nodeKey);
+                  delete openNodes[nodeKey];
+                }}><Trash2 display="block" /></button
               >
             </div>
             <div slot="toggle-content">
@@ -257,7 +263,7 @@
                         {:else if isManagedExportableAsset(asset)}
                           {#if $managedAssets && $managedAssets.length > 0}
                             {@const managedAssetId = asset.managedAssetId}
-                            {@const fileName = $managedAssets.find(a => a.id === managedAssetId)?.name ?? ''}
+                            {@const fileName = $managedAssets.find((a) => a.id === managedAssetId)?.name ?? ''}
                             <Dropdown
                               text={fileName}
                               value={asset}
@@ -331,9 +337,9 @@
     </div> -->
   </div>
 
-    <Sidebar open={true}>
-      <GraphOverview />
-    </Sidebar>
+  <Sidebar open={true}>
+    <GraphOverview />
+  </Sidebar>
 {/if}
 
 <style>

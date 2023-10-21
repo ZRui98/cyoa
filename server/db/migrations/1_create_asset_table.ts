@@ -7,19 +7,16 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('name', 'varchar', (col) => col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
     .addColumn('fileType', 'varchar')
-    .addColumn('fileName', 'varchar', (col) =>col.notNull())
+    .addColumn('fileName', 'varchar', (col) => col.notNull())
     .addColumn('description', 'varchar')
     .execute();
-  await db.schema.createIndex('asset_author_filename_unique')
+  await db.schema
+    .createIndex('asset_author_filename_unique')
     .on('asset')
     .columns(['fileName', 'author'])
     .unique()
     .execute();
-  await db.schema.createIndex('asset_author_name_unique')
-    .on('asset')
-    .columns(['name', 'author'])
-    .unique()
-    .execute();
+  await db.schema.createIndex('asset_author_name_unique').on('asset').columns(['name', 'author']).unique().execute();
   await db.schema
     .createTable('adventure_asset')
     .addColumn('id', 'serial', (col) => col.primaryKey())
@@ -28,7 +25,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addForeignKeyConstraint('asset_id_foreign', ['assetId'], 'asset', ['id'])
     .addForeignKeyConstraint('adventure_id_foreign', ['adventureId'], 'adventure', ['id'])
     .execute();
-  await db.schema.createIndex('adventure_asset_unique')
+  await db.schema
+    .createIndex('adventure_asset_unique')
     .on('adventure_asset')
     .columns(['assetId', 'adventureId'])
     .unique()

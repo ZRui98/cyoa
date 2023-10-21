@@ -13,9 +13,9 @@
   $: canEdit = $loginState?.user === data.user;
   let adventures = writable(data.adventures);
 
-  function handleAdventureDelete(e: CustomEvent<{name: string}>) {
-    const adventureIdx = $adventures.findIndex(a => a.name === e.detail.name);
-    adventures.update(advs => {
+  function handleAdventureDelete(e: CustomEvent<{ name: string }>) {
+    const adventureIdx = $adventures.findIndex((a) => a.name === e.detail.name);
+    adventures.update((advs) => {
       advs.splice(adventureIdx, 1);
       return advs;
     });
@@ -38,7 +38,7 @@
       author={name}
       description={adventure.description}
       count={adventure.playCount}
-      canEdit={canEdit}
+      {canEdit}
       on:delete={handleAdventureDelete}
     />
   {/each}

@@ -42,8 +42,12 @@
     if (!graph.nodes[graph.start]) return;
     try {
       const { nodes, edges } = getRenderableGraph(graph);
-      edges.filter((e) => !e.isSimple).forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted, e.to, e.from)));
-      edges.filter((e) => e.isSimple).forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted, e.to, e.from)));
+      edges
+        .filter((e) => !e.isSimple)
+        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted, e.to, e.from)));
+      edges
+        .filter((e) => e.isSimple)
+        .forEach((e) => zoomContainer.addChild(new ArrowGraphics(e.points, e.isDotted, e.to, e.from)));
       for (const coord of nodes) {
         zoomContainer.addChild(new NodeGraphics(coord.id, graph.nodes[coord.id], coord.x, coord.y));
       }

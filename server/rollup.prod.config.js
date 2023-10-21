@@ -3,7 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
-import builtins from 'builtin-modules'
+import builtins from 'builtin-modules';
 
 export default {
   input: 'src/index.ts',
@@ -11,22 +11,22 @@ export default {
     dir: 'dist',
     format: 'esm',
     globals: {
-      crypto: 'crypto'
-    }
+      crypto: 'crypto',
+    },
   },
   plugins: [
     json(),
     resolve({
       customResolveOptions: {
-        moduleDirectories: ['node_modules']
+        moduleDirectories: ['node_modules'],
       },
       preferBuiltins: true,
-      exportConditions: ["node"]
+      exportConditions: ['node'],
     }),
     commonjs({
-      ignore: ['pg-native' , './native']
+      ignore: ['pg-native', './native'],
     }),
-    typescript({sourceMap: false})
+    typescript({ sourceMap: false }),
   ],
   external: builtins,
 };

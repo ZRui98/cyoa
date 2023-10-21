@@ -13,36 +13,36 @@
   const dispatch = createEventDispatcher();
 
   function handleDeleteAdventure() {
-    const promise = deleteAdventure(name).then(v => {
-      dispatch('delete', {name});
+    const promise = deleteAdventure(name).then((v) => {
+      dispatch('delete', { name });
     });
     toast.promise(promise, {
-            success: 'Successfully deleted adventure',
-            error: 'Failed to delete adventure',
-            loading: 'Deleting adventure...',
-            info: '',
-            warning: ''
-        });
+      success: 'Successfully deleted adventure',
+      error: 'Failed to delete adventure',
+      loading: 'Deleting adventure...',
+      info: '',
+      warning: '',
+    });
   }
 </script>
 
 <div class="card">
-    <div class="title">
-      <div>
-        <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight display="block"/></span></a>
-        {name}
-      </div>
-      {#if canEdit}
-      <div>
-        <a class="button" href={`/editor?adventure_name=${name}`}><span><Edit display="block"/></span></a>
-        <button class="button" on:click={handleDeleteAdventure}><span><Trash2 display="block"/></span></button>
-      </div>
-      {/if}
-    </div>
+  <div class="title">
     <div>
-      <span>{@html formattedDescription}</span>
+      <a class="button-round" href={`/user/${author}/${name}`}><span>Play <ArrowRight display="block" /></span></a>
+      {name}
     </div>
-    <span class="count">Play count: {count}</span>
+    {#if canEdit}
+      <div>
+        <a class="button" href={`/editor?adventure_name=${name}`}><span><Edit display="block" /></span></a>
+        <button class="button" on:click={handleDeleteAdventure}><span><Trash2 display="block" /></span></button>
+      </div>
+    {/if}
+  </div>
+  <div>
+    <span>{@html formattedDescription}</span>
+  </div>
+  <span class="count">Play count: {count}</span>
 </div>
 
 <style>

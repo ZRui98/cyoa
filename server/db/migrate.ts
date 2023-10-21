@@ -1,14 +1,14 @@
-import { FileMigrationProvider, Kysely, Migrator, SqliteDialect } from "kysely";
-import Database from "better-sqlite3";
-import { promises as fs } from "fs";
-import path from "path";
-import { DatabaseSchema } from "../src/api/db";
+import { FileMigrationProvider, Kysely, Migrator, SqliteDialect } from 'kysely';
+import Database from 'better-sqlite3';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { DatabaseSchema } from '../src/api/db';
 
 const __dirname = process.cwd();
 async function migrate() {
   const db = new Kysely<DatabaseSchema>({
     dialect: new SqliteDialect({
-      database: new Database('cyoa.db')
+      database: new Database('cyoa.db'),
     }),
   });
   const migrator = new Migrator({
@@ -16,27 +16,27 @@ async function migrate() {
     provider: new FileMigrationProvider({
       fs,
       path,
-      migrationFolder: path.join(__dirname, 'db/migrations')
-    })
+      migrationFolder: path.join(__dirname, 'db/migrations'),
+    }),
   });
 
-  const { error, results } = await migrator.migrateToLatest()
+  const { error, results } = await migrator.migrateToLatest();
 
   results?.forEach((it) => {
     if (it.status === 'Success') {
-      console.log(`migration "${it.migrationName}" was executed successfully`)
+      console.log(`migration "${it.migrationName}" was executed successfully`);
     } else if (it.status === 'Error') {
-      console.error(`failed to execute migration "${it.migrationName}"`)
+      console.error(`failed to execute migration "${it.migrationName}"`);
     }
-  })
+  });
 
   if (error) {
-    console.error('failed to migrate')
-    console.error(error)
-    process.exit(1)
+    console.error('failed to migrate');
+    console.error(error);
+    process.exit(1);
   }
 
-  await db.destroy()
+  await db.destroy();
 }
 
 migrate();
