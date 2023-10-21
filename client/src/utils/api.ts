@@ -97,15 +97,21 @@ export async function deleteAdventure(name: string, fetchImpl?: FetchFunction) {
   return fetchApi(url, fetchImpl, {method: 'DELETE'});
 }
 
+export async function getUser(name: string, fetchImpl?: FetchFunction): Promise<{name: string}> {
+  const url = `${env.PUBLIC_API_BASE_PATH}/user/${name}`;
+  const response = await fetchApi<{name: string}>(url, fetchImpl);
+  return response;
+}
+
 export async function getUserStatus(fetchImpl?: FetchFunction): Promise<LoginState> {
   const url = `${env.PUBLIC_API_BASE_PATH}/auth/status`;
   const response = await fetchApi<LoginState>(url, fetchImpl, { credentials: 'include' });
   return response;
 }
 
-export async function activateUser(name: string, fetchImpl?: FetchFunction): Promise<boolean> {
+export async function activateUser(name: string, fetchImpl?: FetchFunction): Promise<{name: string, activated: boolean}> {
   const url = `${env.PUBLIC_API_BASE_PATH}/auth/activate`;
-  const resp = await fetchApi<boolean>(url, fetchImpl, {
+  const resp = await fetchApi<{name: string, activated: boolean}>(url, fetchImpl, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
