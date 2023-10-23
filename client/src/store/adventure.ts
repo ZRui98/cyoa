@@ -159,7 +159,7 @@ export const graphRenderStore = createGraphRenderStore(adventureStore);
 export type GraphRenderStore = typeof graphRenderStore;
 
 export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
-  const store = writable<{ id: string, author: string, adventureName: string, content: string } | undefined>();
+  const store = writable<{ id: string; author: string; adventureName: string; content: string } | undefined>();
   const { subscribe } = store;
 
   const valSet = (
@@ -172,12 +172,11 @@ export const createCurrenctActiveNode = (adventureStore: AdventureStore) => {
       location.replace(newHash);
       const currentVal = get(store);
       const content: GraphNode | undefined = get(adventureStore)?.nodes[id];
-      const contentStr = JSON.stringify(content)
+      const contentStr = JSON.stringify(content);
       if (id === currentVal?.id && currentVal.content === contentStr) return;
       const newVal = {
         id,
-        author: author ?? currentVal!.
-        author,
+        author: author ?? currentVal!.author,
         adventureName: adventureName ?? currentVal!.adventureName,
         content: contentStr,
       };

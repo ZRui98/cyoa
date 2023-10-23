@@ -1,62 +1,58 @@
-import {JSONSchemaType} from "ajv"
-import { Generated } from "kysely"
+import { JSONSchemaType } from 'ajv';
+import { Generated } from 'kysely';
 
-export interface Asset {
-}
+export interface Asset {}
 
 export interface TextAsset extends Asset {
-  content: string
-};
+  content: string;
+}
 
 export interface FileAsset extends Asset {
-  path: string
+  path: string;
 }
 
 export interface AudioAsset extends FileAsset {
-  autoplay?: boolean
+  autoplay?: boolean;
 }
 
 export interface ImageAsset extends FileAsset {
-  width?: number
-  height?: number
+  width?: number;
+  height?: number;
 }
 
 export interface ManagedExportableAsset extends Asset {
-  managedAssetId: string
+  managedAssetId: string;
 }
 
 export interface ManagedAudioExportableAsset extends AudioAsset, ManagedExportableAsset {
-  html5: boolean
+  html5: boolean;
 }
 
-export const isTextAsset = (x: Asset): x is TextAsset =>
-  (x as TextAsset).content !== undefined
+export const isTextAsset = (x: Asset): x is TextAsset => (x as TextAsset).content !== undefined;
 
-export const isFileAsset = (x: Asset): x is FileAsset =>
-  (x as FileAsset).path !== undefined
+export const isFileAsset = (x: Asset): x is FileAsset => (x as FileAsset).path !== undefined;
 
-export const isManagedExportableAsset = (x: Asset): x is ManagedExportableAsset => 
-  (x as ManagedExportableAsset).managedAssetId !== undefined
+export const isManagedExportableAsset = (x: Asset): x is ManagedExportableAsset =>
+  (x as ManagedExportableAsset).managedAssetId !== undefined;
 
 export const isAudioExportableAsset = (x: Asset): x is AudioAsset => {
   if (isFileAsset(x)) {
     return hasAudioFileExtension(x.path);
   }
   return false;
-}
+};
 
-export const hasAudioFileExtension =(fileName: string): boolean => 
-  ['.mp3'].some(ext => fileName.endsWith(ext));
+export const hasAudioFileExtension = (fileName: string): boolean => ['.mp3'].some((ext) => fileName.endsWith(ext));
 
 export const isImgExportableAsset = (x: Asset): x is ImageAsset => {
   if (isFileAsset(x)) {
     return hasImgFileExtension(x.path);
   }
   return false;
-}
+};
 
-export const hasImgFileExtension =(fileName: string): boolean => 
-  ['.jpg', '.png'].some(ext => fileName.endsWith(ext));
+export const hasImgFileExtension = (fileName: string): boolean =>
+  ['.jpg', '.png'].some((ext) => fileName.endsWith(ext));
 
 export interface AssetMetaData {
   name: string;
@@ -76,38 +72,38 @@ export interface ManagedAssetResponse extends Omit<ManagedAssetTable, 'id'> {
 }
 
 export const assetSchema: JSONSchemaType<Asset> = {
-  "$id": "asset",
-  "type": "object",
-  "oneOf": [
+  $id: 'asset',
+  type: 'object',
+  oneOf: [
     {
-        properties: {
-          "managedAssetId": {"type": "string"}
-        },
-        required: ["managedAssetId"],
-        additionalProperties: false
+      properties: {
+        managedAssetId: { type: 'string' },
+      },
+      required: ['managedAssetId'],
+      additionalProperties: false,
     },
     {
-        properties: {
-          "path": {"type": "string"}
-        },
-        required: ["path"],
-        additionalProperties: false
+      properties: {
+        path: { type: 'string' },
+      },
+      required: ['path'],
+      additionalProperties: false,
     },
     {
-        properties: {"content": { "type": "string" }},
-        required: ["content"],
-        additionalProperties: false
-    }
-  ]
+      properties: { content: { type: 'string' } },
+      required: ['content'],
+      additionalProperties: false,
+    },
+  ],
 } as const;
 
-export const FileType = { AUDIO: 'AUDIO', IMG: 'IMG'} as const;
-export type FileType = typeof FileType[keyof typeof FileType];
+export const FileType = { AUDIO: 'AUDIO', IMG: 'IMG' } as const;
+export type FileType = (typeof FileType)[keyof typeof FileType];
 
-export const AssetType = { MANAGED: 'MANAGED', FILE: 'FILE', TEXT: 'TEXT'} as const;
-export type AssetType = typeof AssetType[keyof typeof AssetType];
+export const AssetType = { MANAGED: 'MANAGED', FILE: 'FILE', TEXT: 'TEXT' } as const;
+export type AssetType = (typeof AssetType)[keyof typeof AssetType];
 
 export interface AdventureAssetTable {
-  adventureId: number,
-  assetId: number
+  adventureId: number;
+  assetId: number;
 }

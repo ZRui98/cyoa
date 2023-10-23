@@ -35,7 +35,7 @@
       })
       .catch(() => {
         deleteAssetPromise = undefined;
-    });
+      });
     toast.promise(deleteAssetPromise, {
       duration: 1500,
       error: `Failed to delete asset ${asset.name}`,
@@ -52,13 +52,13 @@
   }
 
   function handleEditAsset(asset: ManagedAssetResponse) {
-    console.log('editing', asset)
+    console.log('editing', asset);
     editingAsset = asset;
     showAssetPopup = true;
   }
 
-  function onAssetSave(event: CustomEvent<{ oldAsset: ManagedAssetResponse | null, asset: ManagedAssetResponse }>) {
-    const idx = $assets.findIndex(asset => asset.name === event.detail.oldAsset?.name);
+  function onAssetSave(event: CustomEvent<{ oldAsset: ManagedAssetResponse | null; asset: ManagedAssetResponse }>) {
+    const idx = $assets.findIndex((asset) => asset.name === event.detail.oldAsset?.name);
     if (idx < 0) {
       $assets = [...$assets, event.detail.asset];
     } else {
@@ -82,18 +82,19 @@
     </div>
 
     {#if $assets !== undefined}
-      <AssetUpdatePopup asset={editingAsset} bind:show={showAssetPopup} on:update={onAssetSave}/>
+      <AssetUpdatePopup asset={editingAsset} bind:show={showAssetPopup} on:update={onAssetSave} />
       {#each $assets as asset (asset)}
         <div>
           <Accordion>
             <div class="content" slot="toggle-button">
               <span>{asset.name}</span>
               <div>
-                <button
-                  class="button"
-                  on:click|stopPropagation={() => handleEditAsset(asset)}><Edit display="block" /></button
+                <button class="button" on:click|stopPropagation={() => handleEditAsset(asset)}
+                  ><Edit display="block" /></button
                 >
-                <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}><Trash2 display="block" /></button>
+                <button class="button" on:click|stopPropagation={() => handleAssetDelete(asset)}
+                  ><Trash2 display="block" /></button
+                >
               </div>
             </div>
             <div slot="toggle-content">

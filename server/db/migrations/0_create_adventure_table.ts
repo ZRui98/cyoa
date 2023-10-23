@@ -5,19 +5,17 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable('adventure')
     .addColumn('id', 'serial', (col) => col.primaryKey())
     .addColumn('name', 'varchar', (col) => col.notNull())
-    .addColumn('fileName', 'varchar', (col) =>col.notNull())
+    .addColumn('fileName', 'varchar', (col) => col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
     .addColumn('playCount', 'integer', (col) => col.defaultTo(0).notNull())
     .addColumn('description', 'varchar')
     .execute();
-  await db.schema.createIndex('adventure_author_filename_unique')
+  await db.schema
+    .createIndex('adventure_author_filename_unique')
     .on('adventure')
     .columns(['fileName', 'author'])
     .execute();
-  await db.schema.createIndex('adventure_author_name_unique')
-    .on('adventure')
-    .columns(['name', 'author'])
-    .execute();
+  await db.schema.createIndex('adventure_author_name_unique').on('adventure').columns(['name', 'author']).execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

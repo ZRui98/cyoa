@@ -1,7 +1,6 @@
 export function focus(node: HTMLElement) {
-    node.focus();
-    return {
-        destroy() {
-        },
-    };
+  node.focus();
+  return {
+    destroy() {},
+  };
 }

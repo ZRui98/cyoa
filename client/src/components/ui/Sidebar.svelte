@@ -6,20 +6,19 @@
 
   export let open = false;
   let settingsVisible = false;
-  
+
   const STATIC_STYLE = 'transition: 0.3s ease-in-out;';
   const layoutStyling = getContext<Writable<string>>('layoutStyling');
   $: {
-  layoutStyling.set(open ? `margin: 0 5%;margin-right: 55%;${STATIC_STYLE}` : STATIC_STYLE);
+    layoutStyling.set(open ? `margin: 0 5%;margin-right: 55%;${STATIC_STYLE}` : STATIC_STYLE);
   }
 
   onDestroy(() => {
-
     layoutStyling.set('');
-  })
+  });
 </script>
 
-<EditorSettings bind:settingsVisible/>
+<EditorSettings bind:settingsVisible />
 <div>
   <button class="toggle-button" style={open ? 'color: hsl(var(--main-subtle))' : ''} on:click={() => (open = !open)}>
     {#if open}
@@ -28,7 +27,12 @@
       <Component display="block" />
     {/if}
   </button>
-  <button id="settings" class="toggle-button" style={open ? 'color: hsl(var(--main-subtle))' : ''} on:click={() => settingsVisible = !settingsVisible}><Settings display="block" /></button>
+  <button
+    id="settings"
+    class="toggle-button"
+    style={open ? 'color: hsl(var(--main-subtle))' : ''}
+    on:click={() => (settingsVisible = !settingsVisible)}><Settings display="block" /></button
+  >
   <aside class:open>
     <slot />
   </aside>

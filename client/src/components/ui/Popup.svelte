@@ -10,20 +10,20 @@
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 {#if show}
-<div
-  class="backdrop"
-  aria-roledescription="click to close div"
-  role="dialog"
-  on:keydown|self={(e) => e.code === 'Escape' ?? handleClose()}
-  on:scroll|stopPropagation
-  on:click|self={handleClose}
->
-  <div class="dialog" {...$$restProps}>
-    <div class="container">
-      <slot />
+  <div
+    class="backdrop"
+    aria-roledescription="click to close div"
+    role="dialog"
+    on:keydown|self={(e) => e.code === 'Escape' ?? handleClose()}
+    on:scroll|stopPropagation
+    on:click|self={handleClose}
+  >
+    <div class="dialog" {...$$restProps}>
+      <div class="container">
+        <slot />
+      </div>
     </div>
   </div>
-</div>
 {/if}
 
 <style>

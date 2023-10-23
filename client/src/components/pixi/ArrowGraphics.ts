@@ -7,10 +7,10 @@ const dashLineShader = new DashLineShader({ dash: 5, gap: 4 });
 
 const ARROW_TYPES = {
   INACTIVE: 'INACTIVE',
-  ACTIVE: 'ACTIVE'
+  ACTIVE: 'ACTIVE',
 } as const;
 
-type ArrowType = typeof ARROW_TYPES[keyof typeof ARROW_TYPES];
+type ArrowType = (typeof ARROW_TYPES)[keyof typeof ARROW_TYPES];
 
 export class ArrowGraphics extends SmoothGraphics {
   private arrowType: ArrowType;
@@ -68,7 +68,7 @@ export class ArrowGraphics extends SmoothGraphics {
       this.lineStyle({
         width: this._lineStyle.width * scale,
         color: 0xc4a7e7,
-        shader: this._lineStyle.shader
+        shader: this._lineStyle.shader,
       });
     } else {
       this.zIndex = 0;
@@ -98,7 +98,11 @@ export class ArrowGraphics extends SmoothGraphics {
     // this.addChild();
     this.point.beginFill(this._lineStyle.color);
 
-    this.point.drawPolygon(new Point(-7 * scale, -6 * scale), new Point(-7 * scale, 6 * scale), new Point(5 * scale, 0));
+    this.point.drawPolygon(
+      new Point(-7 * scale, -6 * scale),
+      new Point(-7 * scale, 6 * scale),
+      new Point(5 * scale, 0)
+    );
     this.point.setTransform(lastPoint[0], lastPoint[1], 1, 1, angle, undefined, undefined, 0, 0);
     this.point.endFill();
   }

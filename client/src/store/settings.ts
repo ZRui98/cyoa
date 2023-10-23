@@ -16,23 +16,23 @@ interface EditorSettings {
 }
 
 interface Settings {
-  theme: ThemeSettings,
-  reader: ReaderSettings,
-  editor: EditorSettings
+  theme: ThemeSettings;
+  reader: ReaderSettings;
+  editor: EditorSettings;
 }
 const defaultSettings: Settings = {
   theme: {
-    darkMode: false
+    darkMode: false,
   },
   reader: {
     typeAnimation: true,
-    typeSpeed: 50
+    typeSpeed: 50,
   },
   editor: {
     autoFocus: true,
-    autoCollapse: false
-  }
-}
+    autoCollapse: false,
+  },
+};
 
 let localStorageSettings = browser && localStorage.getItem('settings');
 const storedSettings = localStorageSettings ? JSON.parse(localStorageSettings) : defaultSettings;
@@ -50,13 +50,13 @@ const createThemeStore = () => {
     settings.update((val) => {
       val.theme = themeVal;
       return val;
-    })
+    });
   }
 
   return {
     subscribe,
-    set
+    set,
   };
-}
+};
 
 export const theme = createThemeStore();

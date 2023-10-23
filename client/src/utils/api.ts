@@ -94,12 +94,12 @@ export async function deleteAsset(id: string, fetchImpl?: FetchFunction): Promis
 
 export async function deleteAdventure(name: string, fetchImpl?: FetchFunction) {
   const url = `${env.PUBLIC_API_BASE_PATH}/adventure/${name}`;
-  return fetchApi(url, fetchImpl, {method: 'DELETE'});
+  return fetchApi(url, fetchImpl, { method: 'DELETE' });
 }
 
-export async function getUser(name: string, fetchImpl?: FetchFunction): Promise<{name: string}> {
+export async function getUser(name: string, fetchImpl?: FetchFunction): Promise<{ name: string }> {
   const url = `${env.PUBLIC_API_BASE_PATH}/user/${name}`;
-  const response = await fetchApi<{name: string}>(url, fetchImpl);
+  const response = await fetchApi<{ name: string }>(url, fetchImpl);
   return response;
 }
 
@@ -109,9 +109,12 @@ export async function getUserStatus(fetchImpl?: FetchFunction): Promise<LoginSta
   return response;
 }
 
-export async function activateUser(name: string, fetchImpl?: FetchFunction): Promise<{name: string, activated: boolean}> {
+export async function activateUser(
+  name: string,
+  fetchImpl?: FetchFunction
+): Promise<{ name: string; activated: boolean }> {
   const url = `${env.PUBLIC_API_BASE_PATH}/auth/activate`;
-  const resp = await fetchApi<{name: string, activated: boolean}>(url, fetchImpl, {
+  const resp = await fetchApi<{ name: string; activated: boolean }>(url, fetchImpl, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
