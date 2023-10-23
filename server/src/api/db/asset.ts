@@ -2,8 +2,8 @@ import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction, Updat
 import db, { DatabaseSchema } from '.';
 import { AdventureAssetTable, ManagedAssetResponse, ManagedAssetTable } from '../../models/Asset';
 import { ApiError } from '../../util/error';
-import { getAssetFilePath } from '../storage/asset';
 import { decodeSqid, generateSqid } from '../../util/sqid';
+import { getUserFilePath } from '../storage';
 
 export async function getAllAssetsByUser(
   user: string,
@@ -49,7 +49,7 @@ export function getManagedAssetResponse(
     id: generateSqid(asset.id),
   };
   if (includePath) {
-    response.path = `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getAssetFilePath(
+    response.path = `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getUserFilePath(
       user,
       asset.fileName
     )}`;

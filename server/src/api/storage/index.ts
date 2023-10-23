@@ -13,6 +13,10 @@ export const s3 = new S3({
   forcePathStyle: true,
 });
 
+export function getUserFilePath(user: string, fileName: string, extension='') {
+  return `${user}/${fileName}${extension ? `.${extension}` : ''}`;
+}
+
 export async function getPresignedUrlForFile(bucket: string, filePath: string): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: `${bucket}`,

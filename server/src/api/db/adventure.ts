@@ -1,8 +1,7 @@
 import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from 'kysely';
 import db, { DatabaseSchema } from '.';
-import { getAdventureFilePath } from '../storage/adventure';
 import { AdventureTable } from '../../models/Adventure';
-import { getPresignedUrlForFile } from '../storage';
+import { getPresignedUrlForFile, getUserFilePath } from '../storage';
 
 export async function getPresignedAdventureFromId(
   user: string,
@@ -17,7 +16,7 @@ export async function getPresignedAdventureFromId(
     .executeTakeFirstOrThrow(() => new Error('could not find adventure'));
   const signedUrl = await getPresignedUrlForFile(
     process.env.STORY_BUCKET_NAME ?? 'cyoa-stories',
-    getAdventureFilePath(author, fileName)
+    getUserFilePath(author, fileName, '.json')
   );
   return signedUrl;
 }

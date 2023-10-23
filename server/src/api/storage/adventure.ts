@@ -1,5 +1,5 @@
 import { Insertable } from 'kysely';
-import { s3 } from '.';
+import { getUserFilePath, s3 } from '.';
 import db from '../db';
 import { getAdventureFromDb, upsertAdventure, deleteAdventureDb } from '../db/adventure';
 import { updateAdventureAssetDiff } from '../db/asset';
@@ -8,14 +8,10 @@ import { isManagedExportableAsset } from '../../models/Asset';
 import { Node } from '../../models/Node';
 import { ApiError } from '../../util/error';
 
-export function getAdventureFilePath(user: string, fileName: string) {
-  return `${user}/${fileName}.json`;
-}
-
 async function getAdventureAndJSON(user: string, adventureName: string) {
   const existingAdventure = await getAdventureFromDb({ author: user, name: adventureName });
   if (!existingAdventure) throw new ApiError(404, 'adventure not found');
-  const filePath = getAdventureFilePath(user, existingAdventure.fileName);
+  const filePath = getUserFilePath(user, existingAdventure.fileName, '.json');
   let oldAdventure: Adventure | undefined;
   let body = await (
     await s3.getObject({
@@ -54,7 +50,7 @@ export async function saveAdventure(user: string, adventure: Adventure) {
     await updateAdventureAssetDiff(user, id, { assetsToAdd: [...uniqueAdventureAssetNames] }, trx);
   });
 
-  const filePath = getAdventureFilePath(user, row.fileName);
+  const filePath = getUserFilePath(user, row.fileName, '.json');
   // insert new adventure
   await s3.putObject({
     Bucket: process.env.STORY_BUCKET_NAME,
@@ -66,7 +62,7 @@ export async function saveAdventure(user: string, adventure: Adventure) {
 
 export async function updateAdventure(user: string, adventure: Adventure | AdventureMetaData, name: string) {
   const { adventureContent, existingAdventure } = await getAdventureAndJSON(user, name);
-  const filePath = getAdventureFilePath(user, existingAdventure.fileName);
+  const filePath = getUserFilePath(user, existingAdventure.fileName, '.json');
 
   if (!adventureContent) throw new ApiError(404, 'unable to find story file');
   // update adventure and add proper relationships
@@ -109,7 +105,7 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
     // insert new adventure
     await s3.putObject({
       Bucket: process.env.STORY_BUCKET_NAME,
-      Key: getAdventureFilePath(user, row.fileName),
+      Key: getUserFilePath(user, row.fileName, '.json'),
       Body: JSON.stringify(adventure),
       ContentType: 'application/json',
     });
@@ -128,14 +124,14 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
       adventureContent.description = row.description;
       await s3.putObject({
         Bucket: process.env.STORY_BUCKET_NAME,
-        Key: getAdventureFilePath(user, row.fileName),
+        Key: getUserFilePath(user, row.fileName, '.json'),
         Body: JSON.stringify(adventureContent),
         ContentType: 'application/json',
       });
       if (nameChanged) {
         await s3.deleteObject({
           Bucket: process.env.STORY_BUCKET_NAME,
-          Key: getAdventureFilePath(user, row.fileName),
+          Key: getUserFilePath(user, row.fileName, '.json'),
         });
       }
     }
@@ -144,7 +140,7 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
 
 export async function deleteAdventure(user: string, name: string) {
   const { adventureContent, existingAdventure } = await getAdventureAndJSON(user, name);
-  const filePath = getAdventureFilePath(user, existingAdventure.fileName);
+  const filePath = getUserFilePath(user, existingAdventure.fileName, '.json');
   const oldUniqueAdventureAssetIds = new Set<string>(
     Object.values(adventureContent!.nodes).reduce((acc: string[], node: Node) => {
       if (!node.assets) return acc;
