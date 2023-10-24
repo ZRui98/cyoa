@@ -1,5 +1,5 @@
-import { JSONSchemaType } from 'ajv';
-import { Asset, assetSchema } from './Asset';
+import type { JSONSchemaType } from 'ajv';
+import { type Asset, assetSchema } from './Asset';
 
 export interface Node {
   name: string;
