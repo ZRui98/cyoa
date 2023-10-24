@@ -9,7 +9,7 @@
     "dev": "nodemon -e ts --exec ts-node-esm -r dotenv/config src/index.ts dotenv_config_path=.env.local | pino-pretty",
     "build": "rollup -c rollup.dev.config.js",
     "build:prod": "rollup -c rollup.prod.config.js",
-    "start": "node -r dotenv/config ./dist/index.js dotenv_config_path=.env.local | pino-pretty",
+    "start": "node -r dotenv/config ./dist/index.cjs dotenv_config_path=.env.local | pino-pretty",
     "build:start": "npm run build && npm run start",
     "db:migrate": "ts-node-esm -r dotenv/config db/migrate.ts dotenv_config_path=.env.local",
     "format": "prettier --plugin-search-dir . --write .",
@@ -17,22 +17,22 @@
   },
   "license": "MIT",
   "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "@fastify/secure-session": "^6.1.0"
+  },
+  "devDependencies": {
     "@datastructures-js/queue": "^4.2.3",
     "@fastify/cors": "^8.3.0",
     "@fastify/formbody": "^7.4.0",
     "@fastify/multipart": "^7.6.0",
     "@fastify/passport": "^2.3.0",
-    "@fastify/secure-session": "^6.1.0",
     "ajv": "^8.12.0",
-    "better-sqlite3": "^9.0.0",
     "fastify": "^4.15.0",
     "file-type": "^18.5.0",
     "google-auth-library": "^8.8.0",
     "kysely": "^0.26.3",
     "simple-runtypes": "^7.1.2",
-    "sqids": "^0.3.0"
-  },
-  "devDependencies": {
+    "sqids": "^0.3.0",
     "@aws-sdk/client-s3": "^3.347.0",
     "@aws-sdk/lib-storage": "^3.331.0",
     "@aws-sdk/s3-request-presigner": "^3.418.0",
