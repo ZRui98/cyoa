@@ -1,5 +1,5 @@
-import { JSONSchemaType } from 'ajv';
-import { Generated } from 'kysely';
+import type { JSONSchemaType } from 'ajv';
+import type { Generated } from 'kysely';
 
 export interface Asset {}
 

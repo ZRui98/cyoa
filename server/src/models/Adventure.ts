@@ -1,6 +1,6 @@
-import { JSONSchemaType } from 'ajv';
-import { Node, nodeSchema } from './Node';
-import { Generated } from 'kysely';
+import type { JSONSchemaType } from 'ajv';
+import { type Node, nodeSchema } from './Node';
+import type { Generated } from 'kysely';
 
 export interface AdventureMetaData {
   name: string;

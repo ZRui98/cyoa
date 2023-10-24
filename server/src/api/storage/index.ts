@@ -5,7 +5,7 @@ import stream from 'stream';
 
 export const s3 = new S3({
   region: 'us-east-1',
-  endpoint: `${process.env.STORAGE_URL}`,
+  endpoint: `${process.env.S3_ENDPOINT}`,
   credentials: {
     accessKeyId: `${process.env.ACCESS_KEY_ID}`,
     secretAccessKey: `${process.env.SECRET_ACCESS_KEY}`,

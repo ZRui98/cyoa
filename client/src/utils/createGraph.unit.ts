@@ -1,5 +1,5 @@
 import type { Graph } from '../store/adventure';
-import { getDegrees, getWidthAndHeight } from './createGraph';
+import { getWidthAndHeight } from './createGraph';
 import { expect, test } from 'vitest';
 
 /**
@@ -37,26 +37,3 @@ import { expect, test } from 'vitest';
 //     '3': {in: 1, out: 1},
 //   });
 // });
-
-const graph: Graph = {
-  start: '0',
-  nodes: {
-    '0': {
-      name: '0',
-      links: [{ next: '1' }],
-    },
-    '1': {
-      name: '1',
-      links: [{ next: '2' }],
-    },
-    '2': {
-      name: '2',
-      links: [{ next: '0' }, { next: '3' }],
-    },
-    '3': {
-      name: '3',
-      links: [{ next: '1' }],
-    },
-  },
-};
-const degrees = getDegrees(graph);
