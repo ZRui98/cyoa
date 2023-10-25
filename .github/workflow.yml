@@ -1,0 +1,61 @@
+# deploy workflow
+name: "deploy to vps + s3"
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Checkout"
+      uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18.18.2
+    - name: "Build"
+    - run: cd ./server
+    - run: npm i
+    - run: npm run build:prod
+    - name: "Deploy"
+    - uses: appleboy/scp-action@v0.14.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: 22
+        source: "./server/dist"
+        target: ${{ secrets.WORK_DIR }}
+    - uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: 22
+        script: |
+          cd ${{ secrets.WORK_DIR }}
+          git pull origin master
+          npm i --omit=dev
+          pm2 startOrReload ecosystem.config.cjs --update-env
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Checkout"
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18.18.2
+    - name: "Build"
+    - run: cd ./client
+    - run: npm i
+    - run: ENV=PRODUCTION npm run build
+    - uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.S3_BUCKET_REGION }}
+    - name: Deploy static site to S3 bucket
+      run: |
+        aws s3 sync ./build/ s3://${{ secrets.S3_BUCKET }} --delete --include "*.html" --content-type text/html
+        aws s3 sync ./build/ s3://${{ secrets.S3_BUCKET }} --delete --exclude "*.html"
