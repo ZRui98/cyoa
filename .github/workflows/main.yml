@@ -27,7 +27,8 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         port: 22
         strip_components: 1
-        source: "./server/dist/*,./server/package.json,./server/package-lock.json"
+        rm: true
+        source: "server/dist,server/package.json,server/package-lock.json,server/db"
         target: ${{ secrets.WORK_DIR }}
     - uses: appleboy/ssh-action@v1.0.0
       with:
@@ -37,8 +38,9 @@ jobs:
         port: 22
         script: |
           cd ${{ secrets.WORK_DIR }}
-          git pull origin master
           npm i --omit=dev
+          npm run db:migrate
+          cd ..
           pm2 startOrReload ecosystem.config.cjs --update-env
   deploy-frontend:
     runs-on: ubuntu-latest
