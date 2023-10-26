@@ -1,5 +1,3 @@
 node_modules
 dist
 minio
-ssl/domain.crt
-ssl/domain.key

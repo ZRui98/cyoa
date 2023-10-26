@@ -1,5 +1,5 @@
 # deploy workflow
-name: "deploy to vps + s3"
+name: "build and test check"
 
 on:
   push:
