@@ -14,12 +14,13 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18.18.2
-    - name: "Build"
-    - run: cd ./server
-    - run: npm i
-    - run: npm run build:prod
+    - name: "Build backend"
+      run: |
+        cd ./server
+        npm i
+        npm run build:prod
     - name: "Deploy"
-    - uses: appleboy/scp-action@v0.14.0
+      uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
@@ -42,14 +43,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: "Checkout"
-    - uses: actions/checkout@v4
+      uses: actions/checkout@v4
     - uses: actions/setup-node@v3
       with:
         node-version: 18.18.2
     - name: "Build"
-    - run: cd ./client
-    - run: npm i
-    - run: ENV=PRODUCTION npm run build
+      run: |
+        cd ./client
+        npm i
+        ENV=PRODUCTION npm run build
     - uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
