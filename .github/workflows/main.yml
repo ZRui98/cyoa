@@ -28,7 +28,7 @@ jobs:
         port: 22
         strip_components: 1
         rm: true
-        source: "server/dist,server/package.json,server/package-lock.json,server/db"
+        source: "server/dist,server/package.json,server/package-lock.json,server/db,server/tsconfig.json"
         target: ${{ secrets.WORK_DIR }}
     - uses: appleboy/ssh-action@v1.0.0
       with:
