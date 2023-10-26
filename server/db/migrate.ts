@@ -2,11 +2,10 @@ import { FileMigrationProvider, Kysely, Migrator, SqliteDialect } from 'kysely';
 import Database from 'better-sqlite3';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { DatabaseSchema } from '../src/api/db';
 
 const __dirname = process.cwd();
 async function migrate() {
-  const db = new Kysely<DatabaseSchema>({
+  const db = new Kysely<any>({
     dialect: new SqliteDialect({
       database: new Database('cyoa.db'),
     }),
