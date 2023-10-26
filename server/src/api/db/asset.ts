@@ -49,7 +49,7 @@ export function getManagedAssetResponse(
     id: generateSqid(asset.id),
   };
   if (includePath) {
-    response.path = `${process.env.STORAGE_URL}/${process.env.ASSET_BUCKET_NAME}/${getUserFilePath(
+    response.path = `https://${process.env.ASSET_BUCKET_NAME}.${process.env.STORAGE_URL}/${getUserFilePath(
       user,
       asset.fileName
     )}`;

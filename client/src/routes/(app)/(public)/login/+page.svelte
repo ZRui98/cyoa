@@ -6,7 +6,7 @@
     google.accounts.id.initialize({
       client_id: env.PUBLIC_GOOGLE_CLIENT_ID,
       ux_mode: 'redirect',
-      login_uri: 'https://api.localtest.me:8080/auth/google/login',
+      login_uri: env.PUBLIC_LOGIN_REDIRECT_URI,
     });
     google.accounts.id.renderButton(googleButton, {
       theme: 'outline',
