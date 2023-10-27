@@ -4,9 +4,9 @@ Svelte + Fastify to play CYOA stories
 
 Infrastructure:
   - Cloudflare R2 for storage
-  - Cloudflare CDN fronting R2
+  - Cloudflare Pages hosted Svelte UI
   - NodeJS + PM2 backend
-  - SQLite3 DB
+  - D1 DB
 
 
 ### Running locally

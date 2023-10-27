@@ -6,7 +6,7 @@
 <div class="toggle">
   <div class="label">{label}:</div>
   <label class="switch">
-    <input bind:checked={toggled} on:change={() => console.log(toggled)} type="checkbox" />
+    <input bind:checked={toggled} type="checkbox" />
     <span class="slider round" />
   </label>
 </div>

@@ -18,4 +18,3 @@ export async function load({ fetch }) {
   }
 }
 
-export const ssr = false;

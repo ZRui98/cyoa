@@ -27,9 +27,7 @@ export async function insertUserDb(
   user: Insertable<UserData>,
   trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db
 ): Promise<Selectable<UserTable>> {
-  console.log(user);
   const v = await trx.insertInto('user').values(user).returningAll().executeTakeFirst();
-  console.log('success!');
   if (v === undefined) throw new ApiError(500, 'Insert failed, unable to fetch object');
   return v;
 }

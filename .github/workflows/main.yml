@@ -55,12 +55,10 @@ jobs:
         cd ./client
         npm i
         ENV=PRODUCTION npm run build
-    - uses: aws-actions/configure-aws-credentials@v2
+    - name: Publish to Cloudflare Pages
+      uses: cloudflare/pages-action@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.S3_BUCKET_REGION }}
-    - name: Deploy static site to S3 bucket
-      run: |
-        aws s3 sync ./client/build/ s3://${{ secrets.S3_BUCKET }} --delete --exclude "*" --include "*.html" --content-type text/html
-        aws s3 sync ./client/build/ s3://${{ secrets.S3_BUCKET }} --delete --include "*" --exclude "*.html"
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: cyoa
+        directory: client/build

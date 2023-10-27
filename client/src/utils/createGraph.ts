@@ -110,7 +110,6 @@ function longestPathLayering(graph: { [key: string]: GraphNode }, start?: string
     Z.add(start);
     U.add(start);
     currentLayer += 1;
-    console.log(layers[0]);
     layers[0].push(start);
     layers.push([]);
   }
@@ -169,14 +168,12 @@ function promotionHeuristic(graph: { [key: string]: GraphNode }, layers: string[
     },
     {}
   );
-  console.log(G);
   let promotions: number;
   do {
     promotions = 0;
     for (const v of Object.keys(G)) {
       if (G[v].in > 0) {
         if (promoteVertex(v, layering, G) < 0) {
-          console.log('v', v, layering, G);
           promotions += 1;
           layeringBackUp = JSON.parse(JSON.stringify(layering));
         } else {
@@ -200,7 +197,6 @@ export function createLayeredGraph(graph: Graph) {
   const G: { [key: string]: GraphNode } = JSON.parse(JSON.stringify(graph.nodes));
   const fas = getFeedbackArcSet(G);
   // Reverse edges in FS to turn graph w/ cycle to DAG
-  console.log(fas);
   for (const key in Object.keys(fas)) {
     if (fas[key].length <= 0) continue;
     for (const dest of fas[key]) {
@@ -217,7 +213,6 @@ export function createLayeredGraph(graph: Graph) {
   }
   // Find Layering for DAG
   const layers = longestPathLayering(G).reverse();
-  console.log(layers);
   // const layering = promotionHeuristic(G, layers);
   // console.log('layering', layering);
 }

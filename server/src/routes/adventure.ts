@@ -95,7 +95,6 @@ const routes = (app: FastifyInstance, _opts, next) => {
       const user = req.user!.name;
       const name = req.params.name;
       await deleteAdventure(user, name);
-      console.log('done!');
       res.code(201);
     },
     schema: {

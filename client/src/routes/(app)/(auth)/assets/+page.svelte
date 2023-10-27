@@ -52,7 +52,6 @@
   }
 
   function handleEditAsset(asset: ManagedAssetResponse) {
-    console.log('editing', asset);
     editingAsset = asset;
     showAssetPopup = true;
   }
