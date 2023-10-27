@@ -7,7 +7,7 @@ const __dirname = process.cwd();
 async function migrate() {
   const db = new Kysely<any>({
     dialect: new SqliteDialect({
-      database: new Database('cyoa.db'),
+      database: new Database('../cyoa.db'),
     }),
   });
   const migrator = new Migrator({
