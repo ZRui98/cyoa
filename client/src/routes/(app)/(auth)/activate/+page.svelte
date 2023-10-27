@@ -1,18 +1,11 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
   import Spinner from '../../../../components/ui/Spinner.svelte';
   import loginState from '../../../../store/loginState';
   import { activateUser } from '../../../../utils/api';
 
   let username: string;
   export let submit: Promise<void>;
-
-  onMount(() => {
-    if ($loginState?.activated) {
-      goto('/');
-    }
-  });
 
   function submitUsername() {
     submit = activateUser(username).then((resp) => {
