@@ -62,3 +62,4 @@ jobs:
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: cyoa
         directory: client/build
+        branch: main
