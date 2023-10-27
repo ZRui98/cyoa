@@ -4,15 +4,15 @@ import loginState from '../../../store/loginState';
 import { getUserStatus } from '../../../utils/api';
 import { redirect } from '@sveltejs/kit';
 
-export async function load({ fetch }) {
+export async function load({ url, fetch }) {
   if (browser) {
     if (!get(loginState)) {
       const newLoginState = await getUserStatus(fetch);
       loginState.set(newLoginState);
-      if (!newLoginState?.user) {
+      if (!newLoginState?.user && url.pathname !== '/login') {
         throw redirect(308, '/login');
       }
-      if (!newLoginState?.activated) {
+      if (!newLoginState?.activated && url.pathname !== '/activate') {
         throw redirect(308, '/activate');
       }
     }
