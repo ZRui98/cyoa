@@ -39,7 +39,6 @@ const storedSettings = localStorageSettings ? JSON.parse(localStorageSettings) :
 export const settings = writable<Settings>(storedSettings);
 settings.subscribe((value) => {
   if (!browser) return;
-  console.log('change');
   localStorage?.setItem('settings', JSON.stringify(value));
 });
 

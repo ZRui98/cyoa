@@ -38,7 +38,6 @@
       })
       .catch((e) => {
         dispatch('error', { error: e });
-        console.log(e);
         throw e;
       });
     toast.promise(updateAssetPromise, {

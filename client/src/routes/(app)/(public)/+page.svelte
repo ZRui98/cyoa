@@ -19,7 +19,6 @@
       },
     },
   };
-  console.log(graph.nodes);
   createLayeredGraph(graph);
 </script>
 
