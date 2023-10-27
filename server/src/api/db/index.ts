@@ -12,7 +12,7 @@ export interface DatabaseSchema {
 }
 const db = new Kysely<DatabaseSchema>({
   dialect: new SqliteDialect({
-    database: new Database('cyoa.db'),
+    database: new Database('../cyoa.db'),
   }),
 });
 
