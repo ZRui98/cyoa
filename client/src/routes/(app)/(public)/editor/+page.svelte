@@ -177,11 +177,18 @@
     return uniqueEdges;
   }
 
+  const currentTab = writable('');
+  function handleEditorModeChange(event: CustomEvent<{prev: {id: string, title: string}, value: {id: string, title: string}}>) {
+    $currentTab = event.detail.value.id;
+  }
+
   let content: Content;
   $: {
-    content = {
-      text: JSON.stringify($adventureStore, null, 2)
-    } as Content;
+    if ($currentTab === '0') {
+      content = {
+        text: JSON.stringify($adventureStore, null, 2)
+      } as Content;
+    }
   }
 
   function onJSONUpdate(content: Content, prevContent: Content, status: OnChangeStatus) {
@@ -232,7 +239,7 @@
     <button class="button" on:click={handleSave}><Save display="block" /></button>
   </div>
   <AssetUpdatePopup bind:show={showManagedAssetPopup} on:update={onManagedAssetSave} />
-  <Tabs style="height:100%;display:flex;flex-direction:column;">
+  <Tabs style="height:100%;display:flex;flex-direction:column;" on:change={handleEditorModeChange}>
     <Tab index="0" title="Nodes">
       <EditorSettings bind:settingsVisible showEditorSettings />
       <div id="nodes-options">

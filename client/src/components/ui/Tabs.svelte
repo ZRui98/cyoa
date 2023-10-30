@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-  import { setContext } from 'svelte';
+  import { setContext, createEventDispatcher } from 'svelte';
   import { writable } from 'svelte/store';
   export let initialIndex = '0';
 
@@ -17,6 +17,7 @@
 
   setContext(TABS, selectedIndex);
   const titles: { [key: string]: string } = {};
+  const dispatch = createEventDispatcher();
   setContext(TITLES, {
     registerTab(id: string, title: string) {
       titles[id] = title;
@@ -25,6 +26,14 @@
       delete titles[id];
     },
   } as TitleContext);
+
+  function handleChange(newSelected: string) {
+    dispatch('change', {
+      prev: {id: $selectedIndex, title: titles[$selectedIndex]},
+      value: {id: newSelected, title: titles[newSelected]}
+    });
+    $selectedIndex = newSelected;
+  }
 </script>
 
 <div class="wrapper" {...$$restProps}>
@@ -33,7 +42,7 @@
       <button
         class:selected={$selectedIndex === entry}
         class="tab button-round static-padding"
-        on:click={() => ($selectedIndex = entry)}>{titles[entry]}</button
+        on:click={() => handleChange(entry)}>{titles[entry]}</button
       >
     {/each}
   </ul>
