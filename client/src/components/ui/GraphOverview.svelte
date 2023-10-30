@@ -25,7 +25,6 @@
     div.appendChild(pixi.application.view as unknown as Node);
 
     unsubGraphStore = graphRenderStore.subscribe((graph) => {
-      console.log('render', graph);
       zoomContainer.removeChildren();
       if (graph) {
         drawGraph(graph);
