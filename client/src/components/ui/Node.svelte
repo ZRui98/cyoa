@@ -42,7 +42,7 @@
   }
 </script>
 
-<div id="adventure-node">
+<div id="adventure-node" {...$$restProps}>
   <div class="node-content">
     {#await nodeAssets then assets}
       {#each assets as asset}
@@ -82,18 +82,15 @@
     flex-direction: column;
   }
 
-  #choices {
-    display: block;
-    margin-bottom: 30px;
-  }
-
   .node-content {
     padding: 10px 25px;
   }
 
   #choices {
+    display: block;
     border-top: 2px solid hsl(var(--main-highlight-high));
     padding-top: 25px;
+    padding-bottom: 30px;
   }
 
   .options {

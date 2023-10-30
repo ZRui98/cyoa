@@ -21,7 +21,7 @@
   };
 </script>
 
-<Popup bind:show={editing} style={`position:relative;width:50%;height:70%;`}>
+<Popup bind:show={editing} style={`position:relative;width:50em;height:50em;`}>
   <form on:submit={formSubmit}>
     <textarea name="content" id="editor" {value} />
     <button type="submit" id="save" class="button"><Save display="block" /></button>

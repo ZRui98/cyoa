@@ -42,11 +42,6 @@
 </div>
 
 <style>
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-  }
-
   ul {
     padding: 0;
     display: flex;

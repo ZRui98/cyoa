@@ -19,5 +19,8 @@ export default defineConfig({
       clientPort: 5111,
       protocol: 'wss',
     },
+    fs: {
+      allow: ['./static']
+    }
   },
 });

@@ -49,7 +49,6 @@
     color: hsl(var(--main-fg));
     border-radius: 10px;
     display: flex;
-    flex-basis: 0;
   }
 
   .container {

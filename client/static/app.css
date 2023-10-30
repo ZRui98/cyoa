@@ -1,8 +1,50 @@
+@font-face {
+  font-family: Roboto;
+  src: url("Roboto-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("Roboto-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("Roboto-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("Roboto-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: GTPressura;
+  src: url("GT-Pressura-Mono.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+html, input {
+  font-family: Roboto;
+}
+
+pre, textarea {
+  font-family: GTPressura;
+}
+
 html {
   margin: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  font-family: 'sans-serif';
   height: 100%;
 }
 
