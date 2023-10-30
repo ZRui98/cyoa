@@ -48,6 +48,8 @@
     top: 0;
     justify-content: center;
     display: flex;
+    flex-direction: column;
+    outline: 2px solid hsl(var(--main-highlight-high));
   }
 
   .toggle-button {

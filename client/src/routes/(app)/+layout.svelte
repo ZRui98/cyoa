@@ -39,7 +39,9 @@
 
 <div id="content" style={$layoutStyling}>
   <Toaster position="top-center" duration={3000} closeButton richColors toastOptions={{ style: sonnerStyle }} />
-  <Header />
+  <div>
+    <Header />
+  </div>
   <main>
     <slot />
   </main>
@@ -58,5 +60,6 @@
     flex: 1 1 0;
     display: flex;
     flex-direction: column;
+    min-height: 0;
   }
 </style>

@@ -25,6 +25,7 @@
     div.appendChild(pixi.application.view as unknown as Node);
 
     unsubGraphStore = graphRenderStore.subscribe((graph) => {
+      console.log('render', graph);
       zoomContainer.removeChildren();
       if (graph) {
         drawGraph(graph);
@@ -35,7 +36,7 @@
   onDestroy(() => {
     zoomContainer?.removeAllListeners();
     zoomContainer?.destroy();
-    unsubGraphStore();
+    if (unsubGraphStore) unsubGraphStore();
   });
 
   function drawGraph(graph: Graph) {
@@ -62,6 +63,7 @@
 
 <style>
   div {
+    flex: 1;
     width: 100%;
     height: 100%;
   }
