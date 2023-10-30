@@ -53,10 +53,10 @@
       "links": []
     },
     "5": {
-      "name": "The markets",
+      "name": "The docks",
       "assets": [
         {
-          "content": "As you explore the bustling harbor of Silverhaven, you come across a grizzled sailor with a mischievous twinkle in his eye. He looks you up and down, his eyes sizing you up with a shrewd and calculating gaze. After a moment, he breaks into a broad, toothy grin and extends a weathered hand in greeting.\"Ahoy there, me hearty!\" he booms, his voice rough and gravelly from years spent shouting over the roar of the waves. \"What brings ye to Silverhaven, eh? Looking for adventure, are ye?\" He claps you on the shoulder with a hearty laugh, his eyes crinkling in amusement. \"Well, ye've come to the right place, me friend. I've sailed these waters for nigh on thirty years, and there's nothing I don't know about the high seas.\" He leans in conspiratorially, his voice dropping to a low whisper. \"But between you and me, there's a lot of danger out there, too. Pirates, sea monsters, treacherous storms...you name it, the sea's got it. You're going to need someone to watch your back if you're planning to sail these waters.\" You say that you are on a quest to get the treasure of the migthy dragon Valtrox. His expression turns serious, and he scratches at his beard thoughtfully. \"Valtrog, eh? That's a bold and dangerous undertaking, my friend,\" he says, his voice low and grave. \"The beast is known to be fierce and cunning, and it's taken more than a few ships and sailors to the depths of Davy Jones' Locker. It would be foolish to take on such a monster without preparation. I'm afraid this old man no longer has such fight in him for such an arduous adventure. Best to check the Shaky Pier Pub over the street if you're looking for foolhardy seamen willing to risk their lives.\""
+          "content": "As you explore the bustling harbor of Silverhaven, you come across a grizzled sailor with a mischievous twinkle in his eye. He looks you up and down, his eyes sizing you up with a shrewd and calculating gaze. After a moment, he breaks into a broad, toothy grin and extends a weathered hand in greeting.\"Ahoy there, me hearty!\" he booms, his voice rough and gravelly from years spent shouting over the roar of the waves. \"What brings ye to Silverhaven, eh? Looking for adventure, are ye?\" He claps you on the shoulder with a hearty laugh, his eyes crinkling in amusement. \"Well, ye've come to the right place, me friend. I've sailed these waters for nigh on thirty years, and there's nothing I don't know about the high seas.\" You say that you are on a quest to get the treasure of the migthy dragon Valtrox. His expression turns serious, and he scratches at his beard thoughtfully. \"Valtrog, eh? That's a bold and dangerous undertaking, my friend,\" he says, his voice low and grave. \"The beast is known to be fierce and cunning, and it's taken more than a few ships and sailors to the depths of Davy Jones' Locker. It would be foolish to take on such a monster without preparation. I'm afraid this old man no longer has such fight in him for such an arduous adventure. Best to check the Shaky Pier Pub over the street if you're looking for foolhardy seamen willing to risk their lives.\" Redbeard glances to the left, and to the right, then leans in close and whispers to you \"Redbeard won't leave ye with nothing though. T'is just a rumour, but I heard Valtrog can see mighty clearly at night, but be blind if the brightness changes too smartly.\""
         }
       ],
       "links": [
@@ -67,14 +67,37 @@
       ]
     },
     "6": {
-      "name": "The pub",
+      "name": "The markets",
       "assets": [],
       "links": []
     },
     "7": {
       "name": "The pub",
-      "assets": [],
-      "links": []
+      "assets": [
+        {
+          "content": "The Mariner's Embrace is bustling with both locals and fellow adventurers. The bar, carved from the timbers of a legendary ghost ship, gleams with an otherworldly sheen. The barkeep, a grizzled sailor with an eyepatch, offers you a menu that seems to shimmer with ethereal light. You order a glass of ale. You take a look at your surroundings. There are a couple of groups of giddy sailors huddled together and talking loudly about their latest exploits on the high seas, each less believable than the others. You see a charismatic and boisterous figure who sits near the stage, strumming his lute and filling the Mariner's Embrace with the soul-stirring melodies of the sea. He has a rugged appearance, with tanned skin and windswept chestnut hair that falls in unruly waves. His sea-green eyes twinkle with a mischievous spark, and he wears a tattered leather jerkin adorned with trinkets and seashells. A pair of worn leather boots and loose, billowing trousers complete his ensemble, giving him the look of a true free spirit. Surrounding him are several bar maidens blushing and giggling as he strums his instrument. To the back of the room, you sense a mesmerizing and mysterious presence in the Mariner's Embrace. She's a striking woman with long, flowing silver hair that seems to shimmer like moonlight on the water. Her piercing sapphire eyes hold an uncanny depth, as if they've witnessed the secrets of the ocean's depths. Her attire is equally enchanting, with a deep blue gown that ripples like the waves and is adorned with intricate seashell patterns. Her fingers are adorned with ornate silver rings, and a necklace featuring a peculiar, glowing pendant hangs around her neck."
+        }
+      ],
+      "links": [
+        {
+          "prompt": "Talk to the witch",
+          "next": "8"
+        },
+        {
+          "prompt": "Talk to the bard",
+          "next": "9"
+        }
+      ]
+    },
+    "8": {
+      "name": "Thalassa the witch",
+      "links": [],
+      "assets": []
+    },
+    "9": {
+      "name": "Barnaby the bard",
+      "links": [],
+      "assets": []
     }
   },
   "start": "1"
