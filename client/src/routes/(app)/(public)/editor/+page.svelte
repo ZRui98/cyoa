@@ -177,8 +177,8 @@
     return uniqueEdges;
   }
 
-  const currentTab = writable('');
-  function handleEditorModeChange(event: CustomEvent<{prev: {id: string, title: string}, value: {id: string, title: string}}>) {
+  const currentTab = writable('0');
+  function handleEditorModeChange(event: CustomEvent<{value: {id: string, title: string}}>) {
     $currentTab = event.detail.value.id;
   }
 

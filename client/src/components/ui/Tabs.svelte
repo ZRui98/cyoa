@@ -15,6 +15,12 @@
 
   const selectedIndex = writable(initialIndex);
 
+  $: {
+    dispatch('change', {
+      value: {id: $selectedIndex, title: titles[$selectedIndex]}
+    });
+  }
+
   setContext(TABS, selectedIndex);
   const titles: { [key: string]: string } = {};
   const dispatch = createEventDispatcher();
@@ -28,10 +34,6 @@
   } as TitleContext);
 
   function handleChange(newSelected: string) {
-    dispatch('change', {
-      prev: {id: $selectedIndex, title: titles[$selectedIndex]},
-      value: {id: newSelected, title: titles[newSelected]}
-    });
     $selectedIndex = newSelected;
   }
 </script>
