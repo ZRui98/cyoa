@@ -67,7 +67,6 @@ export class PixiZoomPanContainer extends Container {
     this.xZoomOffset = (this.xZoomOffset - x) * (newScale / this.scale.x) + x;
     this.yZoomOffset = (this.yZoomOffset - y) * (newScale / this.scale.x) + y;
     this.setTransform(this.xZoomOffset, this.yZoomOffset, newScale, newScale);
-    console.log(newScale);
   }
 
   private zoomDirection(evt: WheelEvent) {
