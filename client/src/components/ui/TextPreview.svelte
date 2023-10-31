@@ -47,7 +47,7 @@
     right: 25px;
   }
   #preview {
-    border: 2px solid hsl(var(--main-highlight-high));
+    outline: 2px solid hsl(var(--main-highlight-high));
     border-radius: 4px;
     background-color: hsl(var(--main-bg));
     color: hsl(var(--main-fg));
@@ -72,5 +72,19 @@
     box-sizing: border-box;
     font-size: 16px;
     resize: none;
+  }
+
+
+  textarea {
+    outline: 2px solid hsl(var(--main-highlight-high));
+    border-radius: 4px;
+    background-color: hsl(var(--main-highlight-med));
+    color: hsl(var(--main-fg));
+    padding: 12px 20px;
+    border: none !important;
+  }
+  textarea:focus {
+    border: none !important;
+    outline: 2px solid hsl(var(--main-foam));
   }
 </style>
