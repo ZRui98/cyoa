@@ -42,7 +42,7 @@
   function step() {
     if (!howl) return;
     const time = howl.seek();
-    const val = (time / howl.duration()) * maxTime;
+    const val = Math.ceil(howl.seek() / howl.duration() * maxTime);
     progress.set(val);
   }
 
@@ -75,6 +75,11 @@
     clearInterval(interval);
   }
 
+  function onEnd() {
+    progress.set(maxTime);
+    onPause();
+  }
+
   onMount(() => {
     howl = new Howl({
       src: [src],
@@ -82,7 +87,7 @@
       onplay: onPlay,
       onpause: onPause,
       onstop: onPause,
-      onend: onPause,
+      onend: onEnd,
       html5,
     });
   });
