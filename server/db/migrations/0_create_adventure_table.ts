@@ -1,9 +1,10 @@
 import { Kysely } from 'kysely';
+import { DatabaseSchema } from '../../src/api/db';
 
-export async function up(db: Kysely<any>): Promise<void> {
+export async function up(db: Kysely<DatabaseSchema>): Promise<void> {
   await db.schema
     .createTable('adventure')
-    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('id', 'integer', (col) => col.primaryKey())
     .addColumn('name', 'varchar', (col) => col.notNull())
     .addColumn('fileName', 'varchar', (col) => col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
