@@ -1,7 +1,6 @@
 import { Kysely } from 'kysely';
-import { DatabaseSchema } from '../../src/api/db';
 
-export async function up(db: Kysely<DatabaseSchema>): Promise<void> {
+export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('adventure')
     .addColumn('id', 'integer', (col) => col.primaryKey())
