@@ -5,6 +5,7 @@ import { Insertable, Selectable } from 'kysely';
 import { UserTable, AccountType } from '../../models/User';
 import { insertUserDb, getUserFromDb } from '../db/user';
 import { randomUUID } from 'crypto';
+import { log } from '../../app';
 
 export interface SignInWithGoogleStrategyOptions {
   clientID: string;
@@ -45,6 +46,7 @@ export class SignInWithGoogleStrategy extends Strategy {
 
   public async authenticate(request: FastifyRequest<{ Body: { credential: string } }>, options?: any): Promise<void> {
     try {
+      log.info('trying to get ticket');
       const ticket = await this.client.verifyIdToken({
         idToken: request.body.credential,
         audience: this.options.clientID, // Specify the CLIENT_ID of the app that accesses the backend
@@ -53,6 +55,7 @@ export class SignInWithGoogleStrategy extends Strategy {
       });
       const payload = ticket.getPayload();
       if (payload === undefined) {
+        log.error('ticket payload unavailable', ticket);
         this.fail();
         return;
       }
@@ -68,9 +71,11 @@ export const verify: VerifyFunction = async (profile, done) => {
   let err: Error | undefined;
   let user: Selectable<UserTable> | undefined;
   try {
+    log.info('getting info from db', profile.name);
     user = await getUserFromDb({ accountType: AccountType.Google, accountTypeId: profile.sub });
     if (!user) {
       if (!profile.email || !profile.sub) {
+        log.error('missing profile', profile.name);
         throw new Error('Missing information');
       }
       const insertableUser: Insertable<UserTable> = {

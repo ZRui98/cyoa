@@ -6,7 +6,8 @@ import { activateUser, updateUserDb } from '../api/db/user';
 const routes = (app: FastifyInstance, _opts, next) => {
   app.post('/google/login', {
     preValidation: passport.authenticate('sign-in-with-google'),
-    handler: async function (_req: FastifyRequest, res: FastifyReply) {
+    handler: async function (req: FastifyRequest, res: FastifyReply) {
+      req.log.info('redirecting to frontend login page');
       res.redirect(`${process.env.LOGIN_REDIRECT_URL}`);
     },
   });
