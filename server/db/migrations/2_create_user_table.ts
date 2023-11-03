@@ -3,7 +3,7 @@ import { Kysely } from 'kysely';
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('user')
-    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('id', 'integer', (col) => col.primaryKey())
     .addColumn('name', 'varchar', (col) => col.unique())
     .addColumn('email', 'varchar', (col) => col.notNull())
     .addColumn('accountType', 'varchar', (col) => col.notNull())

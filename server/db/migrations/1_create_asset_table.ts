@@ -3,7 +3,7 @@ import { Kysely } from 'kysely';
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('asset')
-    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('id', 'integer', (col) => col.primaryKey())
     .addColumn('name', 'varchar', (col) => col.notNull())
     .addColumn('author', 'varchar', (col) => col.notNull())
     .addColumn('fileType', 'varchar')
@@ -19,7 +19,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema.createIndex('asset_author_name_unique').on('asset').columns(['name', 'author']).unique().execute();
   await db.schema
     .createTable('adventure_asset')
-    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('id', 'integer', (col) => col.primaryKey())
     .addColumn('assetId', 'bigint', (col) => col)
     .addColumn('adventureId', 'bigint', (col) => col)
     .addForeignKeyConstraint('asset_id_foreign', ['assetId'], 'asset', ['id'])
