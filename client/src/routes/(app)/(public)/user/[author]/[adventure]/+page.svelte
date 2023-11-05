@@ -54,7 +54,6 @@
     flex-direction: column;
     transition: 0.3s ease-in-out;
     justify-content: center;
-    min-height: 0px;
     height: 100%;
   }
 

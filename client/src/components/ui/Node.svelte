@@ -80,6 +80,7 @@
     display: flex;
     justify-content: space-between;
     flex-direction: column;
+    min-height: 0px;
   }
 
   .node-content {
