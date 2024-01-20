@@ -37,7 +37,6 @@ export async function updateUserDb(
   name: string,
   trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db
 ): Promise<Selectable<UserTable>> {
-  console.log(user, name);
   const v = await trx.updateTable('user').set(user).where('name', '=', name).returningAll().executeTakeFirst();
   if (v === undefined) throw new ApiError(500, 'Insert failed, unable to fetch object');
   return v;

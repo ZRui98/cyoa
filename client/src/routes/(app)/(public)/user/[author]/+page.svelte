@@ -25,7 +25,6 @@
   }
 
   function handleBioSave(newBio: string) {
-    console.log(newBio);
     const promise = updateUser({ name: data.user, bio: newBio }).then((resp) => {
       bio = resp.bio ?? bio;
       editing = false;
