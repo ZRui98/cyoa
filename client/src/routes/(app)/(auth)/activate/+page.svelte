@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import Spinner from '../../../../components/ui/Spinner.svelte';
   import loginState from '../../../../store/loginState';
   import { activateUser } from '../../../../utils/api';
 
@@ -22,10 +21,6 @@
 <div id="content">
   <h3>Pick a username to continue</h3>
   <input bind:value={username} type="text" placeholder="Pick a username" class="static-padding" />
-
-  {#await submit}
-    <Spinner />
-  {/await}
   <button class="link" on:click={submitUsername}>continue</button>
 </div>
 

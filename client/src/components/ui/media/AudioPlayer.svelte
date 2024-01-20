@@ -42,7 +42,7 @@
   function step() {
     if (!howl) return;
     const time = howl.seek();
-    const val = Math.ceil(howl.seek() / howl.duration() * maxTime);
+    const val = Math.ceil((howl.seek() / howl.duration()) * maxTime);
     progress.set(val);
   }
 

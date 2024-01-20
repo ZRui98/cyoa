@@ -5,12 +5,15 @@
   import Adventure from '../../../../../components/ui/Adventure.svelte';
   import type { AdventureSummary } from '@backend/models/Adventure';
   import loginState from '../../../../../store/loginState';
+  import TextPreview from '../../../../../components/ui/components/TextPreview.svelte';
+  import { updateUser } from '../../../../../utils/api';
+  import { toast } from 'svelte-sonner';
   let titleStore: Writable<string> = getContext('titleSuffix');
-  let bio =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut commodo felis. Cras fermentum commodo orci et efficitur. Nulla odio mauris, elementum vel purus sed, suscipit lacinia nibh. Maecenas elementum velit metus. Proin elit orci, faucibus nec tellus tempor, dictum vulputate quam. In sed augue euismod, posuere mi sit amet, molestie ipsum. Nullam tortor orci, ultricies et dictum quis, vestibulum eu tellus. Pellentesque efficitur in augue sed eleifend. In hac habitasse platea dictumst. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In consequat id velit nec cursus. Nam at ligula vitae justo malesuada accumsan. Quisque quis lacinia sem. Phasellus commodo enim sed libero condimentum, et condimentum elit bibendum. Fusce ornare elit in elit tristique hendrerit. Nunc lobortis lacinia lacus, eu commodo quam pulvinar at. Etiam euismod in ligula in ultricies. Nam dignissim massa at elementum laoreet. Aenean et enim tortor. Aenean auctor felis vel velit sagittis, id rutrum erat lacinia. Vestibulum sodales in enim sit amet aliquam. In consectetur lacus eros, in rhoncus diam gravida sed. Nam malesuada dictum est vel consequat. Donec a urna eu quam sodales tincidunt in in nisi. Vivamus a ante ligula. Sed pellentesque dui vel pretium tristique. Nunc fermentum lectus quam. Maecenas semper laoreet elit at tincidunt. Duis at tortor varius, dapibus dolor vitae, convallis purus. Fusce facilisis at erat eleifend sollicitudin. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nullam a risus tincidunt, tempus lectus vitae, suscipit nisl. Quisque ac rhoncus quam. Vivamus a augue facilisis lacus malesuada condimentum in id lectus. In eu auctor dui, eu convallis nulla. In gravida pulvinar nisi eget vestibulum. Cras luctus felis non lorem pellentesque aliquet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut facilisis velit sed massa interdum tristique. Pellentesque imperdiet ullamcorper sapien. Aliquam bibendum rhoncus ex, id tincidunt mauris. Quisque eu facilisis enim, feugiat maximus ante. Donec venenatis lacinia arcu, ac blandit nulla dictum eu. Donec semper urna id mauris finibus, vitae faucibus enim elementum. Proin malesuada maximus lobortis. Nam mauris arcu, condimentum volutpat nisl imperdiet, laoreet ultrices ipsum. Nunc eget tellus maximus dolor venenatis luctus. Donec elit ante, elementum eget vehicula at, ullamcorper ut dui. Vivamus ex nisi, fringilla et placerat auctor, rutrum et odio. Pellentesque ac commodo est. Praesent egestas eu felis et varius. Donec condimentum justo et vulputate commodo. Donec vulputate fermentum turpis nec bibendum. Pellentesque est sem, laoreet ut metus a, laoreet faucibus est. Integer malesuada est eget enim dapibus, vel sagittis turpis fringilla. Nunc ac sem vel arcu dignissim iaculis. Aenean ac eros et tortor dignissim dignissim. Phasellus interdum volutpat blandit. Sed ac faucibus neque. Sed id tellus a tortor volutpat vehicula ac eu libero. Donec ut lobortis dolor, ut faucibus risus.';
-  export let data: { adventures: AdventureSummary[]; user: string };
+  export let data: { adventures: AdventureSummary[]; user: string; bio?: string };
   let name = data.user;
+  let bio = data.bio ?? `Hey, I'm ${name}!`;
   $: canEdit = $loginState?.user === data.user;
+  let editing = false;
   let adventures = writable(data.adventures);
 
   function handleAdventureDelete(e: CustomEvent<{ name: string }>) {
@@ -21,6 +24,21 @@
     });
   }
 
+  function handleBioSave(newBio: string) {
+    console.log(newBio);
+    const promise = updateUser({ name: data.user, bio: newBio }).then((resp) => {
+      bio = resp.bio ?? bio;
+      editing = false;
+    });
+    toast.promise(promise, {
+      success: 'Successfully saved asset',
+      error: 'Failed to save asset',
+      loading: 'Saving asset...',
+      info: '',
+      warning: '',
+    });
+  }
+
   onMount(() => {
     $titleStore = name;
   });
@@ -28,7 +46,11 @@
 
 <div id="bio" class="card">
   <h1>{name}</h1>
-  <p>{bio}</p>
+  {#if canEdit}
+    <TextPreview bind:editing bind:value={bio} onSave={handleBioSave} fadeEffect={false} />
+  {:else}
+    <p>{bio}</p>
+  {/if}
 </div>
 <h2>adventures</h2>
 <div id="container">

@@ -20,7 +20,7 @@ export default defineConfig({
       protocol: 'wss',
     },
     fs: {
-      allow: ['./static']
-    }
+      allow: ['./static'],
+    },
   },
 });

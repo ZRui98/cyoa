@@ -14,16 +14,16 @@
     type ManagedAssetResponse,
     type ManagedExportableAsset,
   } from '@backend/models/Asset';
-  import Accordion from '../../../../components/ui/Accordion.svelte';
-  import Tab from '../../../../components/ui/Tab.svelte';
-  import Tabs from '../../../../components/ui/Tabs.svelte';
-  import GraphOverview from '../../../../components/ui/GraphOverview.svelte';
+  import Accordion from '../../../../components/ui/menu/Accordion.svelte';
+  import Tab from '../../../../components/ui/menu/Tab.svelte';
+  import Tabs from '../../../../components/ui/menu/Tabs.svelte';
+  import GraphOverview from '../../../../components/ui/pixi/GraphOverview.svelte';
   import { adventureStore, currentActiveNode } from '../../../../store/adventure';
-  import Node from '../../../../components/ui/Node.svelte';
+  import Node from '../../../../components/ui/components/Node.svelte';
   import loginState from '../../../../store/loginState';
   import Sidebar from '../../../../components/ui/Sidebar.svelte';
-  import Dropdown from '../../../../components/ui/Dropdown.svelte';
-  import TextPreview from '../../../../components/ui/TextPreview.svelte';
+  import Dropdown from '../../../../components/ui/components/Dropdown.svelte';
+  import TextPreview from '../../../../components/ui/components/TextPreview.svelte';
   import { LOREM_IPSUM } from '../../../../components/pixi/constants';
   import { getAssets, saveAdventure, updateAdventure } from '../../../../utils/api';
   import EditorSettings from '../../../../components/ui/menu/EditorSettings.svelte';
@@ -178,7 +178,7 @@
   }
 
   const currentTab = writable('0');
-  function handleEditorModeChange(event: CustomEvent<{value: {id: string, title: string}}>) {
+  function handleEditorModeChange(event: CustomEvent<{ value: { id: string; title: string } }>) {
     $currentTab = event.detail.value.id;
   }
 
@@ -186,7 +186,7 @@
   $: {
     if ($currentTab === '0') {
       content = {
-        text: JSON.stringify($adventureStore, null, 2)
+        text: JSON.stringify($adventureStore, null, 2),
       } as Content;
     }
   }
@@ -195,7 +195,7 @@
     if (status.contentErrors) {
       return;
     }
-    const { text } = content as {text?: string};
+    const { text } = content as { text?: string };
     if (text) {
       const newContent = JSON.parse(text);
       $adventureStore = newContent;
@@ -267,10 +267,7 @@
             <div>
               <h2>
                 Content
-                <button
-                  class="button-round"
-                  on:click={() => adventureStore.addAsset(nodeKey, createNewAsset('TEXT'))}
-                >
+                <button class="button-round" on:click={() => adventureStore.addAsset(nodeKey, createNewAsset('TEXT'))}>
                   <Plus />
                 </button>
               </h2>
@@ -347,7 +344,7 @@
     <Tab index="1" title="JSON" style="position:relative;height:90%;">
       <div class="json-preview">
         <JSONEditor
-          content={content}
+          {content}
           onChange={onJSONUpdate}
           mainMenuBar={false}
           navigationBar={false}
@@ -366,7 +363,7 @@
   <Sidebar open={true}>
     <GraphOverview />
     <div class="adventure-wrapper">
-      <Node style="position:absolute; height: 100%;width:100%;"/>
+      <Node style="position:absolute; height: 100%;width:100%;" />
     </div>
   </Sidebar>
 {/if}

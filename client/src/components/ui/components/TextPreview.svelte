@@ -5,18 +5,30 @@
   export let editing = false;
   export let value: string;
   export let limit = 120;
-  export let style: string;
+  export let style: string = '';
+  export let fadeEffect = true;
+  export let onSave: (val: string) => void = (val) => {
+    editing = false;
+    value = val;
+  };
+
+  const fadeStyle = `
+    -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  `;
   const formSubmit = (e: Event) => {
     const target = e.target as HTMLFormElement;
     if (!target) return;
     const formData = new FormData(target);
+    let newVal;
     for (const field of formData) {
       const [key, v] = field;
       if (key === 'content') {
-        value = v.toString();
+        newVal = v.toString();
+        break;
       }
     }
-    editing = false;
+    if (newVal != undefined) onSave(newVal);
     e.preventDefault();
   };
 </script>
@@ -28,7 +40,7 @@
   </form>
 </Popup>
 <div id="preview" {style}>
-  <pre>{value.slice(0, limit)}</pre>
+  <pre style={fadeEffect ? fadeStyle : ''}>{value.slice(0, limit)}</pre>
   <button id="edit-button" class="button" on:click={() => (editing = !editing)}><Edit display="block" /></button>
 </div>
 
@@ -60,9 +72,11 @@
     right: 5px;
   }
 
+  .button {
+    outline: 2px solid hsl(var(--main-highlight-high));
+  }
+
   pre {
-    -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
     margin: 0 auto;
     padding: 12px 20px;
   }
@@ -71,20 +85,7 @@
     width: 100%;
     box-sizing: border-box;
     font-size: 16px;
-    resize: none;
-  }
-
-
-  textarea {
-    outline: 2px solid hsl(var(--main-highlight-high));
-    border-radius: 4px;
-    background-color: hsl(var(--main-highlight-med));
-    color: hsl(var(--main-fg));
-    padding: 12px 20px;
     border: none !important;
-  }
-  textarea:focus {
-    border: none !important;
-    outline: 2px solid hsl(var(--main-foam));
+    outline: none;
   }
 </style>

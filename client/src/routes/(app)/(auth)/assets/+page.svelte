@@ -1,12 +1,10 @@
 <script lang="ts">
   import { type ManagedAssetResponse, FileType } from '@backend/models/Asset';
   import { deleteAsset } from '../../../../utils/api';
-  import Accordion from '../../../../components/ui/Accordion.svelte';
+  import Accordion from '../../../../components/ui/menu/Accordion.svelte';
   import { Edit, Plus, Trash2 } from 'lucide-svelte';
   import { writable, type Writable } from 'svelte/store';
-  import Spinner from '../../../../components/ui/Spinner.svelte';
-  import AudioPlayer from '../../../../components/ui/AudioPlayer.svelte';
-  import { flip } from 'svelte/animate';
+  import AudioPlayer from '../../../../components/ui/media/AudioPlayer.svelte';
   import { toast } from 'svelte-sonner';
   import AssetUpdatePopup from '../../../../components/ui/menu/AssetUpdatePopup.svelte';
 
@@ -67,11 +65,6 @@
 </script>
 
 <div id="wrapper">
-  {#if loading}
-    <div class="container" id="overlay">
-      <Spinner />
-    </div>
-  {/if}
   <div class="container">
     <div id="title" class="row">
       <span>assets</span>

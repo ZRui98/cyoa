@@ -2,7 +2,7 @@
   import { setContext } from 'svelte';
   import { beforeNavigate } from '$app/navigation';
   import { Toaster } from 'svelte-sonner';
-  import Header from '../../components/ui/Header.svelte';
+  import Header from '../../components/ui/menu/Header.svelte';
   import { writable } from 'svelte/store';
   const layoutStyling = writable<string>('');
   setContext('layoutStyling', layoutStyling);

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { NodeGraphics } from '../pixi/NodeGraphics';
-  import { PixiApplication } from '../pixi/PixiApplication';
-  import { PixiZoomPanContainer } from '../pixi/PixiZoomPanContainer';
+  import { NodeGraphics } from '../../pixi/NodeGraphics';
+  import { PixiApplication } from '../../pixi/PixiApplication';
+  import { PixiZoomPanContainer } from '../../pixi/PixiZoomPanContainer';
   import type { IApplicationOptions } from 'pixi.js';
-  import { graphRenderStore, type Graph } from '../../store/adventure';
-  import { getRenderableGraph } from '../../utils/createGraph';
-  import { ArrowGraphics } from '../pixi/ArrowGraphics';
+  import { graphRenderStore, type Graph } from '../../../store/adventure';
+  import { getRenderableGraph } from '../../../utils/createGraph';
+  import { ArrowGraphics } from '../../pixi/ArrowGraphics';
   import type { Unsubscriber } from 'svelte/store';
   import { toast } from 'svelte-sonner';
   let zoomContainer: PixiZoomPanContainer;

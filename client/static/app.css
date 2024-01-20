@@ -1,43 +1,45 @@
 @font-face {
   font-family: Roboto;
-  src: url("Roboto-Regular.ttf") format("truetype");
+  src: url('Roboto-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: Roboto;
-  src: url("Roboto-Italic.ttf") format("truetype");
+  src: url('Roboto-Italic.ttf') format('truetype');
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
   font-family: Roboto;
-  src: url("Roboto-Bold.ttf") format("truetype");
+  src: url('Roboto-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: Roboto;
-  src: url("Roboto-BoldItalic.ttf") format("truetype");
+  src: url('Roboto-BoldItalic.ttf') format('truetype');
   font-weight: 700;
   font-style: italic;
 }
 
 @font-face {
   font-family: GTPressura;
-  src: url("GT-Pressura-Mono.otf") format("opentype");
+  src: url('GT-Pressura-Mono.otf') format('opentype');
   font-weight: 700;
   font-style: italic;
 }
 
-html, input {
+html,
+input {
   font-family: Roboto;
 }
 
-pre, textarea {
+pre,
+textarea {
   font-family: GTPressura;
 }
 
@@ -151,6 +153,22 @@ canvas {
 pre {
   white-space: pre-wrap;
   line-height: 1.7rem;
+}
+
+textarea {
+  box-sizing: border-box;
+  outline: 2px solid hsl(var(--main-highlight-high));
+  background-color: hsl(var(--main-bg));
+  color: hsl(var(--main-fg));
+  border-radius: 4px;
+  padding: 12px 20px;
+  border: none !important;
+  resize: none;
+}
+
+textarea:focus {
+  border: none !important;
+  outline: 2px solid hsl(var(--main-foam));
 }
 
 input[type='text'] {

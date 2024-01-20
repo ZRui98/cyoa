@@ -2,8 +2,8 @@
   import { onMount } from 'svelte';
   import { getContext, onDestroy } from 'svelte';
   import type { Writable } from 'svelte/store';
-  import Node from '../../../../../../components/ui/Node.svelte';
-  import GraphOverview from '../../../../../../components/ui/GraphOverview.svelte';
+  import Node from '../../../../../../components/ui/components/Node.svelte';
+  import GraphOverview from '../../../../../../components/ui/pixi/GraphOverview.svelte';
   import Sidebar from '../../../../../../components/ui/Sidebar.svelte';
   import { adventureStore, currentActiveNode } from '../../../../../../store/adventure';
   export let data: { author: string; adventure: string };
