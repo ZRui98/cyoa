@@ -19,8 +19,7 @@
   $: {
     $newAssetName = asset?.name;
   }
-  $: dirty = ($newAssetName && asset?.fileName) || (asset && asset.name !== $newAssetName) || !!file;
-
+  $: dirty = (asset && asset.name !== $newAssetName) || !!file;
   function uploadFile(files: File[]) {
     file = files[0];
   }
@@ -33,8 +32,9 @@
     updateAssetPromise = updateAsset(asset?.id, $newAssetName, file)
       .then((updatedAsset) => {
         dispatch('update', { oldAsset: JSON.parse(JSON.stringify(asset)), asset: updatedAsset });
-        asset = updatedAsset;
+        asset = null;
         show = false;
+        clearFile();
       })
       .catch((e) => {
         dispatch('error', { error: e });
@@ -50,7 +50,7 @@
   }
 
   function onClose() {
-    file = undefined;
+    clearFile()
     newAssetName.set(undefined);
   }
 
@@ -59,7 +59,7 @@
   }
 </script>
 
-<Popup {onClose} style={`width:32em;`} bind:show>
+<Popup on:close={onClose} style={`width:32em;`} bind:show>
   <div id="popup-wrapper">
     <input
       placeholder={file?.name ?? ''}

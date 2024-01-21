@@ -1,15 +1,23 @@
 <script lang="ts">
-  export let show = false;
-  export let onClose: (() => void) | undefined = undefined;
+  import { createEventDispatcher } from 'svelte';
 
+  export let show = false;
+  let _show: boolean | undefined = undefined;
+
+  const dispatch = createEventDispatcher();
+  $: {
+    if (show === false &&  _show === true) {
+      dispatch('close');
+    }
+    _show = show;
+  }
   const handleClose = () => {
-    if (onClose) onClose();
     show = false;
   };
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-{#if show}
+{#if _show}
   <div
     class="backdrop"
     aria-roledescription="click to close div"
