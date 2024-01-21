@@ -1,7 +1,7 @@
 <script lang="ts">
   import { settings } from '../../../store/settings';
-  import Popup from '../Popup.svelte';
-  import Toggle from '../Toggle.svelte';
+  import Popup from '../components/Popup.svelte';
+  import Toggle from '../components/Toggle.svelte';
 
   export let settingsVisible: boolean;
   export let showEditorSettings: boolean = false;

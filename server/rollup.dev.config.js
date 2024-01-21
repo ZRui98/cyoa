@@ -26,7 +26,7 @@ export default {
     }),
     commonjs({
       ignore: ['./native'],
-      ignoreDynamicRequires: true
+      ignoreDynamicRequires: true,
     }),
     typescript({ sourceMap: false }),
   ],

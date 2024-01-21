@@ -17,7 +17,7 @@
 
   $: {
     dispatch('change', {
-      value: {id: $selectedIndex, title: titles[$selectedIndex]}
+      value: { id: $selectedIndex, title: titles[$selectedIndex] },
     });
   }
 

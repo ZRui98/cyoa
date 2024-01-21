@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Moon, User, Lightbulb } from 'lucide-svelte';
-  import loginState from '../../store/loginState';
-  import { theme } from '../../store/settings';
+  import loginState from '../../../store/loginState';
+  import { theme } from '../../../store/settings';
   import { onDestroy, onMount } from 'svelte';
   import { derived, type Unsubscriber } from 'svelte/store';
 

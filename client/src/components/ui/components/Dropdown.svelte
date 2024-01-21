@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { clickOutside } from '../utils/clickOutside';
-  import Accordion from './Accordion.svelte';
+  import { clickOutside } from '../../utils/clickOutside';
+  import Accordion from '../menu/Accordion.svelte';
   export let text: string;
   export let value: any = undefined;
   export let options: { text: string; value?: any }[] = [];

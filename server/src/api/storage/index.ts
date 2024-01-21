@@ -13,7 +13,7 @@ export const s3 = new S3({
   forcePathStyle: true,
 });
 
-export function getUserFilePath(user: string, fileName: string, extension='') {
+export function getUserFilePath(user: string, fileName: string, extension = '') {
   return `${user}/${fileName}${extension ? `.${extension}` : ''}`;
 }
 

@@ -21,3 +21,10 @@ export interface UserData extends UserProfileData {
 export interface UserTable extends UserData {
   id: Generated<number>;
 }
+
+export function getUserProfileData(user: UserData): UserProfileData {
+  return {
+    name: user.name,
+    bio: user.bio,
+  };
+}

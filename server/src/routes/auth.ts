@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import passport from '@fastify/passport';
-import { isLoggedIn, isLoggedInAndAuthenticated } from '../api/auth/hooks';
-import { activateUser, updateUserDb } from '../api/db/user';
+import { isLoggedIn } from '../api/auth/hooks';
+import { activateUser } from '../api/db/user';
 
 const routes = (app: FastifyInstance, _opts, next) => {
   app.post('/google/login', {

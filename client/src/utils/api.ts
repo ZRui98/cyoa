@@ -2,6 +2,7 @@ import type { Adventure, AdventureSummary } from '@backend/models/Adventure';
 import { ApiError } from '@backend/utils/error';
 import { env } from '$env/dynamic/public';
 import type { ManagedAssetResponse } from '@backend/models/Asset';
+import type { UserProfileData } from '@backend/models/User';
 import type { LoginState } from '../store/loginState';
 
 type FetchFunction = typeof fetch;
@@ -29,7 +30,7 @@ export async function saveAdventure(adventure: Adventure | undefined, fetchImpl?
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(adventure),
-    credentials: 'include'
+    credentials: 'include',
   });
 }
 
@@ -47,13 +48,13 @@ export async function updateAdventure(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(adventure),
-    credentials: 'include'
+    credentials: 'include',
   });
 }
 
 export async function getAssets(fetchImpl?: FetchFunction, includePath = false): Promise<ManagedAssetResponse[]> {
   const url = `${getBaseUrl()}/asset?includePath=${includePath}`;
-  const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl, {credentials: 'include'});
+  const response = fetchApi<ManagedAssetResponse[]>(url, fetchImpl, { credentials: 'include' });
   return response;
 }
 
@@ -84,7 +85,7 @@ export async function updateAsset(
   return fetchApi<ManagedAssetResponse | null>(url, fetchImpl, {
     method: sqid ? 'PUT' : 'POST',
     body: formData,
-    credentials: 'include'
+    credentials: 'include',
   });
 }
 
@@ -98,9 +99,22 @@ export async function deleteAdventure(name: string, fetchImpl?: FetchFunction) {
   return fetchApi(url, fetchImpl, { method: 'DELETE', credentials: 'include' });
 }
 
-export async function getUser(name: string, fetchImpl?: FetchFunction): Promise<{ name: string }> {
+export async function getUser(name: string, fetchImpl?: FetchFunction): Promise<{ name: string; bio?: string }> {
   const url = `${getBaseUrl()}/user/${name}`;
   const response = await fetchApi<{ name: string }>(url, fetchImpl);
+  return response;
+}
+
+export async function updateUser(user: UserProfileData, fetchImpl?: FetchFunction): Promise<UserProfileData> {
+  const url = `${getBaseUrl()}/user/${user.name}`;
+  const response = await fetchApi<UserProfileData>(url, fetchImpl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(user),
+    credentials: 'include',
+  });
   return response;
 }
 
@@ -122,8 +136,7 @@ export async function activateUser(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ name }),
-    credentials: 'include'
-    
+    credentials: 'include',
   });
   return resp;
 }

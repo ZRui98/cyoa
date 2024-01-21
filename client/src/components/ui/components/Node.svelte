@@ -8,9 +8,9 @@
     isManagedExportableAsset,
     type ManagedExportableAsset,
   } from '@backend/models/Asset';
-  import { adventureStore, currentActiveNode } from '../../store/adventure';
-  import AudioPlayer from './AudioPlayer.svelte';
-  import { getAssetsByName } from '../../utils/api';
+  import { adventureStore, currentActiveNode } from '../../../store/adventure';
+  import AudioPlayer from '../media/AudioPlayer.svelte';
+  import { getAssetsByName } from '../../../utils/api';
   let nodeAssets: Promise<Asset[]> = Promise.resolve([]);
   let options: Edge[] = [];
 

@@ -2,9 +2,9 @@
   import { Delete, Save, X } from 'lucide-svelte';
   import { writable, type Writable } from 'svelte/store';
   import type { ManagedAssetResponse } from '@backend/models/Asset';
-  import Popup from '../Popup.svelte';
+  import Popup from '../components/Popup.svelte';
   import { updateAsset } from '../../../utils/api';
-  import FileDrop from '../FileDrop.svelte';
+  import FileDrop from '../media/FileDrop.svelte';
   import { createEventDispatcher } from 'svelte';
   import { toast } from 'svelte-sonner';
 
