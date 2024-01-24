@@ -19,6 +19,7 @@
   $: {
     $newAssetName = asset?.name;
   }
+  let saveDisabled = writable(false);
   $: dirty = (asset && asset.name !== $newAssetName) || !!file;
   function uploadFile(files: File[]) {
     file = files[0];
@@ -29,15 +30,18 @@
   }
 
   async function saveAsset() {
+    $saveDisabled = true;
     updateAssetPromise = updateAsset(asset?.id, $newAssetName, file)
       .then((updatedAsset) => {
         dispatch('update', { oldAsset: JSON.parse(JSON.stringify(asset)), asset: updatedAsset });
         asset = null;
         show = false;
+        $saveDisabled = false;
         clearFile();
       })
       .catch((e) => {
         dispatch('error', { error: e });
+        $saveDisabled = false;
         throw e;
       });
     toast.promise(updateAssetPromise, {
@@ -85,7 +89,7 @@
     {/if}
     <div id="popup-buttons" class="row">
       <button class="button-round" on:click={closePopup}><X display="block" /></button>
-      <button disabled={!dirty} class="button-round" on:click={saveAsset}><Save display="block" /></button>
+      <button disabled={!dirty || $saveDisabled} class="button-round" on:click={saveAsset}><Save display="block" /></button>
     </div>
   </div>
 </Popup>
