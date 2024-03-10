@@ -1,12 +1,13 @@
 <script lang="ts">
   import { Delete, Save, X } from 'lucide-svelte';
   import { writable, type Writable } from 'svelte/store';
-  import type { ManagedAssetResponse } from '@backend/models/Asset';
+  import { FileType, type ManagedAssetResponse } from '@backend/models/Asset';
   import Popup from '../components/Popup.svelte';
   import { updateAsset } from '../../../utils/api';
   import FileDrop from '../media/FileDrop.svelte';
   import { createEventDispatcher } from 'svelte';
   import { toast } from 'svelte-sonner';
+  import AudioPlayer from '../media/AudioPlayer.svelte';
 
   export let show: boolean;
   export let asset: ManagedAssetResponse | null = null;
@@ -72,9 +73,15 @@
       style="font-size: 20px;"
       bind:value={$newAssetName}
     />
-    {#if asset}
+    {#if asset?.path}
       <div>
         Current file: <a href={asset.path}>{asset.fileName}</a>
+
+        {#if asset.fileType === FileType.AUDIO}
+          <AudioPlayer src={asset.path} html5 />
+        {:else if asset.fileType === FileType.IMG}
+          <img src={asset.path} alt={asset.path} />
+        {/if}
       </div>
     {/if}
     {#if file}
