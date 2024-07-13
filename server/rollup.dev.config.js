@@ -8,9 +8,8 @@ import builtins from 'builtin-modules';
 export default {
   input: 'src/index.ts',
   output: {
-    dir: 'dist',
     format: 'cjs',
-    file: 'index.cjs',
+    file: 'dist/index.cjs',
     globals: {
       crypto: 'crypto',
     },
