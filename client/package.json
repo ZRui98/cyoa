@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^2.0.2",
-    "@sveltejs/kit": "^1.27.0",
+    "@sveltejs/kit": "^1.30.4",
     "@types/google.accounts": "^0.0.7",
     "@types/howler": "^2.2.7",
     "@types/jest": "^29.5.2",
