@@ -27,7 +27,10 @@ export default {
       ignore: ['./native'],
       ignoreDynamicRequires: true,
     }),
-    typescript({ sourceMap: false }),
+    typescript({
+      sourceMap: false,
+      noEmitOnError: true
+    }),
   ],
   external: ['better-sqlite3', '@fastify/secure-session', builtins],
 };
