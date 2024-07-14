@@ -16,4 +16,4 @@ Prereqs: `podman-compose or docker-compose, node >= v18.18.2`
 3. Add self signed SSL certificate to browser (to avoid https errors w/ google auth)
 4. Run server by running `cd server; num run dev`
 5. Run client by running `cd client; npm run dev`
-6. View https://localtest.me:8080
+6. View https://localtest.me:8080 
