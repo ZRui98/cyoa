@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "dev:docker": "nodemon -e ts --exec ts-node-esm src/index.ts | pino-pretty",
-    "dev": "nodemon -e ts --exec ts-node-esm -r dotenv/config src/index.ts dotenv_config_path=.env.local | pino-pretty",
+    "dev": "nodemon -e ts --exec tsx -r dotenv/config src/index.ts dotenv_config_path=.env.local | pino-pretty",
     "build": "rollup -c rollup.dev.config.js",
     "build:prod": "rollup -c rollup.prod.config.js",
-    "start": "node -r dotenv/config ./dist/index.cjs dotenv_config_path=.env.local | pino-pretty",
+    "start:dotenv": "npm run db:migrate && node -r dotenv/config ./dist/index.cjs dotenv_config_path=.env.local | pino-pretty",
+    "start": "npm run db:migrate && node ./dist/index.cjs | pino-pretty",
     "build:start": "npm run build && npm run start",
-    "db:migrate": "ts-node-esm db/migrate.ts",
+    "db:migrate": "tsx db/migrate.ts",
     "format": "prettier --plugin-search-dir . --write .",
     "dependency-test": "npx madge --circular --extensions ts ./src"
   },
@@ -20,7 +21,7 @@
     "@fastify/secure-session": "^7.3.0",
     "better-sqlite3": "^9.0.0",
     "kysely": "^0.26.3",
-    "ts-node": "^10.9.1"
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.347.0",
@@ -36,7 +37,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-typescript": "^11.0.0",
-    "@types/node": "^18.13.0",
+    "@types/node": "^18.18.2",
     "@types/pg": "^8.6.6",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",

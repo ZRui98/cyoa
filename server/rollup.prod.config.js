@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import builtins from 'builtin-modules';
 
-export default {
+export default [{
   input: 'src/index.ts',
   output: {
     format: 'cjs',
@@ -33,4 +33,4 @@ export default {
     }),
   ],
   external: ['better-sqlite3', '@fastify/secure-session', builtins],
-};
+}];
