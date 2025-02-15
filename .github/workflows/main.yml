@@ -7,9 +7,27 @@ on:
       - master
       - publish-image
 jobs:
-  deploy-backend:
+  changes:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
+    - uses: "dorny/paths-filter@v3"
+      id: filter
+      with:
+        filters: |
+          backend:
+            - 'server/**'
+          frontend:
+            - 'client/**'
+  deploy-backend:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+    steps: 
     - name: "Checkout"
       uses: actions/checkout@v4
     - name: Login to Docker Hub
@@ -25,6 +43,8 @@ jobs:
         push: true
         tags: zrui98/cyoa-server:latest,zrui98/cyoa-server:${{ github.sha }}
   deploy-frontend:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     steps:
     - name: "Checkout"
