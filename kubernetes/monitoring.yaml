@@ -1,0 +1,16 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: cyoa
+  namespace: vm  # Change to your desired namespace
+spec:
+  namespaceSelector:
+    matchNames:
+      - cyoa  # Change to the namespace where your service is running
+  selector:
+    matchLabels:
+      app: "cyoa"
+  endpoints:
+    - port: web  # The port name from your service
+      path: "/metrics"  # Metrics path
+      interval: 30s

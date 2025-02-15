@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: cyoa
+  name: cyoa-server
+  labels:
+    app: cyoa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cyoa
+  template:
+    metadata:
+      labels:
+        app: cyoa
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - storage
+      containers:
+      - name: cyoa-server
+        image: cyoa-server:latest
+        imagePullPolicy: "Always"
+        env:
+        - name: DB_FILE
+          value: "/data/cyoa.db"
+        - name: GOOGLE_SIGN_IN_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: gauth_token.secret
+        - name: SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: secret_access_key.secret
+        - name: SECRET_SESSION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: session_key.secret
+        - name: SQID_SECRET_ALPHABET
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: sqid_alphabet.secret
+        - name: GOOGLE_SIGN_IN_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: gauth_client.secret
+        - name: GOOGLE_SIGN_IN_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: gauth_token.secret
+        - name: CORS_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: cors_domain.secret
+        - name: S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: s3_endpoint.secret
+        - name: STORAGE_URL
+          valueFrom:
+            secretKeyRef:
+              name: cyoa-credentials
+              key: storage_url.secret
+        volumeMounts:
+        - mountPath: /data
+          name: cyoa-sqlite
+  volumeClaimTemplates:
+  - metadata:
+      name: cyoa-sqlite
+      annotations:
+        backup.kubernetes.io/deltas: P1D P7D
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 3Gi
+---
