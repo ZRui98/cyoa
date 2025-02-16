@@ -31,7 +31,7 @@ jobs:
   build:
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJson('{"linux/amd64": "ubuntu-latest", "linux/arm64": "ubuntu-24.04-arm"}')[matrix.platform] }}
     strategy:
       fail-fast: false
       matrix:
@@ -61,7 +61,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           context: "{{defaultContext}}:server"
-          tags: zrui98/cyoa-server:latest,zrui98/cyoa-server:${{ github.sha }}
+          outputs: type=image,"name=${{ env.DOCKERHUB_REPO }}",push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
