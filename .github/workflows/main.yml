@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - master
-      - publish-image
+      - split-workflow
 jobs:
   changes:
     runs-on: ubuntu-latest
