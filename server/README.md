@@ -9,3 +9,5 @@ adventures are conceptually json files which store the possible paths and story 
 ## assets
 
 assets are elements displayable to an adventure node, such as text, audio, video, or images. There are 2 types: external resources, which are stored outside of cyoa, and internal ones, which are stored in the r2 storage under ${user}/assets. There is also an association table that describes which assets are used in which adventures. If an asset gets updated (reuploaded under a different file name, asset name changes, etc), it should then find all the associated stories who use this asset, and then update the json file(?).
+
+## db migrations

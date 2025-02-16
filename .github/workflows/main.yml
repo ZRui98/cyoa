@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - multiarch-matrix
 env:
   DOCKERHUB_REPO: zrui98/cyoa-server
 
@@ -28,6 +29,8 @@ jobs:
           frontend:
             - 'client/**'
   build:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
