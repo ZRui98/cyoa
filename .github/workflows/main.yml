@@ -115,7 +115,8 @@ jobs:
         with:
           images: |
             ${{ env.DOCKERHUB_REPO }}
-          tags: ${{ env.DOCKERHUB_REPO }}:${{ github.sha }}
+          tags: |
+            type=sha
 
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
