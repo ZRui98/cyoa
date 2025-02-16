@@ -117,7 +117,7 @@ jobs:
             ${{ env.DOCKERHUB_REPO }}
           tags: |
             type=raw,value=latest
-            type=sha
+            type=sha,format=long,prefix=,suffix=
 
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
