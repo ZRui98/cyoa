@@ -116,6 +116,7 @@ jobs:
           images: |
             ${{ env.DOCKERHUB_REPO }}
           tags: |
+            type=raw,value=latest
             type=sha
 
       - name: Create manifest list and push
