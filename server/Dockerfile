@@ -4,8 +4,6 @@ WORKDIR /workdir
 
 RUN npm ci
 RUN npm run build:prod
-RUN rm -rf node_modules
-RUN npm ci --omit=dev
 
 FROM node:18-slim
 COPY --from=build-env /workdir/dist /build/dist
