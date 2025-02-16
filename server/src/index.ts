@@ -1,4 +1,5 @@
 import app from './app';
+
 declare module 'fastify' {
   interface PassportUser {
     name: string;

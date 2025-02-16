@@ -1,19 +1,24 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cyoa
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   namespace: cyoa
   name: cyoa-server
   labels:
-    app: cyoa
+    app: cyoa-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cyoa
+      app: cyoa-server
   template:
     metadata:
       labels:
-        app: cyoa
+        app: cyoa-server
     spec:
       affinity:
         nodeAffinity:
@@ -26,57 +31,56 @@ spec:
                 values:
                 - storage
       containers:
-      - name: cyoa-server
-        image: cyoa-server:latest
-        imagePullPolicy: "Always"
-        env:
+      - env:
         - name: DB_FILE
-          value: "/data/cyoa.db"
-        - name: GOOGLE_SIGN_IN_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: cyoa-credentials
-              key: gauth_token.secret
+          value: /data/cyoa.db
         - name: SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: secret_access_key.secret
+              key: secret_access_key
+              name: cyoa-secret
         - name: SECRET_SESSION_KEY
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: session_key.secret
+              key: secret_session_key
+              name: cyoa-secret
         - name: SQID_SECRET_ALPHABET
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: sqid_alphabet.secret
+              key: sqid_alphabet
+              name: cyoa-secret
         - name: GOOGLE_SIGN_IN_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: gauth_client.secret
+              key: gauth_client
+              name: cyoa-secret
         - name: GOOGLE_SIGN_IN_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: gauth_token.secret
+              key: gauth_token
+              name: cyoa-secret
         - name: CORS_DOMAIN
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: cors_domain.secret
+              key: cors_domain
+              name: cyoa-secret
         - name: S3_ENDPOINT
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: s3_endpoint.secret
+              key: s3_endpoint
+              name: cyoa-secret
         - name: STORAGE_URL
           valueFrom:
             secretKeyRef:
-              name: cyoa-credentials
-              key: storage_url.secret
+              key: storage_url
+              name: cyoa-secret
+        - name: STORY_BUCKET_NAME
+          value: cyoa-stories
+        - name: ASSET_BUCKET_NAME
+          value: cyoa-assets
+        image: cyoa-server
+        imagePullPolicy: Never
+        name: cyoa-server
         volumeMounts:
         - mountPath: /data
           name: cyoa-sqlite
@@ -91,3 +95,18 @@ spec:
         requests:
           storage: 3Gi
 ---
+kind: Service
+apiVersion: v1
+metadata:
+  name: cyoa
+  namespace: cyoa
+  labels:
+    app: cyoa-server
+spec:
+  selector:
+    app: cyoa-server
+  ports:
+  - protocol: TCP
+    port: 3000
+    name: web
+  clusterIP: None

@@ -22,8 +22,8 @@ Prereqs: `podman-compose or docker-compose, node >= v18.18.2`
 ### Testing k8s resources
 
 Prereqs: `minikube, kubectl`
-1. Build the docker image locally `(cd server && docker build -t cyoa-server .)`
-2. Run server by running `(cd kubernetes && GAUTH_CLIENT="" GAUTH_SECRET="" bash start.sh)`
+1. Build the docker image on minikube `(cd server && minikube image build -t cyoa-server .)`
+2. Run server by running `(cd kubernetes && GAUTH_CLIENT="" GAUTH_SECRET="" kubectl apply -f app.yml)`
 3. Port forward the port using `kubectl port-forward -n cyoa svc/cyoa 8080:8080`
 
 *Note:* If you want to test the k8s resource e2e, you can
