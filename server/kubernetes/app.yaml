@@ -37,42 +37,42 @@ spec:
         - name: SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              key: secret_access_key
+              key: secret_access_key.secret
               name: cyoa-secret
         - name: SECRET_SESSION_KEY
           valueFrom:
             secretKeyRef:
-              key: secret_session_key
+              key: secret_session_key.secret
               name: cyoa-secret
         - name: SQID_SECRET_ALPHABET
           valueFrom:
             secretKeyRef:
-              key: sqid_alphabet
+              key: sqid_alphabet.secret
               name: cyoa-secret
         - name: GOOGLE_SIGN_IN_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              key: gauth_client
+              key: gauth_client.secret
               name: cyoa-secret
         - name: GOOGLE_SIGN_IN_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              key: gauth_token
+              key: gauth_token.secret
               name: cyoa-secret
         - name: CORS_DOMAIN
           valueFrom:
             secretKeyRef:
-              key: cors_domain
+              key: cors_domain.secret
               name: cyoa-secret
         - name: S3_ENDPOINT
           valueFrom:
             secretKeyRef:
-              key: s3_endpoint
+              key: s3_endpoint.secret
               name: cyoa-secret
         - name: STORAGE_URL
           valueFrom:
             secretKeyRef:
-              key: storage_url
+              key: storage_url.secret
               name: cyoa-secret
         - name: STORY_BUCKET_NAME
           value: cyoa-stories
