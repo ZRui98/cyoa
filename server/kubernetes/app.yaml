@@ -78,8 +78,8 @@ spec:
           value: cyoa-stories
         - name: ASSET_BUCKET_NAME
           value: cyoa-assets
-        image: cyoa-server
-        imagePullPolicy: Never
+        image: zrui98/cyoa-server
+        imagePullPolicy: IfNotPresent
         name: cyoa-server
         volumeMounts:
         - mountPath: /data
