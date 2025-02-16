@@ -60,7 +60,8 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=${{ env.DOCKERHUB_REPO }}"
+          context: "{{defaultContext}}:server"
+          tags: zrui98/cyoa-server:latest,zrui98/cyoa-server:${{ github.sha }}
 
       - name: Export digest
         run: |
