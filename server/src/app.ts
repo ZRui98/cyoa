@@ -5,6 +5,7 @@ import passport from '@fastify/passport';
 import fastifySecureSession from '@fastify/secure-session';
 
 import fastify from 'fastify';
+import pino from 'pino'
 import { default as adventureRoutes } from './routes/adventure';
 import { default as assetRoutes } from './routes/asset';
 import { default as userRoutes } from './routes/user';
@@ -13,9 +14,9 @@ import { adventureMetadataSchema, adventureSchema } from './models/Adventure';
 import { SignInWithGoogleStrategy, verify as verifyGoogle } from './api/auth/SignInWithGoogleStrategy';
 import { deserializeUser, serializeUser } from './api/auth/serializers';
 import { errorHandler } from './util/error';
-
+const logger = pino();
 const app = fastify({
-  logger: true,
+  logger,
   ajv: {
     customOptions: {
       removeAdditional: false,

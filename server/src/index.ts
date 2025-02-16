@@ -1,4 +1,5 @@
 import app from './app';
+
 declare module 'fastify' {
   interface PassportUser {
     name: string;
@@ -13,3 +14,4 @@ declare module '@fastify/secure-session' {
 }
 
 app.listen({ port: 3000, host: '0.0.0.0' });
+
