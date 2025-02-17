@@ -34,6 +34,11 @@ spec:
       - env:
         - name: DB_FILE
           value: /data/cyoa.db
+        - name: ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: access_key_id.secret
+              name: cyoa-secret
         - name: SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -78,6 +83,8 @@ spec:
           value: cyoa-stories
         - name: ASSET_BUCKET_NAME
           value: cyoa-assets
+        - name: LOGIN_REDIRECT_URL
+          value: https://cyoa.zrui.dev/activate
         image: zrui98/cyoa-server
         imagePullPolicy: IfNotPresent
         name: cyoa-server
