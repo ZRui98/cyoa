@@ -1,4 +1,4 @@
-import { Text, TextStyle } from 'pixi.js';
+import { FederatedEvent, Text, TextStyle } from 'pixi.js';
 import { currentActiveNode, type GraphNode } from '../../store/adventure';
 import { SmoothGraphics } from '@pixi/graphics-smooth';
 import { NODE_HEIGHT, NODE_WIDTH } from './constants';
@@ -18,6 +18,8 @@ export class NodeGraphics extends SmoothGraphics {
     this.eventMode = 'static';
     this.cursor = 'pointer';
     this.on('pointerdown', this.onPointerDown).on('pointerup', this.onPointerUp);
+    this.onmousedown = (e: FederatedEvent) => {e.stopPropagation(); e.preventDefault();};
+    this.onmousemove = (e: FederatedEvent) => {e.stopPropagation(); e.preventDefault();};
     this.x = x;
     this.y = y;
     this.titleText = new Text(
@@ -60,11 +62,11 @@ export class NodeGraphics extends SmoothGraphics {
     this.addChild(this.titleText);
   }
 
-  onPointerDown() {
+  onPointerDown(e: FederatedEvent) {
     currentActiveNode.set(this.id);
   }
 
-  onPointerUp() {
+  onPointerUp(e: FederatedEvent) {
     return;
   }
 }

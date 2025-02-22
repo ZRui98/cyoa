@@ -416,7 +416,7 @@ export function getWidthAndHeight(graph: Graph): { layers: Set<string>[]; edgeLa
   q.push(graph.start);
   const visitedLayers: Set<string>[] = [];
   const visited: Set<string> = new Set();
-  const edgeLayers = [];
+  const edgeLayers: string[][][] = [];
   while (!q.isEmpty()) {
     const layer: Set<string> = new Set();
     const edgeLayer: string[][] = [];
@@ -433,13 +433,32 @@ export function getWidthAndHeight(graph: Graph): { layers: Set<string>[]; edgeLa
       });
     }
     if (layer.size > 0) visitedLayers.push(layer);
-    if (edgeLayer.length > 0) edgeLayers.push(edgeLayer);
+    edgeLayers.push(edgeLayer);
     q = nextQ;
   }
   const unconnectedNodes: Set<string> = new Set();
   for (const node of Object.keys(graph.nodes)) {
     if (!visited.has(node)) {
       unconnectedNodes.add(node);
+    }
+  }
+  const currentLayers = [...visitedLayers, new Set(unconnectedNodes)];
+  for (const un of [...unconnectedNodes]) {
+    if (graph.nodes[un].links) {
+      graph.nodes[un].links.forEach(e => {
+        const layerIndex = currentLayers.findIndex(layer => layer.has(un));
+        if (layerIndex >= 1) {
+          unconnectedNodes.delete(un);
+          if(layerIndex <= visitedLayers.length) {
+            visitedLayers.push(new Set());
+          }
+          visitedLayers[layerIndex].add(un);
+          if(layerIndex <= edgeLayers.length) {
+            edgeLayers.push([]);
+          }
+          edgeLayers[layerIndex].push([un, e.next]);
+        }
+      })
     }
   }
   const layers = [...visitedLayers, unconnectedNodes];
@@ -450,4 +469,5 @@ export function getRenderableGraph(graph: Graph) {
   const { layers, edgeLayers } = getWidthAndHeight(graph);
   const { nodes, edges } = processLayersToCoords(layers, edgeLayers);
   return { nodes, edges };
+  return {nodes: [], edges: []}
 }

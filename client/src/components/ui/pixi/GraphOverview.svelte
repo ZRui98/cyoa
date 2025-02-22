@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
+  import { writable } from 'svelte/store';
   import { NodeGraphics } from '../../pixi/NodeGraphics';
   import { PixiApplication } from '../../pixi/PixiApplication';
+  import { GraphMenu } from '../../pixi/GraphMenu'
   import { PixiZoomPanContainer } from '../../pixi/PixiZoomPanContainer';
   import type { IApplicationOptions } from 'pixi.js';
   import { graphRenderStore, type Graph } from '../../../store/adventure';
@@ -10,9 +12,11 @@
   import type { Unsubscriber } from 'svelte/store';
   import { toast } from 'svelte-sonner';
   let zoomContainer: PixiZoomPanContainer;
+  let menu: GraphMenu;
   let div: HTMLElement;
   let pixi: PixiApplication;
   let unsubGraphStore: Unsubscriber;
+  let menuState = writable({arrowStart: null, arrowEnd: null});
 
   onMount(() => {
     pixi = new PixiApplication({
@@ -21,6 +25,8 @@
     } as IApplicationOptions);
     pixi.application.stage.eventMode = 'static';
     zoomContainer = new PixiZoomPanContainer(div);
+    menu = new GraphMenu(div);
+    pixi.application.stage.addChild(menu);
     pixi.application.stage.addChild(zoomContainer);
     div.appendChild(pixi.application.view as unknown as Node);
 
