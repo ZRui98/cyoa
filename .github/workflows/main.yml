@@ -24,10 +24,10 @@ jobs:
       with:
         filters: |
           backend:
-            - 'server/**.ts'
-            - 'server/**.js'
-            - 'server/Dockerfile'
-            - 'server/**.json'
+            - 'server/**/**.ts'
+            - 'server/**/**.js'
+            - 'server/**/Dockerfile'
+            - 'server/**/**.json'
           frontend:
             - 'client/**'
   build:
