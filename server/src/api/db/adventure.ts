@@ -2,6 +2,7 @@ import { Insertable, Kysely, ReferenceExpression, Selectable, Transaction } from
 import db, { DatabaseSchema } from '.';
 import { AdventureTable } from '../../models/Adventure';
 import { getPresignedUrlForFile, getUserFilePath } from '../storage';
+import { log } from '../../app';
 
 export async function getPresignedAdventureFromId(
   user: string,
@@ -48,5 +49,6 @@ export async function upsertAdventure(
 }
 
 export async function deleteAdventureDb(id: number, trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db) {
+  log.info(`deleting adventure ${id}`)
   await trx.deleteFrom('adventure').where('id', '=', id).execute();
 }

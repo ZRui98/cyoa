@@ -15,7 +15,9 @@ import { SignInWithGoogleStrategy, verify as verifyGoogle } from './api/auth/Sig
 import { deserializeUser, serializeUser } from './api/auth/serializers';
 import { errorHandler } from './util/error';
 
-const logger = pino();
+const logger = pino({
+  level: process.env.PINO_LOG_LEVEL || 'info'
+});
 const app = fastify({
   logger,
   ajv: {

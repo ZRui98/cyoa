@@ -9,16 +9,6 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    https: {
-      key: fs.readFileSync('../ssl/domain.key'),
-      cert: fs.readFileSync('../ssl/domain.crt'),
-    },
-    hmr: {
-      host: 'localtest.me',
-      port: 5111,
-      clientPort: 5111,
-      protocol: 'wss',
-    },
     fs: {
       allow: ['./static'],
     },
