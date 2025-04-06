@@ -15,7 +15,7 @@ export function errorHandler(error: Error, _req: FastifyRequest, res: FastifyRep
     return;
   }
   res.code(500);
-  res.log.error(error, 'Unexpected error');
+  res.log.error(`Unexpected error ${error}`);
 }
 
 export function isApiError(e: Error): e is ApiError {
