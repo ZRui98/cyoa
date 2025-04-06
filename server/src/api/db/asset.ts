@@ -4,6 +4,7 @@ import { AdventureAssetTable, ManagedAssetResponse, ManagedAssetTable } from '..
 import { ApiError } from '../../util/error';
 import { decodeSqid, generateSqid } from '../../util/sqid';
 import { getUserFilePath } from '../storage';
+import { log } from '../../app';
 
 export async function getAllAssetsByUser(
   user: string,
@@ -49,7 +50,7 @@ export function getManagedAssetResponse(
     id: generateSqid(asset.id),
   };
   if (includePath) {
-    response.path = `https://${process.env.ASSET_BUCKET_NAME}.${process.env.STORAGE_URL}/${getUserFilePath(
+    response.path = `${process.env.STORAGE_URL}/${getUserFilePath(
       user,
       asset.fileName
     )}`;
@@ -75,6 +76,7 @@ export async function updateAdventureAssetDiff(
   trx: Transaction<DatabaseSchema> | Kysely<DatabaseSchema> = db
 ) {
   if (assetsToAdd?.length) {
+    log.debug(`adding assets: ${assetsToAdd}`);
     const assets = await getAllAssetsByUserAndNames(author, assetsToAdd, trx);
     const insertingRows = assets.reduce((acc, asset) => {
       const row: Insertable<AdventureAssetTable> = {
@@ -92,6 +94,7 @@ export async function updateAdventureAssetDiff(
   }
 
   if (assetsToRemove?.length) {
+    log.debug(`removing assets ${assetsToRemove}`);
     const assets = await getAllAssetsByUserAndNames(author, assetsToRemove);
     await trx
       .deleteFrom('adventure_asset')

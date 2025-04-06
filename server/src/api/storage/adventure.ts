@@ -7,18 +7,29 @@ import { Adventure, AdventureTable, AdventureMetaData, isAdventure } from '../..
 import { isManagedExportableAsset } from '../../models/Asset';
 import { Node } from '../../models/Node';
 import { ApiError } from '../../util/error';
+import { NoSuchKey } from '@aws-sdk/client-s3';
+import { log } from '../../app';
 
 async function getAdventureAndJSON(user: string, adventureName: string) {
   const existingAdventure = await getAdventureFromDb({ author: user, name: adventureName });
-  if (!existingAdventure) throw new ApiError(404, 'adventure not found');
+  if (!existingAdventure) {
+    return null;
+  }
   const filePath = getUserFilePath(user, existingAdventure.fileName, '.json');
   let oldAdventure: Adventure | undefined;
-  let body = await (
-    await s3.getObject({
+  let body;
+  try {
+    const response = await s3.getObject({
       Bucket: process.env.STORY_BUCKET_NAME,
       Key: filePath,
     })
-  ).Body?.transformToString();
+    body = await (response).Body?.transformToString();
+  } catch(e) {
+    if (e !instanceof NoSuchKey) {
+      log.error(`Couldn't find ${filePath} in bucket`)
+      throw new ApiError(500, "Something went wrong fetching adventure json from s3");
+    }
+  }
   if (body) {
     oldAdventure = JSON.parse(body) as Adventure;
   }
@@ -61,7 +72,11 @@ export async function saveAdventure(user: string, adventure: Adventure) {
 }
 
 export async function updateAdventure(user: string, adventure: Adventure | AdventureMetaData, name: string) {
-  const { adventureContent, existingAdventure } = await getAdventureAndJSON(user, name);
+  const data = await getAdventureAndJSON(user, name);
+  if (!data) {
+    throw new ApiError(500, "Unable to delete adventure");
+  }
+  const { adventureContent, existingAdventure } = data;
   const filePath = getUserFilePath(user, existingAdventure.fileName, '.json');
 
   if (!adventureContent) throw new ApiError(404, 'unable to find story file');
@@ -139,7 +154,12 @@ export async function updateAdventure(user: string, adventure: Adventure | Adven
 }
 
 export async function deleteAdventure(user: string, name: string) {
-  const { adventureContent, existingAdventure } = await getAdventureAndJSON(user, name);
+  const data = await getAdventureAndJSON(user, name);
+  if (!data) {
+    log.error("error finding adventure")
+    throw new ApiError(500, "Unable to delete adventure");
+  }
+  const { adventureContent, existingAdventure } = data;
   const filePath = getUserFilePath(user, existingAdventure.fileName, '.json');
   const oldUniqueAdventureAssetIds = new Set<string>(
     Object.values(adventureContent!.nodes).reduce((acc: string[], node: Node) => {
@@ -148,13 +168,13 @@ export async function deleteAdventure(user: string, name: string) {
     }, [])
   );
 
-  await db.transaction().execute(async () => {
-    await updateAdventureAssetDiff(user, existingAdventure.id, { assetsToRemove: [...oldUniqueAdventureAssetIds] });
-    await deleteAdventureDb(existingAdventure.id);
-  });
-  await s3.deleteObject({
-    Bucket: process.env.STORY_BUCKET_NAME,
-    Key: filePath,
+  await db.transaction().execute(async (trx) => {
+    await updateAdventureAssetDiff(user, existingAdventure.id, { assetsToRemove: [...oldUniqueAdventureAssetIds] }, trx);
+    await deleteAdventureDb(existingAdventure.id, trx);
+    await s3.deleteObject({
+      Bucket: process.env.STORY_BUCKET_NAME,
+      Key: filePath,
+    });
   });
 }
 
