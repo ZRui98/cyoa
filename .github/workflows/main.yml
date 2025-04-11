@@ -28,8 +28,10 @@ jobs:
             - 'server/**/**.js'
             - 'server/**/Dockerfile'
             - 'server/**/**.json'
+            - '.github/workflows/main.yml'
           frontend:
             - 'client/**'
+            - '.github/workflows/main.yml'
   build:
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
@@ -119,8 +121,7 @@ jobs:
             ${{ env.DOCKERHUB_REPO }}
           tags: |
             type=raw,value=latest
-            type=sha,format=long,prefix=,suffix=
-
+            type=raw,value={{sha}}-{{date 'YYYYMMDDHHmmss'}}
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
