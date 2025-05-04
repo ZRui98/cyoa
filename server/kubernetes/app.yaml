@@ -85,7 +85,7 @@ spec:
           value: cyoa-assets
         - name: LOGIN_REDIRECT_URL
           value: https://cyoa.zrui.dev/activate
-        image: zrui98/cyoa-server:ea785d4-20250411004702
+        image: zrui98/cyoa-server:77794d9-20250504062306
         imagePullPolicy: IfNotPresent
         name: cyoa-server
         volumeMounts:
