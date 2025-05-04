@@ -11,13 +11,13 @@ export async function load({ url, fetch }) {
     if (!get(loginState)) {
       const newLoginState = await getUserStatus(fetch);
       loginState.set(newLoginState);
-      if (!newLoginState?.user && url.pathname !== '/login/') {
+      if (!newLoginState?.user && /\/login\/?$/.test(url.pathname)) {
         throw redirect(308, '/login');
       }
-      if (!newLoginState?.activated && url.pathname !== '/activate/') {
+      if (!newLoginState?.activated && !/\/activate\/?$/.test(url.pathname)) {
         throw redirect(308, '/activate');
       }
-      if (newLoginState?.activated && url.pathname === '/activate/') {
+      if (newLoginState?.activated && /\/activate\/?$/.test(url.pathname)) {
         throw redirect(308, '/');
       }
     }
