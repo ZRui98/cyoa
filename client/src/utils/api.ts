@@ -141,6 +141,14 @@ export async function activateUser(
   return resp;
 }
 
+export async function logout(fetchImpl?: FetchFunction) {
+  const url = `${getBaseUrl()}/auth/logout`;
+  await fetchApi(url, fetchImpl, {
+    method: 'POST',
+    credentials: 'include'
+  });
+}
+
 async function fetchApi<T>(url: string, fetchImpl = fetch, options?: RequestInit): Promise<T> {
   const resp = await fetchImpl(url, { ...options });
   const text = await resp.text();

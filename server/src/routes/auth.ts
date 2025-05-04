@@ -34,6 +34,7 @@ const routes = (app: FastifyInstance, _opts, next) => {
   app.post('/logout', {
     handler: async function (req: FastifyRequest, res: FastifyReply) {
       req.logOut();
+      res.code(200);
     },
   });
 

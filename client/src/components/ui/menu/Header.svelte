@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { Moon, User, Lightbulb } from 'lucide-svelte';
+  import { Moon, User, Lightbulb, LogIn, LogOut } from 'lucide-svelte';
   import loginState from '../../../store/loginState';
   import { theme } from '../../../store/settings';
   import { onDestroy, onMount } from 'svelte';
   import { derived, type Unsubscriber } from 'svelte/store';
+  import { logout } from '../../../utils/api';
+  import { goto } from '$app/navigation';
 
   let isLoggedIn = derived(loginState, (state) => state?.user !== undefined);
   let unsub: Unsubscriber | undefined;
@@ -16,6 +18,12 @@
       }
     });
   });
+
+  async function onLogout() {
+    await logout();
+    loginState.set(undefined);
+    await goto('/');
+  }
 
   onDestroy(() => {
     if (unsub) unsub();
@@ -45,8 +53,9 @@
     </button>
     {#if $isLoggedIn}
       <a class="left-panel button" href={`/user/${$loginState?.user}`}><User display="block" size={21} /></a>
+      <a class="left-panel button" href={'#'} on:click={onLogout}><LogOut display="block" size={21} /></a>
     {:else}
-      <a href="/login" class="button static-padding">Log in</a>
+      <a href="/login" class="button static-padding"><LogIn display="block" size={21} /></a>
     {/if}
   </div>
 </header>
