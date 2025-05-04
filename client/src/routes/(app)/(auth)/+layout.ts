@@ -6,6 +6,8 @@ import { redirect } from '@sveltejs/kit';
 
 export async function load({ url, fetch }) {
   if (browser) {
+    console.log("in browser block");
+    console.log(url.pathname)
     if (!get(loginState)) {
       const newLoginState = await getUserStatus(fetch);
       loginState.set(newLoginState);
