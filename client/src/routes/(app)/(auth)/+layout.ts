@@ -1,11 +1,11 @@
-import { browser } from '$app/environment';
+import { BROWSER } from 'esm-env';
 import { get } from 'svelte/store';
 import loginState from '../../../store/loginState';
 import { getUserStatus } from '../../../utils/api';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ url, fetch }) {
-  if (browser) {
+  if (BROWSER) {
     console.log("in browser block");
     console.log(url.pathname)
     if (!get(loginState)) {

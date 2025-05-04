@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import { browser } from '$app/environment';
+import { BROWSER } from 'esm-env';
 
 interface ThemeSettings {
   darkMode: boolean;
@@ -34,11 +34,11 @@ const defaultSettings: Settings = {
   },
 };
 
-let localStorageSettings = browser && localStorage.getItem('settings');
+let localStorageSettings = BROWSER && localStorage.getItem('settings');
 const storedSettings = localStorageSettings ? JSON.parse(localStorageSettings) : defaultSettings;
 export const settings = writable<Settings>(storedSettings);
 settings.subscribe((value) => {
-  if (!browser) return;
+  if (!BROWSER) return;
   localStorage?.setItem('settings', JSON.stringify(value));
 });
 
