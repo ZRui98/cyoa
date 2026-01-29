@@ -22,7 +22,7 @@
     "@fastify/secure-session": "^7.3.0",
     "better-sqlite3": "^9.0.0",
     "kysely": "^0.27.5",
-    "kysely-ctl": "^0.11.1"
+    "kysely-ctl": "^0.13.0"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.347.0",
